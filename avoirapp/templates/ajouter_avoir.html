@@ -1,0 +1,49 @@
+<!-- templates/ajouter_avoir.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Ajouter Avoir{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Ajouter Avoir</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+
+
+                    <div class="form-group row">
+                        <label for="{{ form.montant.id_for_label }}" class="col-sm-3 col-form-label text-right">Montant:</label>
+                        <div class="col-sm-9">
+                            {{ form.montant }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="{{ form.description.id_for_label }}" class="col-sm-3 col-form-label text-right">Description:</label>
+                        <div class="col-sm-9">
+                            {{ form.description }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="{{ form.facture.id_for_label }}" class="col-sm-3 col-form-label text-right">Facture (PDF only):</label>
+                        <div class="col-sm-9">
+                            {{ form.facture }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button type="submit" class="btn btn-primary">Ajouter Avoir</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

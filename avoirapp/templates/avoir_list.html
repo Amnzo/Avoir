@@ -1,0 +1,41 @@
+<!-- templates/avoir_list.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Liste des Avoirs{% endblock %}
+
+{% block content %}
+    <h2>Liste des Avoirs</h2>
+
+    <table class="table table-striped">
+        
+            <thead style="background-color: #007BFF; color: #FFFFFF;">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Client</th>
+                <th scope="col">Montant</th>
+                <th scope="col">Date d'Ajout</th>
+                <th scope="col">Description</th>
+                <th scope="col">Facture</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for avoir in avoirs %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ avoir.client.nom }}</td>
+                    <td>{{ avoir.montant }}</td>
+                    <td>{{ avoir.date_ajout }}</td>
+                    <td>{{ avoir.description }}</td>
+                    <td>
+                        {% if avoir.facture %}
+                            <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

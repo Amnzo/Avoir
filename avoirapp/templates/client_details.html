@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Client Details{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">{{ client.nom }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Name:</strong> {{ client.nom }} {{ client.prenom }}</p>
+                        <p class="mb-2"><strong>Email:</strong> {{ client.email }}</p>
+                        <p class="mb-2"><strong>Telephone:</strong> {{ client.telephone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card {% if client.total_avoir_client == 0 %}bg-danger{% else %}bg-warning{% endif %} mb-3">
+                            <div class="card-body">
+                                <p class="mb-2"><strong>Total Avoir Solde:</strong> {{ client.total_avoir_client }} DH</p>
+                            </div>
+                        </div>
+                        <!-- Add more details as needed -->
+                        <!-- Buttons for Ajouter Avoir and Consommer Avoir -->
+                        <div class="mt-3">
+                            <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">Ajouter Avoir</a>
+                            <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">Consommer Avoir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

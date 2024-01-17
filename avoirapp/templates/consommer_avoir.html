@@ -1,0 +1,38 @@
+<!-- templates/consommer_avoir.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Consommer Avoir{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Consommer Avoir</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row">
+                        <label for="{{ form.montant_a_consommer.id_for_label }}" class="col-sm-3 col-form-label text-right">Montant à Consommer:</label>
+                        <div class="col-sm-9">
+                            {{ form.montant_a_consommer }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="{{ form.description.id_for_label }}" class="col-sm-3 col-form-label text-right">Description:</label>
+                        <div class="col-sm-9">
+                            {{ form.description }}
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success">Consommer Avoir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
