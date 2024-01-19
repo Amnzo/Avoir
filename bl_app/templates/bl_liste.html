@@ -1,0 +1,60 @@
+{% extends 'base_bl.html' %}
+
+{% block title %} BL app {% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        
+        
+        <div class="container">
+                                {% if messages %}
+                        <ul class="messages">
+                            {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+            <a href="{% url 'index' %}" class="btn btn-success mb-4">AJOUTER</a>
+            <div class="card">
+                <div class="card-header" style="background-color: #4CAF50; color: white;">
+                    <h2 class="mb-0">LISTE DES BONS DE LIVRAISON</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>DATE DE BL</th>
+                                <th>NOM CLIENT</th>
+                                <th>DATE DE CMD</th>
+                                <th>No BL</th>
+                                {% if user.is_superuser %}
+                                <th>Action</th>
+                                {% endif %}
+                               
+                            </tr>
+                        </thead>
+                        <tbody>
+                           
+                            {% for item in bl_data %}
+                                <tr>
+                                    <td>{{item.date_de_bl}}</td>
+                                    <td>{{item.client}}</td>
+                                    <td>{{item.date_de_bl}}</td>
+                                    <td>{{item.id}}</td>
+                                    {% if user.is_superuser %}
+                                    <td>
+                                        <a href="{% url 'generate_pdf' bon_commande_id=item.id %}" class="text-primary"><i class="bi bi-download"></i></a>
+                                        <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
+                                        <a href="#" class="text-warning"><i class="bi bi-pencil"></i></a>
+                                    </td>
+                                    {% endif %}
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

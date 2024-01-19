@@ -1,0 +1,43 @@
+<!-- templates/add_client.html -->
+{% extends 'base.html' %}
+
+{% block title %}Ajouter Client{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Ajouter Client</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Bootstrap form styling -->
+                    <div class="form-group">
+                        <label for="{{ form.nom.id_for_label }}" class="form-label">Nom:</label>
+                        <input type="text" class="form-control" id="{{ form.nom.id_for_label }}" name="{{ form.nom.name }}" value="{{ form.nom.value }}" required oninput="this.value = this.value.toUpperCase()">
+                        {{ form.nom.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.prenom.id_for_label }}" class="form-label">Prénom:</label>
+                        <input type="text" class="form-control" id="{{ form.prenom.id_for_label }}" name="{{ form.prenom.name }}" value="{{ form.prenom.value }}" required oninput="this.value = this.value.toUpperCase()">
+                        {{ form.prenom.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.datenaissance.id_for_label }}" class="form-label">Date de Naissance:</label>
+                        <input type="date" class="form-control" id="{{ form.datenaissance.id_for_label }}" name="{{ form.datenaissance.name }}" value="{{ form.datenaissance.value }}" required>
+                        {{ form.datenaissance.errors }}
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success">Valider</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

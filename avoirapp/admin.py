@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Client, Avoir
+from .models import Client, Avoir, Famille
 from django.utils.html import format_html
 class AvoirAdmin(admin.ModelAdmin):
     list_display = ('client', 'montant', 'date_ajout', 'description', 'display_facture_link',"is_avoir")
@@ -33,3 +33,6 @@ class ClientAdmin(admin.ModelAdmin):
 
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Avoir,AvoirAdmin)
+class FamilleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'famille')
+admin.site.register(Famille,FamilleAdmin)

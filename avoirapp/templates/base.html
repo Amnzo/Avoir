@@ -4,62 +4,171 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Your Store{% endblock %}</title>
+    <title>{% block title %}Gestion des Crédits {% endblock %}</title>
+    
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <style>
-        /* Custom styling for the navbar */
-        .navbar-custom {
-            background-color: #007BFF; /* Blue color */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
         }
 
-        .navbar-custom .navbar-brand,
-        .navbar-custom .navbar-nav .nav-link {
-            color: #FFFFFF; /* White color */
+        .wrapper {
+            display: flex;
         }
 
-        .navbar-custom .navbar-toggler-icon {
-            background-color: #FFFFFF; /* White color */
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #007BFF;
+            color: #ffffff;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100%;
         }
 
-        .navbar-custom .navbar-toggler {
-            border-color: #FFFFFF; /* White color */
+        #sidebar.active {
+            min-width: 80px;
+            max-width: 80px;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            text-align: center;
+        }
+
+        #sidebar .sidebar-header h3 {
+            margin-bottom: 0;
+            color: #ffffff;
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid #0056b3;
+        }
+
+        #sidebar ul li a {
+            padding: 15px;
+            font-size: 1.1em;
+            display: block;
+            color: #dfe3e8;
+            transition: all 0.3s;
+        }
+
+        #sidebar ul li a:hover {
+            color: #ffffff;
+            background: #0056b3;
+            text-decoration: none;
+        }
+
+        #sidebar ul li.active > a,
+        a[aria-expanded="true"] {
+            color: #ffffff;
+            background: #0056b3;
+        }
+
+        #content {
+            width: 100%;
+            padding: 20px;
+            transition: all 0.3s;
+            margin-left: 250px;
+        }
+
+        #content.active {
+            margin-left: 80px;
+        }
+
+        #sidebarCollapse {
+            width: 40px;
+            height: 40px;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            background: transparent;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ffffff;
+            font-size: 1.5em;
+        }
+
+        #sidebarCollapse:hover {
+            color: #0056b3;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand"  href="{% url 'client' %}">Avoir Management</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'avoir' %}">Avoir</a>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <button type="button" id="sidebarCollapse" class="btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="sidebar-header">
+                
+                <h3><i class="fas fa-euro-sign"></i></h3>
+            </div>
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="{% url 'avoir' %}" title="Avoir">
+                        <i class="fas fa-dollar-sign"></i> Crédit
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'client' %}">Client</a>
+                <li class="active">
+                    <a href="{% url 'client' %}" title="Client">
+                        <i class="fas fa-users"></i> Client
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="{% url 'compte_rendu' %}" title="Client">
+                        <i class="far fa-calendar-alt"></i> Compte Rendu
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'client' %}" title="Client">
+                        <i class="fas fa-undo"></i> Gestion Retour
+                    </a>
                 </li>
                 <!-- Add more links as needed -->
+                <li>
+                    <a href="{% url 'logout' %}" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
             </ul>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock %}
+        <!-- Page Content -->
+        <div id="content">
+            <div class="container mt-4">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Custom JS -->
     
+    <!-- Custom JS for sidebar toggle -->
+    <script>
+        $(document).ready(function () {
+            $("#sidebarCollapse").on("click", function () {
+                $("#sidebar").toggleClass("active");
+                $("#content").toggleClass("active");
+            });
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,37 +1,44 @@
-<!-- templates/ajouter_avoir.html -->
-
 {% extends 'base.html' %}
-
+{% load tz %}
 {% block title %}Ajouter Avoir{% endblock %}
 
 {% block content %}
     <div class="container mt-5">
         <div class="card">
-            <div class="card-header bg-primary text-white text-center">
-                <h2 class="mb-0">Ajouter Avoir</h2>
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0 text-center">Ajouter Avoir</h2>
             </div>
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data" class="form">
                     {% csrf_token %}
 
+                    <!-- Hidden field for logged-in user -->
+                    <div class="form-group row">
+                        <label for="{{ form.user.id_for_label }}" class="col-sm-3 col-form-label text-right">User:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="{{ form.user.id_for_label }}" name="{{ form.user.name }}" value="{{ request.user.username }}" readonly>
+                        </div>
+                    </div>
 
+                    <!-- Hidden field for date and time of the operation -->
+                    <div class="form-group row">
+                        <label for="{{ form.operation_datetime.id_for_label }}" class="col-sm-3 col-form-label text-right"> Date :</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="{{ form.operation_datetime.id_for_label }}" name="{{ form.operation_datetime.name }}"  value="{% now 'Y-m-d H:i:s' %}" readonly>
+                        </div>
+                    </div>
 
                     <div class="form-group row">
                         <label for="{{ form.montant.id_for_label }}" class="col-sm-3 col-form-label text-right">Montant:</label>
                         <div class="col-sm-9">
-                            {{ form.montant }}
+                            <input type="number" class="form-control" id="{{ form.montant.id_for_label }}" name="{{ form.montant.name }}" value="{{ form.montant.value }}" step="0.01" min="0" required>
                         </div>
                     </div>
+                   
+
 
                     <div class="form-group row">
-                        <label for="{{ form.description.id_for_label }}" class="col-sm-3 col-form-label text-right">Description:</label>
-                        <div class="col-sm-9">
-                            {{ form.description }}
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label for="{{ form.facture.id_for_label }}" class="col-sm-3 col-form-label text-right">Facture (PDF only):</label>
+                        <label for="{{ form.facture.id_for_label }}" class="col-sm-3 col-form-label text-right">Facture:</label>
                         <div class="col-sm-9">
                             {{ form.facture }}
                         </div>
