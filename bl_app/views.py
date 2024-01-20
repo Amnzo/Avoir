@@ -2,13 +2,16 @@
 from django.shortcuts import render,HttpResponse
 
 from django.contrib.auth.decorators import login_required
-
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from avoirapp.models import Client, Famille
 from .forms import CustomLoginForm
 from .models import Bon_Commande, Produit
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMessage
 # myapp/views.py
 from django.contrib.auth import authenticate, login,logout
 # Create your views here.
@@ -103,25 +106,114 @@ def bl_list(request):
     return render(request, 'bl_liste.html', {'bl_data': bl_data})
     #return render(request,'bl_liste.html')
 
-from django.http import HttpResponse
-from django.template.loader import get_template
-from django.template import Context
-from xhtml2pdf import pisa
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle,Spacer,Image
 def generate_pdf(request, bon_commande_id):
-    # Fetch the Bon_Commande object using the provided bon_commande_id
+   # Fetch the Bon_Commande object using the provided bon_commande_id
     bon_commande = Bon_Commande.objects.get(id=bon_commande_id)
 
-    # Your PDF generation logic here (replace this with your actual logic)
-    template_path = 'pdf.html'
-    context = {'bon_commande': bon_commande}
-    template = get_template(template_path)
-    html = template.render(context)
+    # Create an HttpResponse object with the content type 'application/pdf'
     response = HttpResponse(content_type='application/pdf')
+    # Set the content disposition header to specify the filename
     response['Content-Disposition'] = f'filename={bon_commande.id}_bon_commande.pdf'
 
-    # Create the PDF file
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('We had some errors with code %s <pre>%s</pre>' % (pisa_status.err, html))
+    # Set the width of the PDF document
+    pdf_doc = SimpleDocTemplate(response, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=18, width=500)
+
+    elements = []
+
     
-    return response
+
+    # Add store logo
+    elements.append(Spacer(1, 5))
+
+    # Add store and client information in the same row using nested tables
+    store_info_data = [
+        ["Livré  a "],
+        ["SCORTIS OPTIC"],
+        ["38 rue Saint Denis ,927000 COLOMBIS ,France"],
+        [""],
+        [""],
+
+    ]
+    store_info_table = Table(store_info_data, style=[
+        ('BACKGROUND', (0, 0), (-1, 0), colors.green),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+         ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Apply 'Helvetica-Bold' to the first cell
+    ])
+
+    client_info_data = [
+        ["Informations Acheteur"],
+        ["SCORTIS OPTIC"],
+        ["38 rue Saint Denis,927000 COLOMBIS,France"],
+        ["N de TVA INTRACEO : "],
+        ["FR123654789 "],
+    ]
+    client_info_table = Table(client_info_data, style=[
+        ('BACKGROUND', (0, 0), (-1, 0), colors.green),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),  # Apply 'Helvetica-Bold' to the first cell
+    ])
+
+    # Create a nested table to align store_info_table and client_info_table horizontally
+    nested_table_data = [
+        [store_info_table, Spacer(1, 10), client_info_table]
+    ]
+    nested_table = Table(nested_table_data, colWidths=[250, 50, 250])  # Adjust colWidths as needed
+
+    # Add the nested table to the elements list
+    elements.append(nested_table)
+    elements.append(Spacer(1, 20))
+    elements.append(nested_table)
+    elements.append(Spacer(1, 40))
+
+    # Add Bon de Commande header
+    bon_de_commande_data = [
+        ["Reference", "Designation", "Sphere", "Cylindre", "Axe", "OEIL", "Quantité"],
+        [bon_commande.produit_d.id, bon_commande.produit_d.nom, bon_commande.sphere_d,
+         bon_commande.cylindre_d, bon_commande.axe_d, "DROIT", bon_commande.quatite_d],
+        [bon_commande.produit_g.id, bon_commande.produit_g.nom, bon_commande.sphere_g,
+         bon_commande.cylindre_g, bon_commande.axe_g, "GAUCHE", bon_commande.quatite_g],
+    ]
+    bon_de_commande_table = Table(bon_de_commande_data, style=[
+        ('BACKGROUND', (0, 0), (-1, 0), colors.green),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+    ])
+    elements.append(bon_de_commande_table)
+
+    # Build the PDF document
+    pdf_doc.build(elements)
+
+    # Return the HttpResponse object with the generated PDF
+    subject = 'Your Bon de Commande'
+    message = 'Thank you for your order. Please find your Bon de Commande attached.'
+    from_email = 'salmi.ensa.ilsi@gmail.com'  # Replace with your email address
+    to_email = 'salmi.ensa.ilsi@gmail.com'  # Replace with the recipient's email address
+
+    email = EmailMessage(subject, message, from_email, [to_email])
+    email.attach(f'{bon_commande.id}_bon_commande.pdf', response.getvalue(), 'application/pdf')
+    email.send()
+
+    return HttpResponse('Email sent with PDF attachment.')
+
+
+
+
+
+
+
+def test_email(request):
+    subject = 'Test Email'
+    message = 'This is a test email from Django.'
+    from_email = settings.EMAIL_HOST_USER
+    recipient_list = ['recipient@example.com']
+
+    send_mail(subject, message, from_email, recipient_list)
+
+    return HttpResponse("Test email sent successfully.")

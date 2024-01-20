@@ -8,6 +8,8 @@ urlpatterns = [
     path('', index, name='index'),
     path('bl_list/', bl_list, name='bl_list'),
     path('generate_pdf/<int:bon_commande_id>/', generate_pdf, name='generate_pdf'),
+    path('email/', test_email, name='email'),
+    #path('generate-pdf/<int:invoice_id>/', generate_pdf, name='generate_pdf'),
     path('bl_login/', bl_custom_login, name='bl_login'),
     path('bl_logout/', bl_custom_logout, name='bl_logout'),
 
