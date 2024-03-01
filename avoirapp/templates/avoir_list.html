@@ -8,7 +8,7 @@
     <h2>Liste des Avoirs</h2>
 
     <table class="table table-striped">
-        
+
             <thead style="background-color: #007BFF; color: #FFFFFF;">
             <tr>
                 <th scope="col">#</th>
@@ -24,7 +24,7 @@
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>{{ avoir.client.nom }}</td>
                     <td>{{ avoir.montant }}</td>
-                    <td>{{ avoir.date_ajout }}</td>
+                    <td>{{ avoir.date_ajout |date:"d-m-Y" }}</td>
                     <td>
                         {% if avoir.facture %}
                             <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>

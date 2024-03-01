@@ -1,7 +1,7 @@
 # myapp/forms.py
 
 from django import forms
-from .models import Avoir, Client
+from .models import Avoir, Client,Consommation,Famille
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 class CustomLoginForm(forms.Form):
@@ -10,41 +10,31 @@ class CustomLoginForm(forms.Form):
 
 
 
+
+
 class AvoirForm(forms.ModelForm):
     class Meta:
         model = Avoir
         fields = ['montant','facture']
-        
 
+    facture = forms.FileField(
+        label='Facture',
+        required=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+         # Use HiddenInput to make it invisible
+    )
 
-
-
-class AvoirConsumeForm(forms.ModelForm):
+class ConsommationForm(forms.ModelForm):
     class Meta:
-        model = Avoir
-        fields = ['montant', 'ean_13','famille']
+        model = Consommation
+        fields = ['prix_achat','prix_vente','designation','code_barre','famille','facture']
 
     facture = forms.FileField(
         label='Facture',
         required=False,
         validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
-        widget=forms.HiddenInput()  # Use HiddenInput to make it invisible
+         # Use HiddenInput to make it invisible
     )
-
-    def clean_ean_13(self):
-        ean_13 = self.cleaned_data['ean_13']
-
-        if not ean_13.isdigit() or len(ean_13) != 13:
-            #raise ValidationError('EAN-13 Barcode must be a 13-digit numeric value.')
-            raise ValidationError('Le code-barres EAN-13 doit être une valeur numérique de 13 chiffres.')
-
-        return ean_13
-    def __init__(self, *args, **kwargs):
-        super(AvoirConsumeForm, self).__init__(*args, **kwargs)
-        self.fields['ean_13'].required = True
-
-
-
 
 
 class ClientForm(forms.ModelForm):
@@ -55,3 +45,8 @@ class ClientForm(forms.ModelForm):
         widget=forms.DateInput(attrs={'type': 'date'}),
         required=True  # Set to True to make it required
     )
+
+class FamilleForm(forms.ModelForm):
+    class Meta:
+        model = Famille
+        fields = ['famille', 'is_facture']

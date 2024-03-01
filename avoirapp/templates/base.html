@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Gestion des Crédits {% endblock %}</title>
-    
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Font Awesome CSS -->
@@ -107,22 +107,27 @@
     <div class="wrapper">
         <!-- Sidebar -->
         <nav id="sidebar">
-            <button type="button" id="sidebarCollapse" class="btn">
-                <i class="fas fa-bars"></i>
-            </button>
+
             <div class="sidebar-header">
-                
+
                 <h3><i class="fas fa-euro-sign"></i></h3>
             </div>
             <ul class="list-unstyled components">
-                <li class="active">
-                    <a href="{% url 'avoir' %}" title="Avoir">
-                        <i class="fas fa-dollar-sign"></i> Crédit
-                    </a>
-                </li>
+
+                   <li class="active">
+                        <a href="{% url 'familles' %}" title="Famille de catégories de produits">
+                            <i class="fas fa-sitemap"></i> FAMILLES
+                        </a>
+                    </li>
+
                 <li class="active">
                     <a href="{% url 'client' %}" title="Client">
-                        <i class="fas fa-users"></i> Client
+                        <i class="fas fa-users"></i> CLIENTS
+                    </a>
+                </li>
+                 <li class="active">
+                    <a href="{% url 'avoir' %}" title="Avoir">
+                        <i class="fas fa-dollar-sign"></i> ETAT CREDIT
                     </a>
                 </li>
 
@@ -158,7 +163,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
     <!-- Custom JS for sidebar toggle -->
     <script>
         $(document).ready(function () {

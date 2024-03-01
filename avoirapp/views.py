@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
 from django.http import HttpResponseBadRequest, JsonResponse
-from avoirapp.forms import AvoirConsumeForm, AvoirForm
-from .models import Avoir, Client, Famille
+from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
+
+from .models import Avoir, Client, Famille,Consommation
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 # myapp/views.py
@@ -39,15 +40,21 @@ def client(request):
 def avoir(request):
     #return render(request, 'avoir.html')
  # Query all Avoir instances where is_avoir is True
-    avoirs = Avoir.objects.filter(is_avoir=True)
+    avoirs = Avoir.objects.all()
 
     # Pass the queryset to the template
     return render(request, 'avoir_list.html', {'avoirs': avoirs})
 
 def client_details(request, client_id):
     client = get_object_or_404(Client, id=client_id)
+    avoirs = Avoir.objects.filter(client=client)
+    consomations = Consommation.objects.filter(client=client)
+    context = {
+        'client': client,
+        'avoirs': avoirs,
+        'consommations': consomations }
     # You can add additional logic or context data here if needed
-    return render(request, 'client_details.html', {'client': client})
+    return render(request, 'client_details.html', context)
 
 def ajouter_avoir(request, client_id):
     client = get_object_or_404(Client, id=client_id)
@@ -72,25 +79,25 @@ def consommer_avoir(request, client_id):
     print(client)
 
     if request.method == 'POST':
-        form = AvoirConsumeForm(request.POST, request.FILES)
+        form = ConsommationForm(request.POST, request.FILES)
         if form.is_valid():
-            
-            montant_a_consommer = form.cleaned_data['montant']
+            prix_achat = form.cleaned_data['prix_achat']
+            prix_vente = form.cleaned_data['prix_vente']
+            designation=form.cleaned_data['designation']
             print(f"famille={form.cleaned_data['famille']}")
-
             # Vérifier si le montant à consommer est valide
             total_avoir = client.total_avoir_client()
             print(client.total_avoir_client())
-            if montant_a_consommer <= total_avoir:
+            if prix_achat <= total_avoir:
                 # Créer une instance de modèle Avoir pour représenter la consommation
                 famille_name = form.cleaned_data['famille']
                 famille_instance = get_object_or_404(Famille, famille=famille_name)
-                Avoir.objects.create(
+                Consommation.objects.create(
                     client=client,
-                    montant=-montant_a_consommer,
-                    ean_13=form.cleaned_data['ean_13'],
-                    facture=form.cleaned_data['facture'],
-                    is_avoir=False,
+                    prix_achat=prix_achat,
+                    prix_vente=prix_achat,
+                    designation=designation,
+                    code_barre=form.cleaned_data['code_barre'],
                     famille=famille_instance
                 )
                 return redirect('client_details', client_id=client.id)
@@ -99,10 +106,28 @@ def consommer_avoir(request, client_id):
 
     else:
         #form = AvoirConsumeForm()
-        form = AvoirConsumeForm(initial={'ean_13': ''})
+        form = ConsommationForm(initial={'code_barre': ''})
         print("Avoir form to display in you page")
 
     return render(request, 'consommer_avoir.html', {'client': client, 'form': form})
+
+def familles(request):
+    familles=Famille.objects.all()
+    return render(request, 'familles.html', {'familles': familles})
+
+def add_famille(request):
+    #form = FamilleForm()
+    if request.method == 'POST':
+        is_facture=False
+        famille_name = request.POST.get('famille')
+        facture=request.POST.get('is_facture')
+        if facture=="on":
+                is_facture=True
+        Famille.objects.create(famille=famille_name,is_facture=is_facture)
+        return redirect('familles')
+    else:
+        return render(request, 'add_famille.html')
+
 
 
 
@@ -171,7 +196,7 @@ def generate_pdf(request):
 
     # Add content to the PDF
     pdf.drawString(100, 800, "Compte Rendu")
-    
+
     y_position = 780  # Starting Y position for the table
     for result in results:
         pdf.drawString(100, y_position, f"Famille: {result['famille__famille']}, Nombre: {result['nombre']}")

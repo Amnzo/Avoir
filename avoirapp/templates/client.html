@@ -6,8 +6,8 @@
 
 {% block content %}
     <div class="container mt-4">
-        <h2 class="text-center mb-4">Liste des clients </h2>
-        <a href="{% url 'add_client' %}" class="btn btn-success mb-4">Ajouter un client</a>
+        <h2 class="text-center mb-4">LISTE DES CLIENTS clients </h2>
+        <a href="{% url 'add_client' %}" class="btn btn-success mb-4">AJOUTER</a>
         <!-- Formulaire de recherche -->
         <form id="searchForm" class="mb-4">
             <div class="form-row">
@@ -24,28 +24,33 @@
         </form>
 
         <!-- Bouton "Ajouter Client" -->
-       
+
 
         <!-- Tableau des clients -->
         <table class="table table-bordered table-hover">
             <thead style="background-color: #007BFF; color: #FFFFFF;">
                 <tr>
-                    <th>Nom du client</th>
-                    <th>Date de naissance</th>
-                    <th>Solde Crédit</th>
-                    <th>Détails</th>
+                    <th>NOM</th>
+                     <th>prenom</th>
+                    <th>DATE NAISSANCE/th>
+                    <th>SOLDE</th>
+                    <th>DÉTAILS</th>
                 </tr>
             </thead>
             <tbody>
                 {% for client in clients %}
                     <tr>
-                        <td>{{ client.nom }} {{ client.prenom }}</td>
-                        <td>{{ client.datenaissance }}</td>
+                        <td>{{ client.nom }}</td>
+                        <td>{{ client.prenom }}</td>
+                        <td>{{ client.datenaissance |date:"d-m-Y" }}</td>
                         <td>{{ client.total_avoir_client }}</td>
                         <td>
                             <a href="{% url 'client_details' client.id %}">
                                 <i class="fas fa-eye text-primary" title="Voir les détails"></i>
                             </a>
+                            <a href="#">
+                            <i class="fas fa-edit text-secondary" title="Modifier"></i>
+                        </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -54,26 +59,28 @@
 
         <!-- JavaScript pour gérer la soumission du formulaire et mettre à jour le tableau -->
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const searchForm = document.getElementById("searchForm");
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchForm = document.getElementById("searchForm");
 
-                searchForm.addEventListener("submit", function(event) {
-                    event.preventDefault();
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
 
-                    const searchInput = document.getElementById("searchInput").value.toLowerCase();
-                    const tableRows = document.querySelectorAll(".table tbody tr");
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const tableRows = document.querySelectorAll(".table tbody tr");
 
-                    tableRows.forEach(function(row) {
-                        const clientName = row.querySelector("td:first-child").textContent.toLowerCase();
+            tableRows.forEach(function(row) {
+                const clientName = row.querySelector("td:first-child").textContent.toLowerCase();
+                const clientInfo = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
 
-                        if (clientName.includes(searchInput)) {
-                            row.style.display = "table-row";
-                        } else {
-                            row.style.display = "none";
-                        }
-                    });
-                });
+                if (clientName.includes(searchInput) || clientInfo.includes(searchInput)) {
+                    row.style.display = "table-row";
+                } else {
+                    row.style.display = "none";
+                }
             });
-        </script>
+        });
+    });
+</script>
+
     </div>
 {% endblock %}
