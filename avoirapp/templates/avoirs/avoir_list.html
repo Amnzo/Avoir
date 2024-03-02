@@ -1,6 +1,6 @@
 <!-- templates/avoir_list.html -->
 
-{% extends 'base.html' %}
+{% extends 'layout/base.html' %}
 
 {% block title %}Liste des Avoirs{% endblock %}
 
@@ -11,20 +11,22 @@
 
             <thead style="background-color: #007BFF; color: #FFFFFF;">
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Client</th>
-                <th scope="col">Montant</th>
-                <th scope="col">Date d'Ajout</th>
-                <th scope="col">Facture</th>
+                
+                <th scope="col">CLIENT</th>
+                <th scope="col">MONTANT</th>
+                <th scope="col">DATE AJOUT</th>
+                <th scope="col">CREATEUR</th>
+                <th scope="col">FACTURE</th>
             </tr>
         </thead>
         <tbody>
             {% for avoir in avoirs %}
                 <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ avoir.client.nom }}</td>
+                    
+                    <td>{{ avoir.client.nom }}-{{avoir.client.prenom}}</td>
                     <td>{{ avoir.montant }}</td>
                     <td>{{ avoir.date_ajout |date:"d-m-Y" }}</td>
+                    <td>{{ avoir.user }}</td>
                     <td>
                         {% if avoir.facture %}
                             <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>

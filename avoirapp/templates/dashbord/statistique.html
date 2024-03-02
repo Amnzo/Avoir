@@ -1,0 +1,80 @@
+{% extends 'layout/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<style>
+    .card {
+        height: 100%;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4">
+            <a href="{% url 'client' %}">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">NOMBRE DES CLIENTS</h5>
+                        <p class="card-text">{{ total_clients }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL CONSOMMATION</h5>
+                    <p class="card-text">{{ total_consomation  |floatformat:2  }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">TOTAL CREDIT </h5>
+                    <p class="card-text">{{ total_avoirs |floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">CONSOMMATION PAR FAMILLE</h5>
+                    <canvas id="consumptionByFamilyChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    var ctx = document.getElementById('consumptionByFamilyChart').getContext('2d');
+    var chartData = JSON.parse("{{ chart_data|escapejs }}");
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Consommation',
+                data: chartData.data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>
+{% endblock %}

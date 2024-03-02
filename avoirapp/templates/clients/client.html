@@ -1,13 +1,16 @@
 <!-- templates/client_list.html -->
 
-{% extends 'base.html' %}
+{% extends 'layout/base.html' %}
 
 {% block title %}Liste des clients{% endblock %}
 
 {% block content %}
     <div class="container mt-4">
-        <h2 class="text-center mb-4">LISTE DES CLIENTS clients </h2>
-        <a href="{% url 'add_client' %}" class="btn btn-success mb-4">AJOUTER</a>
+        <h2 class="text-center mb-4">LISTE DES CLIENTS </h2>
+        <a href="{% url 'add_client' %}" class="btn btn-primary mb-4">
+            <i class="fas fa-plus"></i> AJOUTER CLIENT
+        </a>
+        
         <!-- Formulaire de recherche -->
         <form id="searchForm" class="mb-4">
             <div class="form-row">
@@ -16,7 +19,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" oninput="this.value = this.value.toUpperCase()">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-primary">Rechercher</button>
+                            <button type="submit" class="btn btn-primary">RECHERCHE</button>
                         </div>
                     </div>
                 </div>
@@ -31,8 +34,8 @@
             <thead style="background-color: #007BFF; color: #FFFFFF;">
                 <tr>
                     <th>NOM</th>
-                     <th>prenom</th>
-                    <th>DATE NAISSANCE/th>
+                     <th>PRENOM</th>
+                    <th>DATE NAISSANCE</th>
                     <th>SOLDE</th>
                     <th>DÉTAILS</th>
                 </tr>
@@ -43,7 +46,7 @@
                         <td>{{ client.nom }}</td>
                         <td>{{ client.prenom }}</td>
                         <td>{{ client.datenaissance |date:"d-m-Y" }}</td>
-                        <td>{{ client.total_avoir_client }}</td>
+                        <td>{{ client.total_avoir_client |floatformat:2 }}</td>
                         <td>
                             <a href="{% url 'client_details' client.id %}">
                                 <i class="fas fa-eye text-primary" title="Voir les détails"></i>

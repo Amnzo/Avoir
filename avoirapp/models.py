@@ -2,7 +2,8 @@
 
 from django.db import models
 from django.core.validators import FileExtensionValidator
-
+from django.contrib.auth.models import User
+from django.utils import timezone
 class Client(models.Model):
     nom = models.CharField(max_length=100, unique=True)
     prenom = models.CharField(max_length=100, blank=True, null=True)
@@ -14,7 +15,7 @@ class Client(models.Model):
         return f' {self.nom} {self.prenom} '
 
     def total_consommation_client(self):
-        return self.consommation_set.aggregate(models.Sum('prix_achat'))['prix_achat__sum'] or 0
+        return self.consommation_set.aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
 
 
     def total_avoir_client(self):
@@ -32,6 +33,7 @@ def upload_invoice_path(instance, filename):
 class Famille(models.Model):
     famille = models.CharField(max_length=255)
     is_facture=models.BooleanField(default=False)
+    is_active=models.BooleanField(default=True)
     # Other fields for the Family model can be added here
 
     def __str__(self):
@@ -40,7 +42,8 @@ class Famille(models.Model):
 class Avoir(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
-    date_ajout = models.DateField(auto_now_add=True)
+    date_ajout = models.DateTimeField(default=timezone.now)
+    #date_de_cmd = models.
     #description = models.TextField(blank=True, null=True)
     #ean_13 = models.CharField(max_length=13, verbose_name='EAN-13 Barcode', blank=False ,null=True)
     facture = models.FileField(
@@ -49,6 +52,7 @@ class Avoir(models.Model):
          blank=True ,  # La facture est obligatoire
          null=True
     )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False,default=1)
     #is_avoir = models.BooleanField(default=True)
     #famille = models.ForeignKey(Famille, on_delete=models.SET_NULL, null=True, blank=False)
 
@@ -60,9 +64,9 @@ class Consommation(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     prix_achat = models.DecimalField(max_digits=10, decimal_places=2)
     prix_vente = models.DecimalField(max_digits=10, decimal_places=2)
-    date_ajout = models.DateField(auto_now_add=True)
+    date_ajout = models.DateTimeField(default=timezone.now)
     designation = models.TextField(blank=False, null=False)
-    code_barre = models.CharField(max_length=13, verbose_name='EAN-13 Barcode', blank=False ,null=True)
+    code_barre = models.CharField(max_length=25, verbose_name='EAN-13 Barcode', blank=False ,null=True)
     facture = models.FileField(
         upload_to=upload_invoice_path,
         validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
@@ -70,6 +74,7 @@ class Consommation(models.Model):
          null=True
     )
     famille = models.ForeignKey(Famille, on_delete=models.SET_NULL, null=True, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False,default=1)
 
     def __str__(self):
         return f"{self.client.nom} - {self.prix_achat} Dh"

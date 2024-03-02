@@ -1,9 +1,16 @@
-{% extends 'base.html' %}
+{% extends 'layout/base.html' %}
 
 {% block title %}Détail Client{% endblock %}
 
 {% block content %}
 <div class="container">
+    {% if messages %}
+    <ul class="message-list">
+    {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
     <div class="card mt-5">
         <div class="card-header bg-primary text-white">
             <h2 class="mb-0">{{ client.nom }}</h2>
@@ -11,7 +18,7 @@
 
         <ul class="nav nav-tabs" id="myTabs">
             <li class="nav-item">
-                <a class="nav-link active" id="client-details-tab" data-toggle="tab" href="#client-details">Détail Client</a>
+                <a class="nav-link active" id="client-details-tab" data-toggle="tab" href="#client-details">DÉTAIL CLIENT</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="consomption-tab" data-toggle="tab" href="#consomption">HISTORIQUE CONSOMATIONS</a>
@@ -27,21 +34,18 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p class="mb-2"><strong>Nom:</strong> {{ client.nom }} {{ client.prenom }}</p>
-                            <p class="mb-2"><strong>Prénom:</strong> {{ client.email }}</p>
-                            <p class="mb-2"><strong>Date de naissancee:</strong> {{ client.datenaissance |date:"d-m-Y" }}</p>
+                            <p class="mb-2"><strong>NOM : </strong> {{ client.nom }} </p>
+                            <p class="mb-2"><strong>PRENOM : </strong> {{ client.prenom }}</p>
+                            <p class="mb-2"><strong>DATE DE NAISSANCE : </strong> {{ client.datenaissance |date:"d/m/Y" }}</p>
                         </div>
                         <div class="col-md-6">
                             <div class="card {% if client.total_avoir_client == 0 %}bg-danger{% else %}bg-warning{% endif %} mb-3">
                                 <div class="card-body">
-                                    <p class="mb-2"><strong>Solde Crédit :</strong> {{ client.total_avoir_client }} DH</p>
+                                    <p class="mb-2"><strong>SOLDE CREDIT :</strong> {{ client.total_avoir_client |floatformat:2 }} DH</p>
                                 </div>
                             </div>
                             <!-- Buttons for Ajouter Avoir and Consommer Avoir -->
-                            <div class="mt-3">
-                                <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">AJOUTER CREDIT</a>
-                                <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMATION </a>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -50,22 +54,37 @@
             <!-- Consomption History Tab -->
             <div class="tab-pane fade" id="consomption">
                 <div class="card-body">
-                    <h5 class="card-title">Historique des Consommations</h5>
+                    <h5 class="card-title">HISTORIQUE DES CONSOMMATIONS</h5>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col">PRIX ACHAT </th>
-                                    <th scope="col">PRIX VENTE TTC</th>
+                                   
+                                    <th scope="col">DESIGNATION </th>
+                                    <th scope="col">CODE BARRE</th>
+                                      <th scope="col">PRIX ACHAT </th>
+                                    <th scope="col">PRIX VENTE</th>
+                                    <th scope="col">CREATEUR</th>
                                     <th scope="col">DATE AJOUT</th>
+                                    <th scope="col">FACTURE</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for consomation in consommations %}
                                 <tr>
+                                   
+                                    <td>{{ consomation.designation }}</td>
+                                    <td>{{ consomation.code_barre }}</td>
                                     <td>{{ consomation.prix_achat }}</td>
                                      <td>{{ consomation.prix_vente }}</td>
+                                     <td>{{ consomation.user }}</td>
                                     <td>{{ consomation.date_ajout |date:"d-m-Y" }}</td>
+                                    {% if consomation.facture %}
+                                    <td>
+                                        <a href="{{ consomation.facture.url }}" target="_blank">Voir la facture</a>
+
+                                    </td>
+                                    {% endif%}
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -77,14 +96,15 @@
             <!-- Avoir History Tab -->
             <div class="tab-pane fade" id="avoir">
                 <div class="card-body">
-                    <h5 class="card-title">Historique des Crédits</h5>
+                    <h5 class="card-title">HISTORIQUE DES CRÉDITS</h5>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th scope="col">Montant</th>
-                                    <th scope="col">Date d'Ajout</th>
-                                    <th scope="col">Facture</th>
+                                    <th scope="col">MONTANT</th>
+                                    <th scope="col">DATE AJOUT</th>
+                                    <th scope="col">CREATEUR</th>
+                                    <th scope="col">FACTURE</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -92,8 +112,8 @@
                                 <tr>
                                     <td>{{ avoir.montant }}</td>
                                     <td>{{ avoir.date_ajout |date:"d-m-Y" }}</td>
+                                    <td>{{ avoir.user }}</td>
                                     <td>
-
                                         <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
 
                                     </td>
@@ -104,7 +124,13 @@
                     </div>
                 </div>
             </div>
+            
         </div>
+        
+    </div>
+    <div class="mt-3">
+        <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">AJOUTER CREDIT</a>
+        <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMATION </a>
     </div>
 </div>
 

@@ -7,7 +7,8 @@ def is_superuser(user):
     return user.is_superuser
 urlpatterns = [
     #path('', client, name='client'),
-    path('', client, name='client'),
+    path('',statistique,name='statistique'),
+    path('client/', client, name='client'),
     path('avoir/', avoir, name='avoir'),
     #path('compte_rendu/', compte_rendu, name='compte_rendu'),
     path('compte_rendu/', CompteRenduView.as_view(), name='compte_rendu'),
@@ -19,7 +20,8 @@ urlpatterns = [
     path('test/', test, name='test'),
     path('familles/', login_required(familles, login_url='bl_login'), name='familles'),
     path('add_famille/', user_passes_test(is_superuser, login_url='bl_login')(add_famille), name='add_famille'),
-    #path('edit_famille/<int:id>/', user_passes_test(is_superuser, login_url='bl_login')(edit_categorie), name='edit_categorie'),
+    path('fetch_is_facture/', fetch_is_facture, name='fetch_is_facture'),
+    path('edit_famille/<int:id>/', user_passes_test(is_superuser, login_url='bl_login')(edit_famille), name='edit_famille'),
 
     path('login/', custom_login, name='login'),
     path('logout/', custom_logout, name='logout'),

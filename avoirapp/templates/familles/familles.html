@@ -1,0 +1,88 @@
+<!-- templates/client_list.html -->
+
+{% extends 'layout/base.html' %}
+
+{% block title %}LISTE DES FAMILLES{% endblock %}
+
+{% block content %}
+<style>
+
+    /* Add these styles to your CSS */
+    input[type="checkbox"][disabled] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid;
+        border-radius: 4px;
+        cursor: not-allowed;
+    }
+    
+    input[type="checkbox"][disabled]:checked {
+        background-color: green;
+        border-color: green; /* Adjust border color */
+    }
+    
+    input[type="checkbox"][disabled]:not(:checked) {
+        background-color: red;
+        border-color: red; /* Adjust border color */
+    }
+    </style>
+    <div class="container mt-4">
+
+        {% if messages %}
+                            <ul class="message-list">
+                            {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                        
+        <h2 class="text-center mb-4">LISTE DES FAMILLES</h2>
+        
+        <a href="{% url 'add_famille' %}" class="btn btn-primary mb-4">
+            <i class="fas fa-plus"></i> AJOUTER FAMILLE
+        </a>
+        
+        <!-- Formulaire de recherche -->
+
+
+        <!-- Bouton "Ajouter Client" -->
+
+
+        <!-- Tableau des clients -->
+        <table class="table table-bordered table-hover">
+            <thead style="background-color: #007BFF; color: #FFFFFF;">
+                <tr>
+                    <th>FAMILLE</th>
+                    <th>ETAT</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for famille in familles %}
+                    <tr>
+                        <td>{{ famille.famille }}</td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" disabled {% if famille.is_active %}checked{% endif %}>
+                        </td>
+
+                        <td>
+                            <a href="{% url 'edit_famille' id=famille.id %}">
+                                <i class="fas fa-edit  text-primary" title="Voir les détails"></i>
+                            </a>
+
+                            <a href="#">
+                            <i class="fas fa-trash text-danger" title="Supprimer"></i>
+                        </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+
+    </div>
+{% endblock %}
