@@ -124,31 +124,30 @@ def dashboard(request):
 
 
 @login_required(login_url='login')
+
+
 def avoir(request):
     items_per_page = 8
+    
+    # Query for Avoirs and paginate the results
     avoirs = Avoir.objects.all().order_by('-date_ajout')
     paginator = Paginator(avoirs, items_per_page)
     page = request.GET.get('page')
     try:
-        # Get the Page object for the requested page
         avoirs = paginator.page(page)
     except PageNotAnInteger:
-        # If the page parameter is not an integer, show the first page
         avoirs = paginator.page(1)
     except EmptyPage:
-        # If the page parameter is out of range, show the last page
         avoirs = paginator.page(paginator.num_pages)
 
-
-    consommations = Consommation.objects.order_by('date_ajout')
-
-    # Grouper les consommations par année et mois
+    # Group Consommations by year and month
+    consommations = Consommation.objects.order_by('-date_ajout')
     consommations_groupes = defaultdict(list)
     for consommation in consommations:
         year_month = consommation.date_ajout.strftime('%Y-%m')
         consommations_groupes[year_month].append(consommation)
 
-    # Préparer les données pour le rendu dans le modèle
+    # Prepare data for rendering in the template
     data = []
     for year_month, consommations in consommations_groupes.items():
         year, month = map(int, year_month.split('-'))
@@ -157,9 +156,26 @@ def avoir(request):
             'mois': month,
             'consommations': consommations
         })
+    credits = Avoir.objects.order_by('-date_ajout')
+    # Group Avoirs by year and month
+    avoirs_groupes = defaultdict(list)
+    for credit in credits:
+        year_month = credit.date_ajout.strftime('%Y-%m')
+        avoirs_groupes[year_month].append(avoir)
 
-    #return render(request, 'produits/liste.html', {'products': products,'famille_list':famille_list})
-    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs,'data':data})
+    # Prepare data for rendering in the template
+    data2 = []
+    for year_month, credits in avoirs_groupes.items():
+        year, month = map(int, year_month.split('-'))
+        data2.append({
+            'annee': year,
+            'mois': month,
+            'credits': credits
+        })
+
+    # Return the rendered template with the data
+    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs, 'data': data, 'data2': data2})
+
 
 def consommation_periode(request):
     if request.method == 'POST':
