@@ -12,13 +12,13 @@
             <a href="{% url 'client' %}">
                 <div class="card bg-danger text-white">
                     <div class="card-body">
-                        <h5 class="card-title">NOMBRE DES CLIENTS</h5>
+                        <h5 class="card-title">NOMBRE DE CLIENTS</h5>
                         <p class="card-text">{{ total_clients }}</p>
                     </div>
                 </div>
             </a>
         </div>
-        
+
         <div class="col-md-4">
             <div class="card bg-success text-white">
                 <div class="card-body">
@@ -30,13 +30,13 @@
         <div class="col-md-4">
             <div class="card bg-info text-white">
                 <div class="card-body">
-                    <h5 class="card-title">TOTAL CREDIT </h5>
+                    <h5 class="card-title">SOLDE CREDIT CLIENT </h5>
                     <p class="card-text">{{ total_avoirs |floatformat:2 }}</p>
                 </div>
             </div>
         </div>
     </div>
- 
+
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card">

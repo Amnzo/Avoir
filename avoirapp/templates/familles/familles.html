@@ -18,12 +18,12 @@
         border-radius: 4px;
         cursor: not-allowed;
     }
-    
+
     input[type="checkbox"][disabled]:checked {
         background-color: green;
         border-color: green; /* Adjust border color */
     }
-    
+
     input[type="checkbox"][disabled]:not(:checked) {
         background-color: red;
         border-color: red; /* Adjust border color */
@@ -38,13 +38,13 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-                        
-        <h2 class="text-center mb-4">LISTE DES FAMILLES</h2>
-        
+
+        <h1 class="text-center mb-4">LISTE DES FAMILLES</h1>
+
         <a href="{% url 'add_famille' %}" class="btn btn-primary mb-4">
             <i class="fas fa-plus"></i> AJOUTER FAMILLE
         </a>
-        
+
         <!-- Formulaire de recherche -->
 
 
@@ -73,9 +73,7 @@
                                 <i class="fas fa-edit  text-primary" title="Voir les détails"></i>
                             </a>
 
-                            <a href="#">
-                            <i class="fas fa-trash text-danger" title="Supprimer"></i>
-                        </a>
+
                         </td>
                     </tr>
                 {% endfor %}

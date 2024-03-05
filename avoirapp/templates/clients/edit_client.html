@@ -1,0 +1,77 @@
+<!-- templates/add_client.html -->
+{% extends 'layout/base.html' %}
+
+{% block title %}Ajouter Client{% endblock %}
+
+{% block content %}
+<style>
+/* Style pour le champ input de type date */
+input[type="date"] {
+    /* Ajoutez vos styles personnalisés ici */
+    /* Par exemple */
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+/* Style pour le champ input de type date lorsqu'il est en focus */
+input[type="date"]:focus {
+    /* Ajoutez vos styles personnalisés ici */
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>
+
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">MODIFICATION FICHE : {{ form.nom.value|upper }} {{ form.prenom.value|upper }} </h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+
+                    <!-- Bootstrap form styling -->
+                    <div class="form-group">
+                        <label for="{{ form.nom.id_for_label }}" class="form-label">NOM :</label>
+                        <input type="text" class="form-control" id="{{ form.nom.id_for_label }}" name="{{ form.nom.name }}" value="{{ form.nom.value }}" required oninput="this.value = this.value.toUpperCase()">
+                        {{ form.nom.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.prenom.id_for_label }}" class="form-label">PRENOM :</label>
+                        <input type="text" class="form-control" id="{{ form.prenom.id_for_label }}" name="{{ form.prenom.name }}" value="{{ form.prenom.value }}" required oninput="this.value = this.value.toUpperCase()">
+                        {{ form.prenom.errors }}
+                    </div>
+
+                    <div class="form-group">
+
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text">DATE DE NAISSANCE : </span>
+        </div>
+        {{ form.datenaissance }}
+        {{ form.datenaissance.errors }}
+    </div>
+</div>
+
+
+
+
+
+                    <div class="text-center mt-3">
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> VALIDER
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

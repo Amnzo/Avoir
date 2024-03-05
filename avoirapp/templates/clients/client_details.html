@@ -11,10 +11,32 @@
     {% endfor %}
 </ul>
 {% endif %}
-    <div class="card mt-5">
-        <div class="card-header bg-primary text-white">
-            <h2 class="mb-0">{{ client.nom }}</h2>
+<div class="card mt-5">
+    <div class="card-header bg-primary text-white">
+        <div class="row">
+            <div class="col">
+                <h2>{{ client.nom | title }} {{ client.prenom | title }}</h2>
+            </div>
+            <div class="col text-end">
+                <div class="{% if client.total_avoir_client == 0 %}bg-danger{% else %}bg-warning{% endif %} rounded p-3">
+                    <div class="text-center"> <!-- Added text-center class here -->
+                        <p class="mb-0" style="color: black;"><strong>SOLDE CRÉDIT :</strong></p>
+                        <h4 class="mb-0">{{ client.total_avoir_client | floatformat:2 }} €</h4>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+    
+
+    <div class="card-body">
+        <!-- Contenu de la carte -->
+    </div>
+</div>
+
+
+
+
 
         <ul class="nav nav-tabs" id="myTabs">
             <li class="nav-item">
@@ -39,99 +61,100 @@
                             <p class="mb-2"><strong>DATE DE NAISSANCE : </strong> {{ client.datenaissance |date:"d/m/Y" }}</p>
                         </div>
                         <div class="col-md-6">
-                            <div class="card {% if client.total_avoir_client == 0 %}bg-danger{% else %}bg-warning{% endif %} mb-3">
-                                <div class="card-body">
-                                    <p class="mb-2"><strong>SOLDE CREDIT :</strong> {{ client.total_avoir_client |floatformat:2 }} DH</p>
-                                </div>
-                            </div>
+
                             <!-- Buttons for Ajouter Avoir and Consommer Avoir -->
-                            
+
                         </div>
                     </div>
+                    <div class="mt-3">
+        <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">AJOUTER CREDIT</a>
+        <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMATION </a>
+    </div>
                 </div>
+
             </div>
 
             <!-- Consomption History Tab -->
             <div class="tab-pane fade" id="consomption">
-                <div class="card-body">
-                    <h5 class="card-title">HISTORIQUE DES CONSOMMATIONS</h5>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                   
-                                    <th scope="col">DESIGNATION </th>
-                                    <th scope="col">CODE BARRE</th>
-                                      <th scope="col">PRIX ACHAT </th>
-                                    <th scope="col">PRIX VENTE</th>
-                                    <th scope="col">CREATEUR</th>
-                                    <th scope="col">DATE AJOUT</th>
-                                    <th scope="col">FACTURE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for consomation in consommations %}
-                                <tr>
-                                   
-                                    <td>{{ consomation.designation }}</td>
-                                    <td>{{ consomation.code_barre }}</td>
-                                    <td>{{ consomation.prix_achat }}</td>
-                                     <td>{{ consomation.prix_vente }}</td>
-                                     <td>{{ consomation.user }}</td>
-                                    <td>{{ consomation.date_ajout |date:"d-m-Y" }}</td>
-                                    {% if consomation.facture %}
-                                    <td>
-                                        <a href="{{ consomation.facture.url }}" target="_blank">Voir la facture</a>
+    <div class="card-body">
+        <div class="table-responsive">
+            <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success mb-3">AJOUTER CONSOMMATION</a>
+            {% if consommations %}
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">DESIGNATION</th>
+                        <th scope="col">CODE BARRE</th>
+                        <th scope="col">PRIX ACHAT</th>
+                        <th scope="col">PRIX VENTE</th>
+                        <th scope="col">CREATEUR</th>
+                        <th scope="col">DATE CONSOMMATION</th>
+                        <th scope="col">FACTURE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consomation in consommations %}
+                    <tr>
+                        <td>{{ consomation.designation|upper }}</td>
+                        <td>{{ consomation.code_barre }}</td>
+                        <td>{{ consomation.prix_achat }}</td>
+                        <td>{{ consomation.prix_vente }}</td>
+                        <td>{{ consomation.user|upper }}</td>
+                        <td>{{ consomation.date_ajout | date:"d-m-Y" }}</td>
+                        {% if consomation.facture %}
+                        <td>
+                            <a href="{{ consomation.facture.url }}" target="_blank">Voir la facture</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
-                                    </td>
-                                    {% endif%}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
 
             <!-- Avoir History Tab -->
-            <div class="tab-pane fade" id="avoir">
-                <div class="card-body">
-                    <h5 class="card-title">HISTORIQUE DES CRÉDITS</h5>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">MONTANT</th>
-                                    <th scope="col">DATE AJOUT</th>
-                                    <th scope="col">CREATEUR</th>
-                                    <th scope="col">FACTURE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for avoir in avoirs %}
-                                <tr>
-                                    <td>{{ avoir.montant }}</td>
-                                    <td>{{ avoir.date_ajout |date:"d-m-Y" }}</td>
-                                    <td>{{ avoir.user }}</td>
-                                    <td>
-                                        <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
-
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
+<div class="tab-pane fade" id="avoir">
+    <div class="card-body">
+        <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mb-3">AJOUTER CRÉDIT</a>
+         {% if avoirs %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">MONTANT</th>
+                        <th scope="col">DATE CREDIT</th>
+                        <th scope="col">CREATEUR</th>
+                        <th scope="col">FACTURE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avoir in avoirs %}
+                    <tr>
+                        <td>{{ avoir.montant }}</td>
+                        <td>{{ avoir.date_ajout | date:"d-m-Y" }}</td>
+                        <td>{{ avoir.user|upper }}</td>
+                        <td>
+                            <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
         </div>
-        
     </div>
-    <div class="mt-3">
-        <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">AJOUTER CREDIT</a>
-        <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMATION </a>
+</div>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
 
 <!-- JavaScript to handle Bootstrap tabs -->

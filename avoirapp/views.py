@@ -3,16 +3,18 @@ from django.db.models import Sum
 from django.http import HttpResponseBadRequest, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
-from .models import Avoir, Client, Famille,Consommation
+from .models import Avoir, Client, Famille,Consommation, Invoice
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Count
 import json
 from django.contrib import messages
+from django.utils import formats
 # myapp/views.py
 
 from django.contrib.auth import authenticate, login,logout
 from .forms import ClientForm, CustomLoginForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def custom_login(request):
     if request.method == 'POST':
@@ -24,7 +26,7 @@ def custom_login(request):
             if user is not None:
                 login(request, user)
                 # Redirect to a success page or home page
-                return redirect('client')  # Change 'home' to your actual home page URL
+                return redirect('statistique')  # Change 'home' to your actual home page URL
             else:
                 # Handle invalid login
                 form.add_error(None, 'Invalid login credentials')
@@ -37,6 +39,21 @@ def custom_login(request):
 @login_required(login_url='login')
 def client(request):
     clients = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id').all()
+    items_per_page = 8
+    paginator = Paginator(clients, items_per_page)
+         # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the Page object for the requested page
+        clients = paginator.page(page)
+    except PageNotAnInteger:
+        # If the page parameter is not an integer, show the first page
+        clients = paginator.page(1)
+    except EmptyPage:
+        # If the page parameter is out of range, show the last page
+        clients = paginator.page(paginator.num_pages)
+
     return render(request, 'clients/client.html', {'clients': clients})
     #return render(request, 'client.html')
 
@@ -46,7 +63,7 @@ def client(request):
 
 def statistique(request):
   # Fetching data from the database
-    families = Famille.objects.all()
+    families = Famille.objects.filter(is_active=True)
     consumption_data = []
     for family in families:
         consumption = Consommation.objects.filter(famille=family).count()
@@ -70,16 +87,89 @@ def statistique(request):
         'total_avoirs': total_avoirs
     }
     return render(request, 'dashbord/statistique.html', context)
+
+from datetime import datetime, timedelta
+import calendar
+from collections import defaultdict
+from django.db.models import Sum,functions,Count
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.utils import timezone
+from .models import Avoir, Consommation
+
+def dashboard(request):
+    # Filtrer les objets Consommation
+    consommations = Consommation.objects.order_by('date_ajout')
+
+    # Grouper les consommations par année et mois
+    consommations_groupes = defaultdict(list)
+    for consommation in consommations:
+        year_month = consommation.date_ajout.strftime('%Y-%m')
+        consommations_groupes[year_month].append(consommation)
+
+    # Préparer les données pour le rendu dans le modèle
+    data = []
+    for year_month, consommations in consommations_groupes.items():
+        year, month = map(int, year_month.split('-'))
+        data.append({
+            'annee': year,
+            'mois': month,
+            'consommations': consommations
+        })
+    print(data)
+    return render(request, 'dashbord/dashboard.html', {'data': data})
+
+
+    return HttpResponse("kkkkkkkk")
+
+
 @login_required(login_url='login')
 def avoir(request):
-    #return render(request, 'avoir.html')
- # Query all Avoir instances where is_avoir is True
-    #avoirs = Avoir.objects.all()
+    items_per_page = 8
     avoirs = Avoir.objects.all().order_by('-date_ajout')
+    paginator = Paginator(avoirs, items_per_page)
+    page = request.GET.get('page')
+    try:
+        # Get the Page object for the requested page
+        avoirs = paginator.page(page)
+    except PageNotAnInteger:
+        # If the page parameter is not an integer, show the first page
+        avoirs = paginator.page(1)
+    except EmptyPage:
+        # If the page parameter is out of range, show the last page
+        avoirs = paginator.page(paginator.num_pages)
 
 
-    # Pass the queryset to the template
-    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs})
+    consommations = Consommation.objects.order_by('date_ajout')
+
+    # Grouper les consommations par année et mois
+    consommations_groupes = defaultdict(list)
+    for consommation in consommations:
+        year_month = consommation.date_ajout.strftime('%Y-%m')
+        consommations_groupes[year_month].append(consommation)
+
+    # Préparer les données pour le rendu dans le modèle
+    data = []
+    for year_month, consommations in consommations_groupes.items():
+        year, month = map(int, year_month.split('-'))
+        data.append({
+            'annee': year,
+            'mois': month,
+            'consommations': consommations
+        })
+
+    #return render(request, 'produits/liste.html', {'products': products,'famille_list':famille_list})
+    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs,'data':data})
+
+def consommation_periode(request):
+    if request.method == 'POST':
+        start_date = request.POST.get('startDate')
+        end_date = request.POST.get('endDate')
+        consommations = Consommation.objects.filter(date_ajout__range=[start_date, end_date])
+        return render(request, 'avoirs/avoir_list.html', {'consommations': consommations})
+    else:
+        return render(request, 'votre_template.html', {})
+
 
 def client_details(request, client_id):
     client = get_object_or_404(Client, id=client_id)
@@ -126,7 +216,7 @@ def consommer_avoir(request, client_id):
             # Vérifier si le montant à consommer est valide
             total_avoir = client.total_avoir_client()
             print(client.total_avoir_client())
-            
+
             if prix_vente <= total_avoir:
                 # Créer une instance de modèle Avoir pour représenter la consommation
                 famille_name = form.cleaned_data['famille']
@@ -143,14 +233,14 @@ def consommer_avoir(request, client_id):
                     consommation.facture = facture
                     consommation.save()
                 messages.success(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE')
-               
+
                 return redirect('client_details', client_id=client.id)
             else:
-                
+
                 form.add_error('', f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {total_avoir:.2f} DH.")
         else:
              return render(request, 'avoirs/consommer_avoir.html', {'form': form, 'client': client})
-   
+
     else:
         #form = AvoirConsumeForm()
         form = ConsommationForm(initial={'code_barre': ''})
@@ -167,20 +257,24 @@ def add_famille(request):
     if request.method == 'POST':
         is_facture=False
         is_active=False
+        is_barre=False
         famille_name = request.POST.get('famille')
         facture=request.POST.get('is_facture')
         active=request.POST.get('is_active')
+        barre=request.POST.get('is_barre')
         if facture=="on":
                 is_facture=True
         if active=="on":
                 is_active=True
-        
-        Famille.objects.create(famille=famille_name,is_facture=is_facture,is_active=is_active)
+        if barre=="on":
+                is_barre=True
+
+        Famille.objects.create(famille=famille_name,is_facture=is_facture,is_active=is_active,is_barre=is_barre)
         messages.success(request, 'FAMILLE A BIEN ÉTÉ CRÉÉE')
         return redirect('familles')
     else:
         return render(request, 'familles/add_famille.html')
-    
+
 def edit_famille(request,id):
         famille=Famille.objects.get(pk=id)
         if request.method == 'POST':
@@ -188,6 +282,11 @@ def edit_famille(request,id):
             famille.famille=request.POST.get('famille')
             active=request.POST.get('is_active')
             facture=request.POST.get('is_facture')
+            barre=request.POST.get('is_barre')
+            if barre=="on":
+                famille.is_barre=True
+            else :
+                famille.is_barre=False
             if active=="on":
                 famille.is_active=True
             else :
@@ -200,13 +299,13 @@ def edit_famille(request,id):
 
             famille.save()
 
-           
+
             messages.success(request, 'FAMILLE A BIEN ÉTÉ MODIFIÉE')
 
             return redirect('familles')  # Redirect to the category list page
 
         return render(request, 'familles/edit_famille.html',{'famille':famille})
-    
+
 
 def fetch_is_facture(request):
     famille_id = request.GET.get('famille_id')
@@ -231,12 +330,28 @@ def add_client(request):
         form = ClientForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, f"VOUS AVEZ CREER LE CLIENT {form.cleaned_data['nom'].upper()} {form.cleaned_data['prenom'].upper()} AVEC SUCCÈS")
+
             return redirect('client')  # Replace 'client_list' with the URL name of the client list view
     else:
         #form = ClientForm()
         form = ClientForm(initial={'nom': '','prenom': '','datenaissance':''})
 
     return render(request, 'clients/add_client.html', {'form': form})
+
+def edit_client(request,id):
+    client = Client.objects.get(pk=id)
+    if request.method == 'POST':
+        form = ClientForm(request.POST,instance=client)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'VOUS AVEZ MODIFIÉ LE FICHIER DE {client.nom.upper()} {client.prenom.upper()} AVEC SUCCÈS')
+            return redirect('client')  # Replace 'client_list' with the URL name of the client list view
+    else:
+
+        form = ClientForm(instance=client)
+
+    return render(request, 'clients/edit_client.html', {'form': form})
 
 
 from django.db.models import Count

@@ -1,0 +1,36 @@
+
+{% extends 'layout/base.html' %}
+{% load tz %}
+{% block title %}Ajouter Avoir{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0 text-center">MODIFICATION  {{ famille}}</h2>
+            </div>
+            <div class="card-body">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Année/mois</th>
+                            <th>Mois</th>
+                            <th>Consommations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                        <tr>
+                            <td>{{ item.annee }}/{{ item.mois }}</td>
+                          
+                            <td>{{ item.consommations |length }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+               
+            </div>
+        </div>
+    </div>
+{% endblock %}

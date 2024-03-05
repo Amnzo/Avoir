@@ -5,12 +5,48 @@
 {% block title %}Liste des clients{% endblock %}
 
 {% block content %}
+<style>
+    .pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination-inner {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.pagination-link {
+    color: #333;
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 3px;
+}
+
+.current-page {
+    background-color: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 3px;
+}
+</style>
     <div class="container mt-4">
-        <h2 class="text-center mb-4">LISTE DES CLIENTS </h2>
+        {% if messages %}
+                            <ul class="message-list">
+                            {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+        <h1 class="text-center mb-4">LISTE DES CLIENTS </h1>
         <a href="{% url 'add_client' %}" class="btn btn-primary mb-4">
             <i class="fas fa-plus"></i> AJOUTER CLIENT
         </a>
-        
+
         <!-- Formulaire de recherche -->
         <form id="searchForm" class="mb-4">
             <div class="form-row">
@@ -43,15 +79,15 @@
             <tbody>
                 {% for client in clients %}
                     <tr>
-                        <td>{{ client.nom }}</td>
-                        <td>{{ client.prenom }}</td>
-                        <td>{{ client.datenaissance |date:"d-m-Y" }}</td>
+                        <td>{{ client.nom|upper }}  {{client.date_naissance}}</td>
+                        <td>{{ client.prenom|upper }}</td>
+                        <td>{{ client.datenaissance |date:"d/m/Y" }}</td>
                         <td>{{ client.total_avoir_client |floatformat:2 }}</td>
                         <td>
                             <a href="{% url 'client_details' client.id %}">
                                 <i class="fas fa-eye text-primary" title="Voir les détails"></i>
                             </a>
-                            <a href="#">
+                            <a href="{% url 'edit_client' client.id %}">
                             <i class="fas fa-edit text-secondary" title="Modifier"></i>
                         </a>
                         </td>
@@ -59,6 +95,25 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div class="pagination-inner">
+        {% if clients.has_previous %}
+            <a class="pagination-link" href="?page=1">&laquo; First</a>
+            <a class="pagination-link" href="?page={{ clients.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        {% for num in clients.paginator.page_range %}
+            {% if num == clients.number %}
+                <span class="current-page">{{ num }}</span>
+            {% else %}
+                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if clients.has_next %}
+            <a class="pagination-link" href="?page={{ clients.next_page_number }}">Next</a>
+            <a class="pagination-link" href="?page={{ clients.paginator.num_pages }}">Last &raquo;</a>
+        {% endif %}
+    </div>
 
         <!-- JavaScript pour gérer la soumission du formulaire et mettre à jour le tableau -->
         <script>

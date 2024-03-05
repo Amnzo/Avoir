@@ -33,7 +33,8 @@ def upload_invoice_path(instance, filename):
 class Famille(models.Model):
     famille = models.CharField(max_length=255)
     is_facture=models.BooleanField(default=False)
-    is_active=models.BooleanField(default=True)
+    is_active=models.BooleanField(default=False)
+    is_barre=models.BooleanField(default=False)
     # Other fields for the Family model can be added here
 
     def __str__(self):
@@ -78,3 +79,12 @@ class Consommation(models.Model):
 
     def __str__(self):
         return f"{self.client.nom} - {self.prix_achat} Dh"
+
+
+
+class Invoice(models.Model):
+    invoice_number = models.CharField(max_length=20, unique=True, editable=False,default='DEFAULT_VALUE')
+    mois_concerne = models.CharField(max_length=7, unique=True)  # Assuming format 'MM-YYYY'
+
+    def __str__(self):
+        return f"Invoice: {self.invoice_number}, Month: {self.mois_concerne}"

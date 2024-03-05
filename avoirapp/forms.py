@@ -25,6 +25,9 @@ class AvoirForm(forms.ModelForm):
     )
 
 class ConsommationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['famille'].queryset = Famille.objects.filter(is_active=True)
     class Meta:
         model = Consommation
         fields = ['prix_achat','prix_vente','designation','code_barre','famille','facture']
@@ -36,15 +39,20 @@ class ConsommationForm(forms.ModelForm):
          # Use HiddenInput to make it invisible
     )
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+    format='%d/%m/%Y'
 
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ['nom', 'prenom', 'datenaissance']
+
     datenaissance = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True  # Set to True to make it required
+        widget=DateInput(),
+        required=True
     )
+
 
 class FamilleForm(forms.ModelForm):
     class Meta:
