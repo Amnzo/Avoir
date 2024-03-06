@@ -38,6 +38,12 @@ class ConsommationForm(forms.ModelForm):
         validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
          # Use HiddenInput to make it invisible
     )
+    code_barre = forms.FileField(
+        label='code_barre',
+        required=False,
+       
+         # Use HiddenInput to make it invisible
+    )
 
 class DateInput(forms.DateInput):
     input_type = 'date'

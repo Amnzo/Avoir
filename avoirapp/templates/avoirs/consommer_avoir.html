@@ -85,18 +85,16 @@
                             {% endif %}
                         </div>
                     </div>
-
-                    <div class="form-group row">
-                        <label for="{{ form.montant.id_for_label }}" class="col-sm-3 col-form-label text-right">CODE BARRE :</label>
+                    <div class="form-group row" id="codeBarreField" style="display: none;">
+                        <label for="{{ form.code_barre.id_for_label }}" class="col-sm-3 col-form-label text-right">CODE BARRE :</label>
                         <div class="col-sm-9">
                             <input type="number" class="form-control" id="{{ form.code_barre.id_for_label }}" name="{{ form.code_barre.name }}"  required>
-                            {% if form.montant.errors %}
+                            {% if form.code_barre.errors %}
                                 <div class="text-danger">{{ form.code_barre.errors }}</div>
                             {% endif %}
                         </div>
-
                     </div>
-
+                    
                     <div class="form-group row">
                         <div class="col-sm-9 offset-sm-3">
                             <button type="submit" class="btn btn-primary">VALIDER</button>
@@ -119,27 +117,38 @@
 
 <script>
     $(document).ready(function() {
-        $('#{{ form.famille.id_for_label }}').change(function() {
-            var familleId = $(this).val();
-            $.ajax({
-                url: "{% url 'fetch_is_facture' %}",
-                data: {'famille_id': familleId},
-                dataType: 'json',
-                success: function(data) {
-                    var isFacture = data.is_facture;
-                    if (isFacture) {
-                        // Si is_facture est vrai, ajoutez le champ facture et rendez-le requis
-                        $('#factureField').show();
-                        $('#{{ form.facture.id_for_label }}').prop('required', true);
-                    } else {
-                        // Sinon, masquez le champ facture et rendez-le non requis
-                        $('#factureField').hide();
-                        $('#{{ form.facture.id_for_label }}').prop('required', false);
-                    }
+    $('#{{ form.famille.id_for_label }}').change(function() {
+        var familleId = $(this).val();
+        $.ajax({
+            url: "{% url 'fetch_is_facture' %}",
+            data: {'famille_id': familleId},
+            dataType: 'json',
+            success: function(data) {
+                var isFacture = data.is_facture;
+                var isBarre = data.is_barre;  // Ajout de la vérification is_barre
+
+                // Gérer le champ Facture
+                if (isFacture) {
+                    $('#factureField').show();
+                    $('#{{ form.facture.id_for_label }}').prop('required', true);
+                } else {
+                    $('#factureField').hide();
+                    $('#{{ form.facture.id_for_label }}').prop('required', false);
                 }
-            });
+
+                // Gérer le champ Code-barre
+                if (isBarre) {
+                    $('#codeBarreField').show();
+                    $('#{{ form.code_barre.id_for_label }}').prop('required', true);
+                } else {
+                    $('#codeBarreField').hide();
+                    $('#{{ form.code_barre.id_for_label }}').prop('required', false);
+                }
+            }
         });
     });
+});
+
 </script>
 {% endblock %}
 

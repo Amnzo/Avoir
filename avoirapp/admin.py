@@ -25,7 +25,7 @@ class AvoirAdmin(admin.ModelAdmin):
 
 
 class ConsommationAdmin(admin.ModelAdmin):
-    list_display = ('client', 'prix_achat','prix_vente', 'date_ajout')
+    list_display = ('client', 'prix_achat','prix_vente', 'date_ajout','famille')
     search_fields = ('client__nom', 'prix_achat', 'date_ajout')
     list_filter = ('client', 'date_ajout')
 

@@ -50,18 +50,25 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" id="consomation-periode-tab" data-toggle="tab" href="#consomation-periode" role="tab"
-                aria-controls="consomation-periode" aria-selected="false">ETAT</a>
+                aria-controls="consomation-periode" aria-selected="false">ETAT MENSUEL CREDIT</a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link" id="consomation2-periode-tab" data-toggle="tab" href="#consomation2-periode" role="tab"
+                aria-controls="consomation2-periode" aria-selected="false">ETAT MENSUEL CONSOMMATION</a>
+        </li>
+        
     </ul>
 
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="liste-credits" role="tabpanel" aria-labelledby="liste-credits-tab">
             <h1 class="text-center mb-4">LISTE DES CREDITS</h1>
-            <table class="table table-striped">
+            <table class="table table-striped text-center">
                 <!-- Insérer le contenu de la liste des crédits ici -->
                 <thead style="background-color: #007BFF; color: #FFFFFF;">
                     <tr>
-                        <th scope="col">CLIENT</th>
+                        <th scope="col">NOM</th>
+                        <th scope="col">PRENOM</th>
                         <th scope="col">MONTANT</th>
                         <th scope="col">DATE CREATION</th>
                         <th scope="col">CREATEUR</th>
@@ -71,10 +78,12 @@
                 <tbody>
                     {% for avoir in avoirs %}
                     <tr>
-                        <td>{{ avoir.client.nom|upper }}-{{avoir.client.prenom|upper}}</td>
+                        <td>{{ avoir.client.nom|upper }}</td>
+                        <td>{{ avoir.client.prenom|upper }}</td>
+                       
                         <td>{{ avoir.montant }}</td>
                         <td>{{ avoir.date_ajout |date:"d-m-Y" }}</td>
-                        <td>{{ avoir.user }}</td>
+                        <td>{{ avoir.user|upper }}</td>
                         <td>
                             {% if avoir.facture %}
                             <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
@@ -112,49 +121,84 @@
         <div class="tab-pane fade" id="credit-periode" role="tabpanel" aria-labelledby="credit-periode-tab">
             <!-- Formulaire de recherche -->
             <form id="searchForm" class="mb-4" method="post" action="{% url 'compte_rendu' %}">
-                {% csrf_token %}
-                <div class="form-row">
-                    <!-- Sélection Consommation ou Avoir -->
-                    <div class="form-group col-md-6">
-                        <label for="type">Type de recherche :</label>
-                        <select class="form-control" id="type" name="type">
-                            <option value="consommation">Consommation</option>
-                            <option value="avoir">Avoir</option>
-                        </select>
-                    </div>
-                    <!-- Sélection de la famille -->
-                    <div class="form-group col-md-6">
-                        <label for="famille">Famille :</label>
-                        <select class="form-control" id="famille" name="famille">
-                            <option value="famille1">Famille 1</option>
-                            <option value="famille2">Famille 2</option>
-                            <option value="famille3">Famille 3</option>
-                        </select>
-                    </div>
+    {% csrf_token %}
+    <div class="form-row">
+        <!-- Sélection Consommation ou Avoir -->
+        <div class="form-group col-md-6">
+            <label for="type">{{ "recherche par  :"|upper }}</label>
+            <select class="form-control" id="type" name="type">
+                <option value="credit" id="credit">{{ "CREDIT" |upper }}</option>
+                <option value="consommation" id="consommation">{{ "CONSOMMATION" |upper }}</option>
+            </select>
+        </div>
+        <!-- Sélection de la famille -->
+        <div class="form-group col-md-6" id="familiesGroup" style="display: none;">
+            <label for="familles">{{ "FAMILLES :"|upper }}</label>
+            {% for famille in familles %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="famille{{ famille.id }}" name="familles[]" value="{{ famille.id }}">
+                    <label class="form-check-label" for="famille{{ famille.id }}">{{ famille.famille }}</label>
                 </div>
-                <!-- Champs de sélection de la période -->
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="startDate" class="sr-only">Date de début :</label>
-                        <div class="input-group date" data-provide="datepicker">
-                            <input type="text" class="form-control" id="startDate" name="startDate" placeholder="Date de début" required>
-                            <div class="input-group-append">
-                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="endDate" class="sr-only">Date de fin :</label>
-                        <div class="input-group date" data-provide="datepicker">
-                            <input type="text" class="form-control" id="endDate" name="endDate" placeholder="Date de fin" required>
-                            <div class="input-group-append">
-                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                            </div>
-                        </div>
-                    </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Champs de sélection de la période -->
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="startDate" class="sr-only">Date de début :</label>
+            <div class="input-group date" data-provide="datepicker">
+                <input type="text" class="form-control" id="startDate" name="startDate" placeholder="Date de début" required>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                 </div>
-                <button type="button" class="btn btn-primary" id="submitSearchFormBtn">Rechercher</button>
-            </form>
+            </div>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="endDate" class="sr-only">Date de fin :</label>
+            <div class="input-group date" data-provide="datepicker">
+                <input type="text" class="form-control" id="endDate" name="endDate" placeholder="Date de fin" required>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary" id="submitSearchFormBtn">Rechercher</button>
+</form>
+
+
+<table class="table text-center" id="consommationTable" style="display: none;">
+    <thead style="background-color: #007BFF; color: #FFFFFF;">
+        <tr>
+            <th>{{ "NOM" |upper }}</th>
+            <th>{{ "PRENOM" |upper }}</th>
+            <th>{{ "Prix Achat HT" |upper }}</th>
+            <th>{{ "Prix Vente ttc" |upper }}</th>
+            <th>{{ "Date CONSOMMATION" |upper }}</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Les lignes de consommations seront ajoutées ici -->
+    </tbody>
+</table>
+
+<table class="table text-center" id="creditTable" style="display: none;">
+    <thead style="background-color: #007BFF; color: #FFFFFF;">
+        <tr>
+            <th>NOM</th>
+            <th>PRENOM</th>
+            <th>MONTANT</th>
+            <th>DATE CREDIT</th>
+            <th>FACTURE</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Les lignes de crédits seront ajoutées ici -->
+    </tbody>
+</table>
+
+
         </div>
         
         <div class="tab-pane fade" id="consomation-periode" role="tabpanel" aria-labelledby="consomation-periode-tab">
@@ -162,43 +206,18 @@
 
             <!-- Tableau pour afficher la liste des consommations entre les deux dates -->
             <div class="row">
-                <div class="col-md-6">
-                    <h2 class="text-center mb-4">ETAT CREDIT</h2>
+               
+                   
+
+                <div class="col-md-12">
+                    <h2 class="text-center mb-4">ETAT MENSUELL CREDIT</h2>
                     <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
+                        <table class="table table-striped text-center">
+                           
+                                <thead style="background-color: #007BFF; color: #FFFFFF;">
                                 <tr>
                                     <th scope="col">MOIS</th>
-                                    <th scope="col">NB. CREDITS</th>
-
-                                    <th scope="col">FACTURE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in data %}
-                                <tr>
-                                    <td>{{ item.annee }}/{{ item.mois }}</td>
-                                    <td>{{ item.consommations |length }}</td>
-                                    <td>
-
-                                        <a href="#" class="text-primary"><i class="bi bi-download"></i></a>
-
-
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <h2 class="text-center mb-4">ETAT CONSOMMATION</h2>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">MOIS</th>
-                                    <th scope="col">NB. CREDIT</th>
+                                    <th scope="col">NB CREDIT</th>
 
                                     <th scope="col">FACTURE</th>
                                 </tr>
@@ -206,7 +225,7 @@
                             <tbody>
                                 {% for item2 in data2 %}
                                 <tr>
-                                    <td>{{ item2.annee }}/{{ item2.mois }}</td>
+                                    <td>{{ item2.mois }}-{{ item2.annee }}</td>
                                     <td>{{ item2.credits |length }}</td>
                                     <td>
 
@@ -223,6 +242,47 @@
 
         </div>
 
+
+
+
+        <!-- dernier Onglet -->
+
+        <div class="tab-pane fade" id="consomation2-periode" role="tabpanel" aria-labelledby="consomation2-periode-tab">
+
+
+            <!-- Tableau pour afficher la liste des consommations entre les deux dates -->
+            <div class="row">
+               
+                <table class="table table-bordered text-center">
+                    <thead style="background-color: #007BFF; color: #FFFFFF;">
+                      <tr>
+                        <th scope="col">-</th>
+                        {% for famille_data in data.0.consommations_familles %}
+                        <th scope="col">{{ famille_data.famille }}</th>
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in data %}
+                        <tr>
+                          <td>{{ item.mois }}-{{ item.annee }}</td>
+                          {% for famille_data in item.consommations_familles %}
+                            <td>{{ famille_data.nombre_consommations }}</td>
+                          {% endfor %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  
+                  
+                  
+                
+            </div>
+
+        </div>
+
+        
+
     </div>
 </div>
 {% endblock %}
@@ -231,6 +291,18 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script>
+    function formatDate(dateString) {
+    // Convertir la chaîne de date en objet Date JavaScript
+    var date = new Date(dateString);
+
+    // Extraire les composantes de la date (jour, mois, année)
+    var day = date.getDate();
+    var month = date.getMonth() + 1; // Les mois commencent à partir de zéro
+    var year = date.getFullYear();
+
+    // Formater la date au format dd-mm-yyyy
+    return (day < 10 ? '0' : '') + day + '-' + (month < 10 ? '0' : '') + month + '-' + year;
+}
     $(document).ready(function () {
         // Initialize datepicker
         $('.date').datepicker({
@@ -254,25 +326,110 @@
 
 
 
-    document.getElementById('submitSearchFormBtn').addEventListener('click', function() {
-        // Validation des champs
-        var type = document.getElementById('type').value;
-        var famille = document.getElementById('famille').value;
-        var startDate = document.getElementById('startDate').value;
-        var endDate = document.getElementById('endDate').value;
 
-        // Vous pouvez ajouter des conditions de validation ici selon vos besoins
 
-        // Soumission du formulaire asynchrone
-        var formData = {
-            type: type,
-            famille: famille,
-            startDate: startDate,
-            endDate: endDate
-        };
 
-        console.log(formData)
+    $(document).ready(function() {
+        $('#type').change(function() {
+            var selectedValue = $(this).val();
+            if (selectedValue === 'consommation') {
+                $('#familiesGroup').show(); // Afficher le groupe de familles
+            } else {
+                $('#familiesGroup').hide(); // Masquer le groupe de familles
+            }
+        });
     });
 
+
+    $(document).ready(function() {
+    $('#type').change(function() {
+        var selectedValue = $(this).val();
+        if (selectedValue === 'consommation') {
+            $('#familiesGroup').show(); // Show the families group
+        } else {
+            $('#familiesGroup').hide(); // Hide the families group
+        }
+    });
+
+    $('#submitSearchFormBtn').click(function() {
+        console.log("Clicked yes");
+        var type = $('#type').val();
+        console.log(type);
+        var selectedFamilies = [];
+        $('input[name="familles[]"]:checked').each(function() {
+            selectedFamilies.push($(this).val());
+        });
+        console.log(selectedFamilies);
+        var startDate = $('#startDate').val();
+        console.log(startDate);
+        var endDate = $('#endDate').val();
+        console.log(endDate);
+
+        // Send AJAX request
+        $.ajax({
+            url: "{% url 'search_filter' %}",
+            method: "POST",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                type: type,
+                families: selectedFamilies,
+                startDate: startDate,
+                endDate: endDate
+            },
+            dataType: "json",
+            success: function(response) {
+                if (type === 'consommation') {
+                    console.log("Consommation returned");
+                    $('#consommationTable').show(); // Show the consommation table
+                    $('#creditTable').hide(); // Hide the credit table
+                    $('#consommationTable tbody').empty(); // Clear previous data
+                    console.log(response);
+                    // Handle consommation type response
+                    response.forEach(function(item) {
+                        var row = '<tr>' +
+                            '<td>' + item.client_nom + '</td>' +
+                            '<td>' + item.client_prenom + '</td>' +
+                            '<td>' + item.prix_achat + '</td>' +
+                            '<td>' + item.prix_vente + '</td>' +
+                         
+                            '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date
+
+                            '</tr>';
+                        $('#consommationTable tbody').append(row);
+                    });
+                } else {
+                    console.log("Credit or other type returned");
+                    $('#consommationTable').hide(); // Hide the consommation table
+                    $('#creditTable').show(); // Show the credit table
+                    $('#creditTable tbody').empty(); // Clear previous data
+
+                    // Handle credit type response
+                    response.forEach(function(item) {
+                        
+                      
+                        var row = '<tr>' +
+                            '<td>' + item.client_nom + '</td>' +
+                            '<td>' + item.client_prenom + '</td>' +
+                            '<td>' + item.montant + '</td>' + 
+                            '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date
+                           
+                           
+                            '<td><a href="' + item.facture + '" target="_blank">Voir la facture</a></td>' +
+                            
+                            
+                            '</tr>';
+                        $('#creditTable tbody').append(row);
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+    });
+});
+
+   
 </script>
+
 {% endblock %}

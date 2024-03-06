@@ -140,22 +140,29 @@ def avoir(request):
     except EmptyPage:
         avoirs = paginator.page(paginator.num_pages)
 
-    # Group Consommations by year and month
+    # Group Consommations by year, month, and famille
     consommations = Consommation.objects.order_by('-date_ajout')
-    consommations_groupes = defaultdict(list)
+    consommations_groupes = defaultdict(lambda: defaultdict(int))
+
     for consommation in consommations:
         year_month = consommation.date_ajout.strftime('%Y-%m')
-        consommations_groupes[year_month].append(consommation)
+        famille = consommation.famille
+        consommations_groupes[year_month][famille] += 1  # Comptage des consommations par famille
 
-    # Prepare data for rendering in the template
+    # Obtenir toutes les familles
+    familles = set()
+    for consommation in consommations:
+        familles.add(consommation.famille)
+
+    # Préparation des données pour le modèle de rendu
     data = []
-    for year_month, consommations in consommations_groupes.items():
+    for year_month, consommations_familles in consommations_groupes.items():
         year, month = map(int, year_month.split('-'))
-        data.append({
-            'annee': year,
-            'mois': month,
-            'consommations': consommations
-        })
+        consommations_data = [{'famille': famille, 'nombre_consommations': consommations_familles.get(famille, 0)}
+                            for famille in familles]
+        data.append({'annee': year, 'mois': month, 'consommations_familles': consommations_data})
+
+
     credits = Avoir.objects.order_by('-date_ajout')
     # Group Avoirs by year and month
     avoirs_groupes = defaultdict(list)
@@ -172,9 +179,10 @@ def avoir(request):
             'mois': month,
             'credits': credits
         })
+    familles =Famille.objects.filter(is_active=True)
 
     # Return the rendered template with the data
-    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs, 'data': data, 'data2': data2})
+    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles})
 
 
 def consommation_periode(request):
@@ -185,7 +193,98 @@ def consommation_periode(request):
         return render(request, 'avoirs/avoir_list.html', {'consommations': consommations})
     else:
         return render(request, 'votre_template.html', {})
+    
 
+from django.core import serializers
+
+from django.http import JsonResponse
+from django.core import serializers
+
+from datetime import datetime
+from django.http import JsonResponse
+from django.core import serializers
+
+
+
+from django.http import JsonResponse
+from django.core import serializers
+from .models import Consommation, Avoir
+from datetime import datetime
+
+def search_filter(request):
+    if request.method == 'POST':
+        type = request.POST.get('type')
+        selected_families = request.POST.getlist('families[]')
+        start_date = request.POST.get('startDate')
+        end_date = request.POST.get('endDate')
+
+        # Convert dates to ISO format
+        start_date_iso = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date_iso = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+        if type == 'consommation':
+            # Query consommations and select related client
+            consommations = Consommation.objects.filter(
+                date_ajout__range=[start_date_iso, end_date_iso]
+            ).select_related('client')
+            if selected_families:
+                consommations = consommations.filter(famille__in=selected_families)
+
+        
+
+            # Construct JSON response for consommations
+            data = []
+            for consommation in consommations:
+                client_nom = consommation.client.nom
+                client_prenom = consommation.client.prenom
+                consommation_data = {
+                    'client_nom': client_nom,
+                    'client_prenom': client_prenom,
+                    'prix_achat': consommation.prix_achat,
+                    'prix_vente': consommation.prix_vente,
+                    'date_ajout': consommation.date_ajout,
+                    'designation': consommation.designation,
+                    'code_barre': consommation.code_barre,
+                    # Add other fields from Consommation model as needed
+                }
+                data.append(consommation_data)
+
+        elif type == 'credit':
+            # Query avoirs and select related client
+            avoirs = Avoir.objects.filter(
+                date_ajout__range=[start_date_iso, end_date_iso]
+            ).select_related('client')
+
+            # Construct JSON response for avoirs
+            data = []
+            for avoir in avoirs:
+                client_nom = avoir.client.nom
+                client_prenom = avoir.client.prenom
+                print(avoir.facture)
+                avoir_data = {
+                    'client_nom': client_nom,
+                    'client_prenom': client_prenom,
+                    'montant': avoir.montant,
+                    'date_ajout': avoir.date_ajout,
+                   
+                    
+                  
+                    # Add other fields from Avoir model as needed
+                }
+                data.append(avoir_data)
+
+        else:
+            # Invalid search type
+            data = {'error': 'Type de recherche non valide'}
+
+        return JsonResponse(data, safe=False)
+
+    else:
+        # Method not allowed
+        data = {'error': 'Méthode de requête non autorisée'}
+        return JsonResponse(data, status=400)
+
+  
 
 def client_details(request, client_id):
     client = get_object_or_404(Client, id=client_id)
@@ -323,14 +422,25 @@ def edit_famille(request,id):
         return render(request, 'familles/edit_famille.html',{'famille':famille})
 
 
-def fetch_is_facture(request):
+""" def fetch_is_facture(request):
     famille_id = request.GET.get('famille_id')
     try:
         famille = Famille.objects.get(pk=famille_id)
         is_facture = famille.is_facture
         return JsonResponse({'is_facture': is_facture})
     except Famille.DoesNotExist:
+        return JsonResponse({'error': 'Famille not found'}, status=404) """
+    
+def fetch_is_facture(request):
+    famille_id = request.GET.get('famille_id')
+    try:
+        famille = Famille.objects.get(pk=famille_id)
+        is_facture = famille.is_facture
+        is_barre = famille.is_barre  # Ajout de la vérification is_barre
+        return JsonResponse({'is_facture': is_facture, 'is_barre': is_barre})  # Retourne les deux valeurs
+    except Famille.DoesNotExist:
         return JsonResponse({'error': 'Famille not found'}, status=404)
+
 
 
 

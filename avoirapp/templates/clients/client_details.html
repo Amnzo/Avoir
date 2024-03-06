@@ -15,7 +15,7 @@
     <div class="card-header bg-primary text-white">
         <div class="row">
             <div class="col">
-                <h2>{{ client.nom | title }} {{ client.prenom | title }}</h2>
+                <h2>{{ client.nom |upper }} {{ client.prenom |upper }}</h2>
             </div>
             <div class="col text-end">
                 <div class="{% if client.total_avoir_client == 0 %}bg-danger{% else %}bg-warning{% endif %} rounded p-3">
@@ -56,8 +56,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p class="mb-2"><strong>NOM : </strong> {{ client.nom }} </p>
-                            <p class="mb-2"><strong>PRENOM : </strong> {{ client.prenom }}</p>
+                            <p class="mb-2"><strong>NOM : </strong> {{ client.nom |upper}} </p>
+                            <p class="mb-2"><strong>PRENOM : </strong> {{ client.prenom  |upper}}</p>
                             <p class="mb-2"><strong>DATE DE NAISSANCE : </strong> {{ client.datenaissance |date:"d/m/Y" }}</p>
                         </div>
                         <div class="col-md-6">
@@ -105,6 +105,8 @@
                         <td>
                             <a href="{{ consomation.facture.url }}" target="_blank">Voir la facture</a>
                         </td>
+                        {% else %}
+                         <td>-</td>
                         {% endif %}
                     </tr>
                     {% endfor %}

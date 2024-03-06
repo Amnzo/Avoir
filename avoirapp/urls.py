@@ -12,8 +12,9 @@ urlpatterns = [
     path('client/', client, name='client'),
     path('avoir/', avoir, name='avoir'),
     path('consommation_periode/', consommation_periode, name='consommation_periode'),
+    
 
-
+    path('search_filter/', search_filter, name='search_filter'),
     #path('compte_rendu/', compte_rendu, name='compte_rendu'),
     path('compte_rendu/', CompteRenduView.as_view(), name='compte_rendu'),
     path('compte_rendu_pdf/', generate_pdf, name='compte_rendu_pdf'),
