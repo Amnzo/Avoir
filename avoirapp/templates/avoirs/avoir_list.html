@@ -411,10 +411,11 @@
                             '<td>' + item.client_nom + '</td>' +
                             '<td>' + item.client_prenom + '</td>' +
                             '<td>' + item.montant + '</td>' + 
-                            '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date
-                           
-                           
-                            '<td><a href="' + item.facture + '" target="_blank">Voir la facture</a></td>' +
+                            '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date 
+                            '<td><a href="#" class="voir-facture" data-facture="' + item.id + '">Voir la facture</a></td>'+
+          
+                            '<td>' + item.id + '</td>' +
+                            
                             
                             
                             '</tr>';
@@ -428,6 +429,34 @@
         });
     });
 });
+
+$(document).ready(function() {
+    // Écouter les clics sur les liens "Voir la facture"
+    $(document).on('click', '.voir-facture', function(event) {
+        event.preventDefault(); // Empêcher le comportement par défaut du lien
+        var factureId = $(this).data('facture');
+        console.log(factureId);
+        
+        
+        
+        // Envoyer une requête AJAX à votre vue Django avec l'identifiant de la facture
+        $.ajax({
+            url: "{% url 'display_facture' %}",
+            type: 'GET', // Ou 'POST' selon le type de requête attendue par votre vue
+            data: {
+                'facture_id': factureId
+            },
+            success: function(response) {
+                // Gérer la réponse de la vue ici
+            },
+            error: function(xhr, errmsg, err) {
+                // Gérer les erreurs ici
+            }
+        });
+    });
+});
+
+
 
    
 </script>

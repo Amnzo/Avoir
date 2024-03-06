@@ -12,6 +12,7 @@ urlpatterns = [
     path('client/', client, name='client'),
     path('avoir/', avoir, name='avoir'),
     path('consommation_periode/', consommation_periode, name='consommation_periode'),
+     path('display_facture/', display_facture, name='display_facture'),
     
 
     path('search_filter/', search_filter, name='search_filter'),

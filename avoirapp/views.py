@@ -266,6 +266,7 @@ def search_filter(request):
                     'client_prenom': client_prenom,
                     'montant': avoir.montant,
                     'date_ajout': avoir.date_ajout,
+                    'id': avoir.id,
                    
                     
                   
@@ -284,7 +285,42 @@ def search_filter(request):
         data = {'error': 'Méthode de requête non autorisée'}
         return JsonResponse(data, status=400)
 
-  
+
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.conf import settings
+import os
+
+
+from django.shortcuts import get_object_or_404
+from django.conf import settings
+import os
+
+def display_facture(request):
+    if request.method == 'GET':
+        facture_id = request.GET.get('facture_id')
+        avoir = get_object_or_404(Avoir, id=facture_id)
+        
+        # Get the file path
+        facture_path = avoir.facture.path
+
+        # Check if the file exists
+        if os.path.exists(facture_path):
+            with open(facture_path, 'rb') as file:
+                
+                response = HttpResponse(file.read(), content_type='application/pdf')
+                response['Content-Disposition'] = 'inline'  # Display in browser instead of downloading
+                return response
+        else:
+            return HttpResponse("Le fichier de la facture n'existe pas", status=404)
+    else:
+        return HttpResponse("Méthode non autorisée", status=405)
+
+
+
+
+
 
 def client_details(request, client_id):
     client = get_object_or_404(Client, id=client_id)
