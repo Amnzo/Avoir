@@ -3,50 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <title>Rapport de consommations</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Ajoutez votre style CSS personnalisé ici */
-        body {
-            font-family: Arial, sans-serif;
+        body, .container {
+            margin: 0; /* Remove all margins */
+            padding: 0; /* Remove all padding */
         }
-        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #000;
+            text-align: left;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        h3 {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h3>Rapport de consommations {{ title }}</h3>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>NOM</th>
-                            <th>PRENOM</th>
-                            <th>{{ "Prix achat HT"|upper }}</th>
-                            <th>{{ "Prix vente TTC"|upper }}</th>
-                            <th>{{ "Date consommation"|upper }}</th>
-                            <th>{{ "Designation"|upper }}</th>
-                            <th>{{ "Créateur"|upper }}</th>
-                            <th>{{ "Code"|upper }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for consommation in consommations %}
-                            <tr>
-                                <td>{{ consommation.client.nom }}</td>
-                                <td>{{ consommation.client.prenom }}</td>
-                                <td>{{ consommation.prix_achat }}</td>
-                                <td>{{ consommation.prix_vente }}</td>
-                                <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
-                                <td>{{ consommation.designation|upper }}</td>
-                                <td>{{ consommation.user.username|upper }}</td>
-                                <td>{{ consommation.code_barre }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>NOM</th>
+                    <th>PRENOM</th>
+                    <th>{{ "Prix achat HT"|upper }}</th>
+                    <th>{{ "Prix vente TTC"|upper }}</th>
+                    <th>{{ "Date consommation"|upper }}</th>
+                    <th>{{ "Designation"|upper }}</th>
+                    <th>{{ "Créateur"|upper }}</th>
+                    <th>{{ "Code"|upper }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for consommation in consommations %}
+                    <tr>
+                        <td>{{ consommation.client.nom }}</td>
+                        <td>{{ consommation.client.prenom }}</td>
+                        <td>{{ consommation.prix_achat }}</td>
+                        <td>{{ consommation.prix_vente }}</td>
+                        <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
+                        <td>{{ consommation.designation|upper }}</td>
+                        <td>{{ consommation.user.username|upper }}</td>
+                        <td>{{ consommation.code_barre }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
