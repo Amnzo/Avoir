@@ -175,6 +175,7 @@
             <th>{{ "Prix Achat HT" |upper }}</th>
             <th>{{ "Prix Vente ttc" |upper }}</th>
             <th>{{ "Date CONSOMMATION" |upper }}</th>
+            <th>{{ "FACTURE" |upper }}</th>
             
         </tr>
     </thead>
@@ -390,10 +391,17 @@
                             '<td>' + item.client_nom + '</td>' +
                             '<td>' + item.client_prenom + '</td>' +
                             '<td>' + item.prix_achat + '</td>' +
-                            '<td>' + item.prix_vente + '</td>' +
-                         
-                            '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date
+                            '<td>' + item.prix_vente + '</td>' +        
+                            '<td>' + formatDate(item.date_ajout) + '</td>' ;
+                            // Vérifier si l'attribut facture n'est pas vide
+                        if (item.facture) {
+                            row += '<td><a href="#" class="voir-facture2" data-facture2="' + item.id + '">Voir la facture</a></td>';
+                        } else {
+                            row += '<td>-</td>';
+                        }
 
+                        row += '</tr>';
+                            '<td>' + item.id + '</td>'  // Cellule cachée
                             '</tr>';
                         $('#consommationTable tbody').append(row);
                     });
@@ -413,11 +421,7 @@
                             '<td>' + item.montant + '</td>' + 
                             '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date 
                             '<td><a href="#" class="voir-facture" data-facture="' + item.id + '">Voir la facture</a></td>'+
-          
-                            '<td>' + item.id + '</td>' +
-                            
-                            
-                            
+                            '<td style="display: none;">' + item.id + '</td>' + // Cellule cachée
                             '</tr>';
                         $('#creditTable tbody').append(row);
                     });
@@ -430,32 +434,113 @@
     });
 });
 
+
 $(document).ready(function() {
-    // Écouter les clics sur les liens "Voir la facture"
     $(document).on('click', '.voir-facture', function(event) {
         event.preventDefault(); // Empêcher le comportement par défaut du lien
         var factureId = $(this).data('facture');
-        console.log(factureId);
-        
-        
+        console.log("Facture ID:", factureId);  // Debug message
         
         // Envoyer une requête AJAX à votre vue Django avec l'identifiant de la facture
         $.ajax({
             url: "{% url 'display_facture' %}",
-            type: 'GET', // Ou 'POST' selon le type de requête attendue par votre vue
+            type: 'GET',
             data: {
                 'facture_id': factureId
             },
-            success: function(response) {
-                // Gérer la réponse de la vue ici
+            xhrFields: {
+                responseType: 'blob' // Spécifier le type de réponse attendu
             },
+            success: function(response, status, xhr) {
+    // Vérifie si l'en-tête Content-Disposition existe dans la réponse
+    var contentDisposition = xhr.getResponseHeader('Content-Disposition');
+    
+    // Si l'en-tête existe, extrayez le nom de fichier du header
+    if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+            var filename = matches[1].replace(/['"]/g, '');
+            
+            // Créez un objet blob à partir de la réponse
+            var blob = new Blob([response], { type: 'application/pdf' });
+            var url = window.URL.createObjectURL(blob);
+            
+            // Créez un élément <a> pour télécharger le fichier PDF avec le nom du fichier renvoyé par le serveur
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename; // Utilisez le nom de fichier récupéré ici
+            document.body.appendChild(a);
+            a.click();
+            
+            // Libérer l'objet URL après le téléchargement
+            window.URL.revokeObjectURL(url);
+        }
+    }
+},
+
             error: function(xhr, errmsg, err) {
                 // Gérer les erreurs ici
+                console.error('Une erreur s\'est produite lors de la requête AJAX:', errmsg);
             }
         });
     });
 });
 
+
+/* TELECHARGER PDF SI CONSOMMATION A FACTURE OU  OIECE JOINTE */
+
+
+
+$(document).ready(function() {
+    $(document).on('click', '.voir-facture2', function(event) {
+        event.preventDefault(); // Empêcher le comportement par défaut du lien
+        var piece_jointe_Id = $(this).data('facture2');
+        console.log("display_piece_jointe:", piece_jointe_Id);  // Debug message
+        $.ajax({
+            url: "{% url 'display_piece_jointe' %}",
+            type: 'GET',
+            data: {
+                'piece_jointe_id': piece_jointe_Id
+            },
+            xhrFields: {
+                responseType: 'blob' // Spécifier le type de réponse attendu
+            },
+            success: function(response, status, xhr) {
+    // Vérifie si l'en-tête Content-Disposition existe dans la réponse
+    var contentDisposition = xhr.getResponseHeader('Content-Disposition');
+    
+    // Si l'en-tête existe, extrayez le nom de fichier du header
+    if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+            var filename = matches[1].replace(/['"]/g, '');
+            
+            // Créez un objet blob à partir de la réponse
+            var blob = new Blob([response], { type: 'application/pdf' });
+            var url = window.URL.createObjectURL(blob);
+            
+            // Créez un élément <a> pour télécharger le fichier PDF avec le nom du fichier renvoyé par le serveur
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename; // Utilisez le nom de fichier récupéré ici
+            document.body.appendChild(a);
+            a.click();
+            
+            // Libérer l'objet URL après le téléchargement
+            window.URL.revokeObjectURL(url);
+        }
+    }
+},
+
+            error: function(xhr, errmsg, err) {
+                // Gérer les erreurs ici
+                console.error('Une erreur s\'est produite lors de la requête AJAX:', errmsg);
+            }
+        });
+    });
+});
 
 
    

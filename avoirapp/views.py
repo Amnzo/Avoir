@@ -237,6 +237,12 @@ def search_filter(request):
             for consommation in consommations:
                 client_nom = consommation.client.nom
                 client_prenom = consommation.client.prenom
+                facture =""
+                if consommation.facture:
+                    facture ="yes"
+
+
+                
                 consommation_data = {
                     'client_nom': client_nom,
                     'client_prenom': client_prenom,
@@ -245,6 +251,9 @@ def search_filter(request):
                     'date_ajout': consommation.date_ajout,
                     'designation': consommation.designation,
                     'code_barre': consommation.code_barre,
+                    'facture':facture,
+                    
+                    'id': consommation.id,
                     # Add other fields from Consommation model as needed
                 }
                 data.append(consommation_data)
@@ -297,26 +306,60 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 import os
 
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from .models import Avoir
+import os
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
+import os
+from django.utils.text import slugify
+
 def display_facture(request):
     if request.method == 'GET':
         facture_id = request.GET.get('facture_id')
         avoir = get_object_or_404(Avoir, id=facture_id)
         
-        # Get the file path
         facture_path = avoir.facture.path
-
-        # Check if the file exists
+        avoir_date = avoir.date_ajout.strftime('%d-%m-%Y')
+        filename = f'Credit_{slugify(avoir_date)}.pdf'
+        
         if os.path.exists(facture_path):
             with open(facture_path, 'rb') as file:
-                
                 response = HttpResponse(file.read(), content_type='application/pdf')
-                response['Content-Disposition'] = 'inline'  # Display in browser instead of downloading
+                #response['Content-Disposition'] = 'attachment'  # Afficher dans le navigateur au lieu de télécharger
+                #response['Content-Disposition'] = f'attachment; filename="Credit_{facture_id}"'
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
                 return response
         else:
             return HttpResponse("Le fichier de la facture n'existe pas", status=404)
     else:
         return HttpResponse("Méthode non autorisée", status=405)
+    
 
+
+def display_piece_jointe(request):
+    if request.method == 'GET':
+        piece_jointe_id = request.GET.get('piece_jointe_Id')
+        print(f'piece_jointe_Id ={piece_jointe_id}')
+        consommation = get_object_or_404(Consommation, id=piece_jointe_id)   
+        facture_path = consommation.facture.path
+        consommation_date = consommation.date_ajout.strftime('%d-%m-%Y')
+        filename = f'Consommation{slugify(consommation_date)}.pdf'
+        
+        if os.path.exists(facture_path):
+            with open(facture_path, 'rb') as file:
+                response = HttpResponse(file.read(), content_type='application/pdf')
+                #response['Content-Disposition'] = 'attachment'  # Afficher dans le navigateur au lieu de télécharger
+                #response['Content-Disposition'] = f'attachment; filename="Credit_{facture_id}"'
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+        else:
+            return HttpResponse("Le fichier de la facture n'existe pas", status=404)
+    else:
+        return HttpResponse("Méthode non autorisée", status=405)
 
 
 
