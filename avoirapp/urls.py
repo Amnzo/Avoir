@@ -13,7 +13,8 @@ urlpatterns = [
     path('avoir/', avoir, name='avoir'),
     path('consommation_periode/', consommation_periode, name='consommation_periode'),
     path('display_facture/', display_facture, name='display_facture'),
-    path('display_piece_jointe/', display_piece_jointe, name='display_piece_jointe'),
+    path('display_facture2/', display_facture2, name='display_facture2'),
+ 
      
     
 

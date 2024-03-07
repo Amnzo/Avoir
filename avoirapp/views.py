@@ -339,15 +339,14 @@ def display_facture(request):
         return HttpResponse("Méthode non autorisée", status=405)
     
 
-
-def display_piece_jointe(request):
+def display_facture2(request):
     if request.method == 'GET':
-        piece_jointe_id = request.GET.get('piece_jointe_Id')
-        print(f'piece_jointe_Id ={piece_jointe_id}')
-        consommation = get_object_or_404(Consommation, id=piece_jointe_id)   
-        facture_path = consommation.facture.path
-        consommation_date = consommation.date_ajout.strftime('%d-%m-%Y')
-        filename = f'Consommation{slugify(consommation_date)}.pdf'
+        facture_id = request.GET.get('facture_id2')
+        avoir = get_object_or_404(Consommation, id=facture_id)
+        
+        facture_path = avoir.facture.path
+        avoir_date = avoir.date_ajout.strftime('%d-%m-%Y')
+        filename = f'Consommation_{slugify(avoir_date)}.pdf'
         
         if os.path.exists(facture_path):
             with open(facture_path, 'rb') as file:
@@ -360,6 +359,9 @@ def display_piece_jointe(request):
             return HttpResponse("Le fichier de la facture n'existe pas", status=404)
     else:
         return HttpResponse("Méthode non autorisée", status=405)
+    
+
+
 
 
 

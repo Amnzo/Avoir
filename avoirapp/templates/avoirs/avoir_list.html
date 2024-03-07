@@ -46,16 +46,16 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" id="credit-periode-tab" data-toggle="tab" href="#credit-periode" role="tab"
-                aria-controls="credit-periode" aria-selected="false">CREDIT PERIODE</a>
+                aria-controls="credit-periode" aria-selected="false">ETAT PERIODE</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="consomation-periode-tab" data-toggle="tab" href="#consomation-periode" role="tab"
-                aria-controls="consomation-periode" aria-selected="false">ETAT MENSUEL CREDIT</a>
+                aria-controls="consomation-periode" aria-selected="false">ETAT MENSUEL DES CREDITS</a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" id="consomation2-periode-tab" data-toggle="tab" href="#consomation2-periode" role="tab"
-                aria-controls="consomation2-periode" aria-selected="false">ETAT MENSUEL CONSOMMATION</a>
+                aria-controls="consomation2-periode" aria-selected="false">ETAT MENSUEL DES CONSOMMATIONS</a>
         </li>
         
     </ul>
@@ -211,7 +211,7 @@
                    
 
                 <div class="col-md-12">
-                    <h2 class="text-center mb-4">ETAT MENSUELL CREDIT</h2>
+                    <h2 class="text-center mb-4">ETAT MENSUEL DES CREDITS</h2>
                     <div class="table-responsive">
                         <table class="table table-striped text-center">
                            
@@ -243,9 +243,6 @@
 
         </div>
 
-
-
-
         <!-- dernier Onglet -->
 
         <div class="tab-pane fade" id="consomation2-periode" role="tabpanel" aria-labelledby="consomation2-periode-tab">
@@ -253,6 +250,7 @@
 
             <!-- Tableau pour afficher la liste des consommations entre les deux dates -->
             <div class="row">
+                
                
                 <table class="table table-bordered text-center">
                     <thead style="background-color: #007BFF; color: #FFFFFF;">
@@ -268,7 +266,12 @@
                         <tr>
                           <td>{{ item.mois }}-{{ item.annee }}</td>
                           {% for famille_data in item.consommations_familles %}
-                            <td>{{ famille_data.nombre_consommations }}</td>
+                                        {% if famille_data.nombre_consommations == 0 %}
+                                        <td>{{ famille_data.nombre_consommations }}</td>
+                                    {% else %}
+                                        <td><a href="#" class="text-primary"><i class="bi bi-download"></i></a></td>
+                                    {% endif %}
+                      
                           {% endfor %}
                         </tr>
                       {% endfor %}
@@ -495,13 +498,15 @@ $(document).ready(function() {
 $(document).ready(function() {
     $(document).on('click', '.voir-facture2', function(event) {
         event.preventDefault(); // Empêcher le comportement par défaut du lien
-        var piece_jointe_Id = $(this).data('facture2');
-        console.log("display_piece_jointe:", piece_jointe_Id);  // Debug message
+        var factureId = $(this).data('facture2');
+        console.log("Facture ID:", factureId);  // Debug message
+        
+        // Envoyer une requête AJAX à votre vue Django avec l'identifiant de la facture
         $.ajax({
-            url: "{% url 'display_piece_jointe' %}",
+            url: "{% url 'display_facture2' %}",
             type: 'GET',
             data: {
-                'piece_jointe_id': piece_jointe_Id
+                'facture_id2': factureId
             },
             xhrFields: {
                 responseType: 'blob' // Spécifier le type de réponse attendu
@@ -541,6 +546,10 @@ $(document).ready(function() {
         });
     });
 });
+
+
+
+
 
 
    
