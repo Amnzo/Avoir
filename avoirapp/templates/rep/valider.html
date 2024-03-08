@@ -1,0 +1,60 @@
+<!-- templates/repertoire_list.html -->
+
+{% extends 'layout/base.html' %}
+
+{% block title %}Liste des répertoires{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="text-center mb-4">REPERTOIRES A VALIDER</h1>
+
+    <!-- Formulaire de recherche -->
+
+    <!-- Tableau des répertoires -->
+    <table class="table table-bordered table-hover text-center"> <!-- Ajout de la classe text-center pour centrer le contenu de la table -->
+        <thead style="background-color: #ff0000; color: #FFFFFF;">
+            <tr>
+                <th>NOM</th>
+                <th>ADRESSE</th>
+                <th>TELEPHONE</th>
+                <th>FAX</th>
+                <th>SITE INTERNET</th>
+                <th>IDENTIFIANT</th>
+                <th>MOT DE PASSE</th>
+                <th>VALIDER</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for repertoire in repertoires %}
+            <tr style="background-color: #FFDAB9;">
+                <td>{{ repertoire.nom|upper }}</td>
+                <td>{{ repertoire.adresse }}</td>
+                <td>{{ repertoire.telephone }}</td>
+                <td>{{ repertoire.fax }}</td>
+                <td>{{ repertoire.site_internet }}</td>
+                <td>{{ repertoire.identifiant }}</td>
+                <td>{{ repertoire.mot_de_passe }}</td>
+                <td>
+                    <form action="{% url 'valide_repertoire' %}" method="POST"> <!-- Ajout de l'URL de la vue de validation -->
+                        {% csrf_token %}
+                        <input type="hidden" name="id_rep" name="id_rep" value="{{repertoire.id}}">
+                        <button type="submit" class="btn btn-success btn-sm"> <!-- Utilisation de la classe btn-sm pour réduire la taille du bouton -->
+                            <i class="fas fa-check"></i> Valider
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Aucun répertoire trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+ 
+</div>
+
+{% endblock %}

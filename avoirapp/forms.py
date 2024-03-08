@@ -11,7 +11,8 @@ class CustomLoginForm(forms.Form):
 
 
 
-
+class RepertoireSearchForm(forms.Form):
+    search = forms.CharField(label='Rechercher', required=False)
 class AvoirForm(forms.ModelForm):
     class Meta:
         model = Avoir

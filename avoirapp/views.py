@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponseBadRequest, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
-from .models import Avoir, Client, Famille,Consommation, Invoice
+from .models import Avoir, Client, Famille,Consommation, Invoice, Repertoire
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Count
@@ -13,7 +13,7 @@ from django.utils import formats
 # myapp/views.py
 
 from django.contrib.auth import authenticate, login,logout
-from .forms import ClientForm, CustomLoginForm
+from .forms import ClientForm, CustomLoginForm, RepertoireSearchForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def custom_login(request):
@@ -612,6 +612,116 @@ def compte_rendu(request):
         return render(request, 'compte_rendu.html', {'results': results_list})
 
     return render(request, 'compte_rendu.html')
+#------------------------------Repertoire----------------------------
+# Dans votre fichier views.py
+
+
+
+from django.db.models import Q
+
+def repertoire_list(request):
+    # Récupérer tous les enregistrements du modèle Repertoire
+    repertoires = Repertoire.objects.filter(is_active=True)
+    # Si une requête de recherche est soumise
+    if request.method == 'GET' and request.GET.get('search'):
+        print(f"recherche somit = {request.GET.get('search')}")
+        search_query = request.GET.get('search')
+        
+        repertoires = Repertoire.objects.filter(
+            Q(nom__icontains=search_query) |
+            Q(adresse__icontains=search_query) |
+            Q(telephone__icontains=search_query) |
+            Q(fax__icontains=search_query) |
+            Q(site_internet__icontains=search_query) |
+            Q(identifiant__icontains=search_query),
+            is_active=True
+        )
+
+    search_form = RepertoireSearchForm()
+    return render(request, 'rep/rep.html', {'repertoires': repertoires, 'search_form': search_form})
+
+
+
+
+
+
+def valide_repertoire(request):
+    if request.method == 'POST':
+        print(request.POST.get('id_rep'))
+        rep=Repertoire.objects.get(pk=request.POST.get('id_rep'))
+        rep.is_active=True
+        rep.save()
+        print("Post")
+
+    
+    repertoires = Repertoire.objects.filter(is_active=False)
+    return render(request, 'rep/valider.html', {'repertoires': repertoires})
+
+
+
+def edit_rep(request,id):
+    repertoire = Repertoire.objects.get(pk=id)
+    print(repertoire)
+    if request.method == 'POST':
+        # Récupérer les données du formulaire depuis la requête POST
+        nom = request.POST.get('nom')
+        adresse = request.POST.get('adresse')
+        telephone = request.POST.get('telephone')
+        fax = request.POST.get('fax')
+        site_internet = request.POST.get('site_internet')
+        identifiant = request.POST.get('identifiant')
+        mot_de_passe = request.POST.get('mot_de_passe')
+        
+        # Mettre à jour les champs du répertoire avec les nouvelles valeurs
+        repertoire.nom = nom
+        repertoire.adresse = adresse
+        repertoire.telephone = telephone
+        repertoire.fax = fax
+        repertoire.site_internet = site_internet
+        repertoire.identifiant = identifiant
+        repertoire.mot_de_passe = mot_de_passe
+        
+        # Enregistrer les modifications dans la base de données
+        repertoire.save()
+        #messages.success(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE')
+        messages.success(request, f'Le répertoire "{nom}" a été créé avec succès.')
+        return redirect('repertoire_list')  # Rediriger vers la liste des répertoires après la mise à jour
+    return render(request, 'rep/edit.html', {'repertoire': repertoire})
+
+
+
+
+
+def add_rep(request):
+    
+
+    if request.method == 'POST':
+        # Récupérer les données du formulaire depuis la requête POST
+        nom = request.POST.get('nom')
+        adresse = request.POST.get('adresse')
+        telephone = request.POST.get('telephone')
+        fax = request.POST.get('fax')
+        site_internet = request.POST.get('site_internet')
+        identifiant = request.POST.get('identifiant')
+        mot_de_passe = request.POST.get('mot_de_passe')
+        
+        # Create a new Repertoire object
+        repertoire = Repertoire.objects.create(
+            nom=nom,
+            adresse=adresse,
+            telephone=telephone,
+            fax=fax,
+            site_internet=site_internet,
+            identifiant=identifiant,
+            mot_de_passe=mot_de_passe
+        )
+        
+        # Enregistrer les modifications dans la base de données
+        repertoire.save()
+        messages.success(request, f'Le répertoire "{nom}" a été modiféé avec succès.')
+        
+        return redirect('repertoire_list')  # Rediriger vers la liste des répertoires après la mise à jour
+    return render(request, 'rep/add.html')
 
 
 

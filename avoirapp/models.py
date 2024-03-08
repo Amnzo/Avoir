@@ -88,3 +88,16 @@ class Invoice(models.Model):
 
     def __str__(self):
         return f"Invoice: {self.invoice_number}, Month: {self.mois_concerne}"
+    
+class Repertoire(models.Model):
+    nom = models.CharField(max_length=100)
+    adresse = models.CharField(max_length=200)
+    telephone = models.CharField(max_length=20)
+    fax = models.CharField(max_length=20)
+    site_internet = models.URLField(max_length=200)
+    identifiant = models.CharField(max_length=100)
+    mot_de_passe = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.nom

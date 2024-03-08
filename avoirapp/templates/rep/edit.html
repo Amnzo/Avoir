@@ -1,0 +1,81 @@
+{% extends 'layout/base.html' %}
+{% block title %}Modifier Répertoire{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0 text-center">MODIFICATION : {{ repertoire.nom }}</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="nom">NOM :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="nom" name="nom" value="{{ repertoire.nom }}" oninput="this.value = this.value.toUpperCase()">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="adresse">ADRESSE :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="adresse" name="adresse" value="{{ repertoire.adresse }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="telephone">TELEPHONE :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="telephone" name="telephone" value="{{ repertoire.telephone }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="fax">FAX :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="fax" name="fax" value="{{ repertoire.fax }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="site_internet">SITE INTERNET :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="site_internet" name="site_internet" value="{{ repertoire.site_internet }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="identifiant">IDENTIFIANT :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="identifiant" name="identifiant" value="{{ repertoire.identifiant }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label for="mot_de_passe">MOT DE PASSE :</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="mot_de_passe" name="mot_de_passe" value="{{ repertoire.mot_de_passe }}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check"></i> VALIDER MODIFICATION
+                            </button>
+                            <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

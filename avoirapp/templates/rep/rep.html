@@ -1,0 +1,83 @@
+<!-- templates/repertoire_list.html -->
+
+{% extends 'layout/base.html' %}
+
+{% block title %}Liste des répertoires{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">REPERTOIRES</h1>
+
+    <!-- Formulaire de recherche -->
+
+    <form id="searchForm" class="mb-4" action="{% url 'repertoire_list' %}" method="GET">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+
+                <label for="searchInput" class="sr-only">Rechercher par nom :</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" oninput="this.value = this.value.toUpperCase()">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">RECHERCHE</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+               
+                <a href="{% url 'add_rep' %}" class="btn btn-primary mb-4">
+                    <i class="fas fa-plus"></i> AJOUTER CONTACT
+                </a>
+                <a href="{% url 'valide_repertoire' %}" class="btn btn-success mb-4">
+                    <i class="fas fa-check"></i> CONTACTE A VALIDER
+                </a>
+               
+               
+                
+            </div>
+        </div>
+    </form>
+
+
+    
+
+    <!-- Tableau des répertoires -->
+    <table class="table table-bordered table-hover">
+        <thead style="background-color: #007BFF; color: #FFFFFF;">
+            <tr>
+                <th>NOM</th>
+                <th>ADRESSE</th>
+                <th>TELEPHONE</th>
+                <th>FAX</th>
+                <th>SITE INTERNET</th>
+                <th>IDENTIFIANT</th>
+                <th>MOT DE PASSE</th>
+                <th>ACTION</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for repertoire in repertoires %}
+            <tr>
+                <td>{{ repertoire.nom|upper }}</td>
+                <td>{{ repertoire.adresse }}</td>
+                <td>{{ repertoire.telephone }}</td>
+                <td>{{ repertoire.fax }}</td>
+                <td>{{ repertoire.site_internet }}</td>
+                <td>{{ repertoire.identifiant }}</td>
+                <td>{{ repertoire.mot_de_passe }}</td>
+                <td>
+                 <a href="{% url 'edit_rep' id=repertoire.id %}" class="text-warning"><i class="bi bi-pencil"></i></a>
+                </td>
+                
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Aucun répertoire trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+ 
+</div>
+{% endblock %}

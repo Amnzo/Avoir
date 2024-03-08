@@ -15,7 +15,12 @@ urlpatterns = [
     path('display_facture/', display_facture, name='display_facture'),
     path('display_facture2/', display_facture2, name='display_facture2'),
     path('consommation_par_famille_par_mois/', consommation_par_famille_par_mois, name='consommation_par_famille_par_mois'),
-
+    path('repertoires/', repertoire_list, name='repertoire_list'),
+    path('valide_repertoire/', valide_repertoire, name='valide_repertoire'),
+    path('edit_rep/<int:id>/', edit_rep, name='edit_rep'),
+    path('add_rep/', add_rep, name='add_rep'),
+    
+    
     
  
      

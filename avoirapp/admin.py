@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Client, Avoir, Famille,Consommation
+from .models import Client, Avoir, Famille,Consommation, Repertoire
 from django.utils.html import format_html
 
 from django.db.models import Sum
@@ -55,3 +55,8 @@ admin.site.register(Consommation,ConsommationAdmin)
 class FamilleAdmin(admin.ModelAdmin):
     list_display = ('id', 'famille')
 admin.site.register(Famille,FamilleAdmin)
+class RepertoireAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'adresse', 'telephone', 'fax', 'site_internet', 'identifiant', 'mot_de_passe', 'is_active')
+
+# Register the Repertoire model with the custom admin class
+admin.site.register(Repertoire, RepertoireAdmin)
