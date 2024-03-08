@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Client, Avoir, Famille,Consommation, Repertoire
+from .models import Client, Avoir, Famille,Consommation, Repertoire, Retour
 from django.utils.html import format_html
 
 from django.db.models import Sum
@@ -60,3 +60,9 @@ class RepertoireAdmin(admin.ModelAdmin):
 
 # Register the Repertoire model with the custom admin class
 admin.site.register(Repertoire, RepertoireAdmin)
+
+class RetourAdmin(admin.ModelAdmin):
+    list_display = ('date','nom', 'prenom', 'fournisseur', 'designation', 'code', 'facture')
+# Register the Repertoire model with the custom admin class
+admin.site.register(Retour, RetourAdmin)
+

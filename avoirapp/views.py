@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponseBadRequest, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
-from .models import Avoir, Client, Famille,Consommation, Invoice, Repertoire
+from .models import Avoir, Client, Famille,Consommation, Invoice, Repertoire, Retour
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Count
@@ -693,8 +693,6 @@ def edit_rep(request,id):
 
 
 def add_rep(request):
-    
-
     if request.method == 'POST':
         # Récupérer les données du formulaire depuis la requête POST
         nom = request.POST.get('nom')
@@ -724,7 +722,115 @@ def add_rep(request):
     return render(request, 'rep/add.html')
 
 
+#--------------------Gestion Retour----------------------------
 
+def retour_list(request):
+    # Récupérer tous les enregistrements du modèle Repertoire
+    retours = Retour.objects.all()
+    maintenant = datetime.now()
+    maintenant_moins_25_jours = maintenant - timedelta(days=25)
+    print(maintenant_moins_25_jours)
+    context = {
+        'retours': retours,
+        'maintenant_moins_25_jours': maintenant_moins_25_jours,
+    }
+    # Si une requête de recherche est soumise
+    if request.method == 'GET' and request.GET.get('search'):
+        search_query = request.GET.get('search')
+        retours = Retour.objects.filter(
+            Q(nom__icontains=search_query) |
+            Q(prenom__icontains=search_query) |
+            Q(fournisseur__icontains=search_query),
+        )
+
+    search_form = RepertoireSearchForm()
+    return render(request, 'retours/retour.html', context)
+
+
+def add_retour(request):
+    if request.method == 'POST':
+        # Récupérer les données du formulaire depuis la requête POST
+        nom = request.POST.get('nom')
+        prenom = request.POST.get('prenom')
+        fournisseur = request.POST.get('fournisseur')
+        designation = request.POST.get('designation')
+        code = request.POST.get('code')
+        facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
+        
+        # Créer un nouvel objet Retour
+        retour = Retour.objects.create(
+            nom=nom,
+            prenom=prenom,
+            fournisseur=fournisseur,
+            designation=designation,
+            code=code,
+            facture=facture  # Assignez le fichier de la facture
+        )
+        
+        # Enregistrer les modifications dans la base de données
+        retour.save()
+        messages.success(request, 'Le retour a été ajouté avec succès.')
+        
+        return redirect('retour_list')  # Rediriger vers la liste des retours après l'ajout
+    return render(request, 'retours/add.html')
+
+
+
+
+def edit_retour(request, id):
+    retour = Retour.objects.get(pk=id)
+    
+    if request.method == 'POST':
+        # Récupérer les données du formulaire depuis la requête POST
+        nom = request.POST.get('nom')
+        prenom = request.POST.get('prenom')
+        fournisseur = request.POST.get('fournisseur')
+        designation = request.POST.get('designation')
+        code = request.POST.get('code')
+        facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
+        
+        # Mettre à jour les champs du retour avec les nouvelles valeurs
+        retour.nom = nom
+        retour.prenom = prenom
+        retour.fournisseur = fournisseur
+        retour.designation = designation
+        retour.code = code
+        if facture:  # Vérifiez si un nouveau fichier de facture a été fourni
+            retour.facture = facture
+        
+        # Enregistrer les modifications dans la base de données
+        retour.save()
+        messages.success(request, f'Le retour "{nom}" a été modifié avec succès.')
+        return redirect('retour_list')  # Rediriger vers la liste des retours après la mise à jour
+    
+    return render(request, 'retours/edit.html', {'retour': retour})
+
+
+def valider_retour(request,id):
+    retour=Retour.objects.get(pk=id)
+    return render(request, 'retours/valider.html', {'retour': retour})
+
+def confirme_validation(request, id):
+    retour = Retour.objects.get(pk=id)   
+    if request.method == 'POST':
+        if 'confirmation' in request.POST:
+            # Mettre à jour la facture du retour avec le fichier uploadé
+            facture = request.FILES.get('facture')
+            if facture:
+                retour.facture = facture
+                retour.save()
+                # Rediriger vers une page de confirmation ou une autre vue
+                return redirect('retour_list')
+            else:
+                # Si aucun fichier n'a été téléchargé, gérer l'erreur
+                # ou afficher un message à l'utilisateur
+                pass
+        else:
+            # Si la case de confirmation n'est pas cochée, gérer l'erreur
+            # ou afficher un message à l'utilisateur
+            pass
+    
+    return redirect('retour_list')
 #--------------------PDF---------------------
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count

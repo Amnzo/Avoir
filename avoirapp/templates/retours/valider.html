@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALIDATION  RETOUR DE  : {{retour.nom }} {{retour.prenom }}</title>
+    <!-- Inclure Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Votre CSS personnalisé -->
+    <style>
+        /* Ajoutez ici votre CSS personnalisé */
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card bg-primary text-white">
+                    <div class="card-header">
+                        CONFIRMATION DE RETOUR
+                    </div>
+                    <div class="card-body">
+                        <form id="deleteForm" action="{% url 'confirme_validation' id=retour.id %}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <p>ÊTES-VOUS SÛR DE VOULOIR VALIDER LE RETOUR DE {{ retour.nom |upper }} {{ retour.prenom |upper }} ?</p>
+                            <!-- Champ pour mettre à jour la facture -->
+                            <div class="form-group">
+                              
+                                <input type="file" class="form-control-file" id="facture" name="facture">
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="confirmation" name="confirmation">
+                                <label class="form-check-label" for="confirmation">Oui, je suis sûr</label>
+                            </div>
+                            <button id="deleteButton" type="submit" class="btn btn-danger mt-3" disabled>CONFIRMER</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+<!-- Inclure Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Votre JavaScript personnalisé -->
+<script>
+    document.getElementById('confirmation').addEventListener('change', function() {
+        document.getElementById('deleteButton').disabled = !this.checked;
+    });
+</script>
+
+</body>
+</html>

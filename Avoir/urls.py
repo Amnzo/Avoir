@@ -21,7 +21,6 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('avoirapp.urls')),
-    path('bl/', include('bl_app.urls')),
     #path('', include('avoirapp.urls')),  # Replace 'myapp' with the actual name of your app
 ]
 if settings.DEBUG:

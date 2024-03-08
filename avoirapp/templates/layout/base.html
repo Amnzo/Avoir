@@ -139,6 +139,11 @@
         #sidebarCollapse:hover {
             color: #0056b3;
         }
+        table {
+    width: 100%;
+    margin-bottom: 1rem;
+    text-align: center; /* Ajouter le centrage pour tous les tableaux */
+}
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -183,7 +188,7 @@
                     </a>
                 </li>
                 <li class="active">
-                    <a href="{% url 'client' %}" title="Client">
+                    <a href="{% url 'retour_list' %}" title="Client">
                         <i class="fas fa-undo"></i> Gestion Retour
                     </a>
                 </li>

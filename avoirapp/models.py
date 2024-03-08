@@ -4,6 +4,7 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime, timedelta
 class Client(models.Model):
     nom = models.CharField(max_length=100, unique=True)
     prenom = models.CharField(max_length=100, blank=True, null=True)
@@ -28,6 +29,13 @@ class Client(models.Model):
 def upload_invoice_path(instance, filename):
     # This function defines the upload path for the PDF invoices.
     return f'avoir_invoices/{instance.client.nom}_{instance.date_ajout}_{filename}'
+
+
+
+
+def upload_invoice_path_retour(instance, filename):
+    # Nom de fichier unique
+    return f'retours_invoice/{filename}'
 
 
 class Famille(models.Model):
@@ -101,3 +109,27 @@ class Repertoire(models.Model):
 
     def __str__(self):
         return self.nom
+
+
+class Retour(models.Model):
+    date= models.DateTimeField(default=timezone.now)
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+    fournisseur = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100)
+    code = models.CharField(max_length=50,blank=True ,null=True)
+    facture = models.FileField(
+        upload_to=upload_invoice_path_retour,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+         blank=True ,  # La facture est obligatoire
+         null=True
+    )
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.nom
+
+    def jours_ecoules(self):
+        # Calculer la différence de jours entre la date de retour et la date actuelle
+        difference = timezone.now() - self.date
+        return difference.days

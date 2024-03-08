@@ -19,6 +19,11 @@ urlpatterns = [
     path('valide_repertoire/', valide_repertoire, name='valide_repertoire'),
     path('edit_rep/<int:id>/', edit_rep, name='edit_rep'),
     path('add_rep/', add_rep, name='add_rep'),
+    path('retours/', retour_list, name='retour_list'),
+    path('add_retour/', add_retour, name='add_retour'),
+    path('edit_retour/<int:id>/', edit_retour, name='edit_retour'),
+    path('valider_retour/<int:id>/', valider_retour, name='valider_retour'),
+    path('confirme-validation/<int:id>/', confirme_validation, name='confirme_validation'),
     
     
     

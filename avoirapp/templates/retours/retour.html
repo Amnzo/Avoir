@@ -1,0 +1,124 @@
+<!-- templates/repertoire_list.html -->
+
+{% extends 'layout/base.html' %}
+
+{% block title %}Liste des répertoires{% endblock %}
+
+{% block content %}
+{% load tz %}  {# Charger les filtres de fuseau horaire #}
+<style>
+
+tr.success {
+    background-color: lightgreen; /* Vert léger */
+}
+
+tr.warning {
+    background-color: #ffe6b3; /* Orange léger */
+}
+
+tr.danger {
+    background-color: lightcoral; /* Rouge léger */
+}
+
+</style>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">RETOURS</h1>
+
+    <!-- Formulaire de recherche -->
+
+    <form id="searchForm" class="mb-4" action="{% url 'retour_list' %}" method="GET">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+
+                <label for="searchInput" class="sr-only">Rechercher par nom :</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" oninput="this.value = this.value.toUpperCase()">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">RECHERCHE</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+               
+                <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
+                    <i class="fas fa-plus"></i> AJOUTER RETOUR
+                </a>
+                
+               
+               
+                
+            </div>
+        </div>
+    </form>
+
+
+    
+
+    <!-- Tableau des répertoires -->
+    <table class="table table-bordered table-hover">
+        <thead style="background-color: #007BFF; color: #FFFFFF;">
+            <tr>
+                
+                <th>DATE</th>
+                <th>NOM</th>
+                <th>PRENOM</th>
+                <th>FOURNISSEUR</th>
+                <th>DESIGNATION</th>
+                <th>CODE BARRE</th>
+                <th>FACTURE</th>
+                <th>ACTION</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for retour in retours %}
+            
+
+            {% if retour.facture %}
+            <tr class="success">
+        {% elif retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
+            <tr class="warning">
+        {% else %}
+            <tr class="danger">
+        {% endif %}
+        
+
+                <td>{{ retour.date | date:"d-m-Y" }}</td>
+                <td>{{ retour.nom|upper }}</td>
+                <td>{{ retour.prenom|upper }}</td>
+                <td>{{ retour.fournisseur|upper }}</td>
+                <td>{{ retour.designation }}</td>
+                <td>{{ retour.code }}</td>
+                <td>
+                {% if retour.facture %}
+                            <a href="{{ retour.facture.url }}" target="_blank">Voir la facture</a>
+                            {% else %}
+                           -
+                  {% endif %}  
+                <td>
+                     
+                 <a href="{% url 'edit_retour' id=retour.id %}" class="text-warning"><i class="bi bi-pencil text-white"></i></a>
+                 {% if retour.facture %}
+                           
+                    {% else %}
+                    <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-white"></i></a>
+                  {% endif %} 
+                 
+                 
+
+                 
+                 
+                </td>
+                
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Aucun répertoire trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+ 
+</div>
+{% endblock %}
