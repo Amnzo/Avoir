@@ -766,7 +766,29 @@ def retour_list(request):
 
     return render(request, 'retours/retour.html', context)
 
+def consultation_list_retour(request):
+    #retours = Retour.objects.filter(facture='')
+    retours = Retour.objects.exclude(facture='')
+    search_query=""
+    # Filtrer les enregistrements en fonction de la recherche de nom
+    if request.method == 'GET' and request.GET.get('search'):
+        search_query = request.GET.get('search')
+        print(search_query)
+        retours = retours.filter(
+            Q(nom__icontains=search_query) |
+            Q(prenom__icontains=search_query) |
+            Q(fournisseur__icontains=search_query)
+        )
 
+  
+
+    context = {
+        'retours': retours,
+        'search_query': search_query,
+
+    }
+
+    return render(request, 'retours/consulter.html', context)
 
 
 

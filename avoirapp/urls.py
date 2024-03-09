@@ -20,6 +20,8 @@ urlpatterns = [
     path('edit_rep/<int:id>/', edit_rep, name='edit_rep'),
     path('add_rep/', add_rep, name='add_rep'),
     path('retours/', retour_list, name='retour_list'),
+    path('consultation_list_retour/', consultation_list_retour, name='consultation_list_retour'),
+    
     path('add_retour/', add_retour, name='add_retour'),
     path('edit_retour/<int:id>/', edit_retour, name='edit_retour'),
     path('valider_retour/<int:id>/', valider_retour, name='valider_retour'),

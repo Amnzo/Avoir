@@ -29,37 +29,31 @@ tr.danger {
 
 </style>
 <div class="container mt-4">
-    <h1 class="text-center mb-4">GESTION DES RETOURS NON VALIDÉS</h1>
-    <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
+    <h1 class="text-center mb-4">GESTION DES RETOURS </h1>
+              <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
                     <i class="fas fa-plus"></i> AJOUTER RETOUR
                 </a>
-                <a href="{% url  'consultation_list_retour' %}" class="btn btn-success mb-4">
-                    <i class="fas fa-check"></i> CONSULTER LES RETOURS VALIDE
+
+                <a href="javascript:history.back()" class="btn btn-secondary mb-4">
+                    <i class="fas fa-chevron-left"></i>  RETOUR
                 </a>
+
+                
+                
 
     <!-- Formulaire de recherche -->
 
     <div class="card">
         <div class="card-body">
           
-            <form id="searchForm" action="{% url 'retour_list' %}" method="GET">
+            <form id="searchForm" action="{% url 'consultation_list_retour' %}" method="GET">
                 
                 <div class="form-row">
                     <div class="form-group col-md-5">
                         <label for="searchInput" class="sr-only">Rechercher par nom... :</label>
                         <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom"  value="{{ search_query }}" oninput="this.value = this.value.toUpperCase()">
                     </div>
-                    <div class="form-group col-md-5">          
-                       
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="rougeCheckbox" name="couleur[]" value="rouge" {% if 'rouge' in couleurs %}checked{% endif %}>
-                            <label class="form-check-label" for="rougeCheckbox">{{"Rouge"|upper}}</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="orangeCheckbox" name="couleur[]" value="orange" {% if 'orange' in couleurs %}checked{% endif %}>
-                            <label class="form-check-label" for="orangeCheckbox">{{"Orange"|upper}}</label>
-                        </div>
-                    </div>
+                    
                     <div class="col-md-2"> <button type="submit" class="btn btn-primary">RECHERCHE</button></div>
                 </div>
                 
@@ -78,20 +72,16 @@ tr.danger {
                 <th>FOURNISSEUR</th>
                 <th>DESIGNATION</th>
                 <th>CODE BARRE</th>
-         
+                <th>AVOIR</th>
                 <th>ACTION</th>
                 
             </tr>
         </thead>
         <tbody>
             {% for retour in retours %}
-            {% if retour.facture %}
+           
             <tr class="success">
-            {% elif retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
-                <tr class="warning">
-            {% else %}
-                <tr class="danger">
-            {% endif %}
+            
         
 
                 <td>{{ retour.date | date:"d-m-Y" }}</td>
@@ -100,7 +90,12 @@ tr.danger {
                 <td>{{ retour.fournisseur|upper }}</td>
                 <td>{{ retour.designation }}</td>
                 <td>{{ retour.code }}</td>
-              
+                <td>
+                {% if retour.facture %}
+                            <a href="{{ retour.facture.url }}" target="_blank">Voir la facture</a>
+                            {% else %}
+                           -
+                  {% endif %}  
                 <td>
                      
                  <a href="{% url 'edit_retour' id=retour.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
@@ -118,10 +113,8 @@ tr.danger {
                 </td>
                 
             </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8">Aucun retour trouvé.</td>
-            </tr>
+
+            
             {% endfor %}
         </tbody>
     </table>
