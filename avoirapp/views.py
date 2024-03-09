@@ -727,10 +727,11 @@ def add_rep(request):
 from django.utils import timezone
 
 def retour_list(request):
-    retours = Retour.objects.all()
+    retours = Retour.objects.filter(facture='')
     maintenant = timezone.now()
     maintenant_moins_25_jours = maintenant - timedelta(days=25)
     search_query=""
+    couleurs= []
 
     # Filtrer les enregistrements en fonction de la recherche de nom
     if request.method == 'GET' and request.GET.get('search'):
@@ -749,8 +750,6 @@ def retour_list(request):
         filtered_retours = []
         for retour in retours:
             jours_ecoules = retour.jours_ecoules()  # Assurez-vous que la méthode est appelée correctement
-            if 'vert' in couleurs and retour.facture:
-                 filtered_retours.append(retour)
             if 'orange' in couleurs and 0 <= jours_ecoules <= 25 and not retour.facture:
                 filtered_retours.append(retour)
 
@@ -762,6 +761,7 @@ def retour_list(request):
         'retours': retours,
         'maintenant_moins_25_jours': maintenant_moins_25_jours,
         'search_query': search_query,
+        'couleurs': request.GET.getlist('couleur[]')
     }
 
     return render(request, 'retours/retour.html', context)

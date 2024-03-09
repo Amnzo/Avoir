@@ -10,19 +10,26 @@
 
 tr.success {
     background-color: lightgreen; /* Vert léger */
+    color: black;
 }
 
 tr.warning {
     background-color: #ffe6b3; /* Orange léger */
+    color: black;
 }
 
 tr.danger {
     background-color: lightcoral; /* Rouge léger */
+    color: black;
+}
+
+.text-black {
+    color: black !important;
 }
 
 </style>
 <div class="container mt-4">
-    <h1 class="text-center mb-4">RETOURS</h1>
+    <h1 class="text-center mb-4">GESTION DES RETOURS NON VALIDÉS</h1>
 
     <!-- Formulaire de recherche -->
 
@@ -39,17 +46,14 @@ tr.danger {
                         <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom"  value="{{ search_query }}" oninput="this.value = this.value.toUpperCase()">
                     </div>
                     <div class="form-group col-md-5">          
+                       
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="vertCheckbox" name="couleur[]" value="vert">
-                            <label class="form-check-label" for="vertCheckbox">{{"Vertes"|upper}}</label>
+                            <input class="form-check-input" type="checkbox" id="rougeCheckbox" name="couleur[]" value="rouge" {% if 'rouge' in couleurs %}checked{% endif %}>
+                            <label class="form-check-label" for="rougeCheckbox">{{"Rouge"|upper}}</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="rougeCheckbox" name="couleur[]" value="rouge">
-                            <label class="form-check-label" for="rougeCheckbox">{{"Rouges"|upper}}</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="orangeCheckbox" name="couleur[]" value="orange">
-                            <label class="form-check-label" for="orangeCheckbox">{{"Oranges"|upper}}</label>
+                            <input class="form-check-input" type="checkbox" id="orangeCheckbox" name="couleur[]" value="orange" {% if 'orange' in couleurs %}checked{% endif %}>
+                            <label class="form-check-label" for="orangeCheckbox">{{"Orange"|upper}}</label>
                         </div>
                     </div>
                     <div class="col-md-2"> <button type="submit" class="btn btn-primary">RECHERCHE</button></div>
@@ -58,10 +62,6 @@ tr.danger {
             </form>
         </div>
     </div>
-    
-
-
-    
 
     <!-- Tableau des répertoires -->
     <table class="table table-bordered table-hover">
@@ -104,11 +104,12 @@ tr.danger {
                   {% endif %}  
                 <td>
                      
-                 <a href="{% url 'edit_retour' id=retour.id %}" class="text-warning"><i class="bi bi-pencil text-white"></i></a>
+                 <a href="{% url 'edit_retour' id=retour.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
                  {% if retour.facture %}
                            
                     {% else %}
-                    <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-white"></i></a>
+                    
+                    <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
                   {% endif %} 
                  
                  
