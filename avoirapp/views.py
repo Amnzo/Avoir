@@ -730,6 +730,7 @@ def retour_list(request):
     retours = Retour.objects.all()
     maintenant = timezone.now()
     maintenant_moins_25_jours = maintenant - timedelta(days=25)
+    search_query=""
 
     # Filtrer les enregistrements en fonction de la recherche de nom
     if request.method == 'GET' and request.GET.get('search'):
@@ -760,6 +761,7 @@ def retour_list(request):
     context = {
         'retours': retours,
         'maintenant_moins_25_jours': maintenant_moins_25_jours,
+        'search_query': search_query,
     }
 
     return render(request, 'retours/retour.html', context)
