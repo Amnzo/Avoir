@@ -26,30 +26,36 @@ tr.danger {
 
     <!-- Formulaire de recherche -->
 
-    <form id="searchForm" class="mb-4" action="{% url 'retour_list' %}" method="GET">
-        <div class="form-row">
-            <div class="form-group col-md-6">
-
-                <label for="searchInput" class="sr-only">Rechercher par nom :</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" oninput="this.value = this.value.toUpperCase()">
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary">RECHERCHE</button>
+    <div class="card">
+        <div class="card-body">
+          
+            <form id="searchForm" action="{% url 'retour_list' %}" method="GET">
+                <div class="form-row">
+                    <div class="form-group col-md-5">
+                        <label for="searchInput" class="sr-only">Rechercher par nom... :</label>
+                        <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" oninput="this.value = this.value.toUpperCase()">
                     </div>
+                    <div class="form-group col-md-5">          
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="vertCheckbox" name="couleur[]" value="vert">
+                            <label class="form-check-label" for="vertCheckbox">{{"Vertes"|upper}}</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="rougeCheckbox" name="couleur[]" value="rouge">
+                            <label class="form-check-label" for="rougeCheckbox">{{"Rouges"|upper}}</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="orangeCheckbox" name="couleur[]" value="orange">
+                            <label class="form-check-label" for="orangeCheckbox">{{"Oranges"|upper}}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2"> <button type="submit" class="btn btn-primary">RECHERCHE</button></div>
                 </div>
-            </div>
-            <div class="col-md-6">
-               
-                <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
-                    <i class="fas fa-plus"></i> AJOUTER RETOUR
-                </a>
                 
-               
-               
-                
-            </div>
+            </form>
         </div>
-    </form>
+    </div>
+    
 
 
     
@@ -72,15 +78,13 @@ tr.danger {
         </thead>
         <tbody>
             {% for retour in retours %}
-            
-
             {% if retour.facture %}
             <tr class="success">
-        {% elif retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
-            <tr class="warning">
-        {% else %}
-            <tr class="danger">
-        {% endif %}
+            {% elif retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
+                <tr class="warning">
+            {% else %}
+                <tr class="danger">
+            {% endif %}
         
 
                 <td>{{ retour.date | date:"d-m-Y" }}</td>
@@ -113,7 +117,7 @@ tr.danger {
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8">Aucun répertoire trouvé.</td>
+                <td colspan="8">Aucun retour trouvé.</td>
             </tr>
             {% endfor %}
         </tbody>

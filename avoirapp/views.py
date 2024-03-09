@@ -724,27 +724,48 @@ def add_rep(request):
 
 #--------------------Gestion Retour----------------------------
 
+from django.utils import timezone
+
 def retour_list(request):
-    # Récupérer tous les enregistrements du modèle Repertoire
     retours = Retour.objects.all()
-    maintenant = datetime.now()
+    maintenant = timezone.now()
     maintenant_moins_25_jours = maintenant - timedelta(days=25)
-    print(maintenant_moins_25_jours)
+
+    # Filtrer les enregistrements en fonction de la recherche de nom
+    if request.method == 'GET' and request.GET.get('search'):
+        search_query = request.GET.get('search')
+        print(search_query)
+        retours = retours.filter(
+            Q(nom__icontains=search_query) |
+            Q(prenom__icontains=search_query) |
+            Q(fournisseur__icontains=search_query)
+        )
+
+    # Filtrer les enregistrements en fonction de la couleur et de la présence de facture
+    if request.method == 'GET' and request.GET.getlist('couleur[]'):
+        couleurs = request.GET.getlist('couleur[]')
+        print(couleurs)
+        filtered_retours = []
+        for retour in retours:
+            jours_ecoules = retour.jours_ecoules()  # Assurez-vous que la méthode est appelée correctement
+            if 'vert' in couleurs and retour.facture:
+                 filtered_retours.append(retour)
+            if 'orange' in couleurs and 0 <= jours_ecoules <= 25 and not retour.facture:
+                filtered_retours.append(retour)
+
+            if 'rouge' in couleurs and jours_ecoules > 25 and not retour.facture :
+                filtered_retours.append(retour)
+        retours = filtered_retours
+
     context = {
         'retours': retours,
         'maintenant_moins_25_jours': maintenant_moins_25_jours,
     }
-    # Si une requête de recherche est soumise
-    if request.method == 'GET' and request.GET.get('search'):
-        search_query = request.GET.get('search')
-        retours = Retour.objects.filter(
-            Q(nom__icontains=search_query) |
-            Q(prenom__icontains=search_query) |
-            Q(fournisseur__icontains=search_query),
-        )
 
-    search_form = RepertoireSearchForm()
     return render(request, 'retours/retour.html', context)
+
+
+
 
 
 def add_retour(request):
