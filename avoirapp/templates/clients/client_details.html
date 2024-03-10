@@ -89,7 +89,8 @@
                         <th scope="col">PRIX VENTE TTC</th>
                         <th scope="col">CREATEUR</th>
                         <th scope="col">DATE CONSOMMATION</th>
-                        <th scope="col">FACTURE</th>
+                        <th scope="col">AVOIR</th>
+                        <th scope="col">ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,6 +109,8 @@
                         {% else %}
                          <td>-</td>
                         {% endif %}
+                        <td><a href="{% url 'editer_consommation' id=consomation.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -131,6 +134,7 @@
                         <th scope="col">DATE CREDIT</th>
                         <th scope="col">CREATEUR</th>
                         <th scope="col">FACTURE</th>
+                        <th scope="col">ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,6 +146,7 @@
                         <td>
                             <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
                         </td>
+                        <td><a href="{% url  'editer_avoir' id=avoir.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

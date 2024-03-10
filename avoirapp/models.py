@@ -75,7 +75,7 @@ class Consommation(models.Model):
     prix_vente = models.DecimalField(max_digits=10, decimal_places=2)
     date_ajout = models.DateTimeField(default=timezone.now)
     designation = models.TextField(blank=False, null=False)
-    code_barre = models.CharField(max_length=25, verbose_name='EAN-13 Barcode', blank=False ,null=True)
+    code_barre = models.CharField(max_length=25, blank=True ,null=True)
     facture = models.FileField(
         upload_to=upload_invoice_path,
         validators=[FileExtensionValidator(allowed_extensions=['pdf'])],

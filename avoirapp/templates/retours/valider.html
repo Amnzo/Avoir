@@ -18,12 +18,12 @@
             <div class="col-md-6">
                 <div class="card bg-primary text-white">
                     <div class="card-header">
-                        CONFIRMATION DE RETOUR
+                        JOINDRE FICHIER
                     </div>
                     <div class="card-body">
                         <form id="deleteForm" action="{% url 'confirme_validation' id=retour.id %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <p>ÊTES-VOUS SÛR DE VOULOIR VALIDER LE RETOUR DE {{ retour.nom |upper }} {{ retour.prenom |upper }} ?</p>
+                            <p>ÊTES-VOUS SÛR DE VOULOIR JOINDRE UN FICHIER À CE RETOUR ?</p>
                             <!-- Champ pour mettre à jour la facture -->
                             <div class="form-group">
                               

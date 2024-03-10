@@ -40,6 +40,9 @@ urlpatterns = [
     path('client/<int:client_id>/', client_details, name='client_details'),
     path('client/<int:client_id>/ajouter-avoir/', ajouter_avoir, name='ajouter_avoir'),
     path('client/<int:client_id>/consommer-avoir/', consommer_avoir, name='consommer_avoir'),
+    path('editer_avoir/<int:id>', editer_avoir, name='editer_avoir'),
+    path('editer_consommation/<int:id>', editer_consommation, name='editer_consommation'),
+    
     path('add_client/', add_client, name='add_client'),
     path('edit_client/<int:id>/', edit_client, name='edit_client'),
     path('test/', test, name='test'),

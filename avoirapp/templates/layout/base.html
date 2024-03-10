@@ -182,11 +182,7 @@
                     </a>
                 </li>
 
-                <li class="active">
-                    <a href="{% url 'compte_rendu' %}" title="Client">
-                        <i class="far fa-calendar-alt"></i> {{"Compte Rendu" |upper }}
-                    </a>
-                </li>
+               
                 <li class="active">
                     <a href="{% url 'retour_list' %}" title="Client">
                         <i class="fas fa-undo"></i> {{"Gestion Retour" |upper }}
@@ -199,6 +195,13 @@
                 </li>
                 
                 <!-- Add more links as needed -->
+               
+                <li class="active">
+                    <a href="{% url 'compte_rendu' %}" title="Client">
+                        <i class="far fa-calendar-alt"></i> {{"Compte Rendu" |upper }}
+                    </a>
+                </li>
+
                 <li>
                     <a href="{% url 'logout' %}" title="Logout">
                         <i class="fas fa-sign-out-alt"></i> Logout

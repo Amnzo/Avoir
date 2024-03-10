@@ -6,7 +6,7 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header bg-primary text-white text-center">
-                <h2 class="mb-0">CONSOMMER CREDIT (MAX : {{client.total_avoir_client|floatformat:2 }}) </h2>
+                <h2 class="mb-0">MODIFICATION CONSOMMER DE {{conso.client}} </h2>
             </div>
             <div class="card-body">
                 <form method="post"  enctype="multipart/form-data" class="form">
@@ -15,61 +15,41 @@
 
                     <!-- Hidden field for logged-in user -->
                     <div class="form-group row">
-                        <label for="{{ form.user.id_for_label }}" class="col-sm-3 col-form-label text-right">UTILISATEUR :</label>
+                        <label class="col-sm-3 col-form-label text-right">UTILISATEUR :</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="{{ form.user.id_for_label }}" name="{{ form.user.name }}" value="{{ request.user.username }}" readonly>
+                            <input type="text" class="form-control"  value="{{ request.user.username }}" readonly>
                         </div>
                     </div>
 
                     <!-- Hidden field for date and time of the operation -->
                     <div class="form-group row">
-                        <label for="{{ form.operation_datetime.id_for_label }}" class="col-sm-3 col-form-label text-right"> DATE :</label>
+                        <label class="col-sm-3 col-form-label text-right"> DATE :</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="{{ form.operation_datetime.id_for_label }}" name="{{ form.operation_datetime.name }}"  value="{% now 'Y-m-d H:i:s' %}" readonly>
+                            <input type="text" class="form-control" id="date" name="date"  value="{{conso.date_ajout | date:"d-m-Y" }}" readonly>
                         </div>
                     </div>
 
-                    <!-- Famille field as a styled Bootstrap-select dropdown -->
-                    <div class="form-group row">
-                        <label for="{{ form.famille.id_for_label }}" class="col-sm-3 col-form-label text-right">FAMILLE :</label>
-                        <div class="col-sm-9">
-                            <select class="form-control" id="{{ form.famille.id_for_label }}" name="{{ form.famille.name }}" {% if form.famille.errors %}is-invalid{% endif %} required>
-                                {% for choice in form.famille.field.choices %}
-
-                                    <option value="{{ choice.0 }}" {% if form.famille.value == choice.0 %}selected{% endif %} data-is-facture="{{ choice.2 }}">{{ choice.1 }}</option>
-
-                                {% endfor %}
-                            </select>
-                            {% if form.famille.errors %}
-                                <div class="invalid-feedback">{{ form.famille.errors }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
+                
                     <!-- Other fields with similar styling -->
                     <div class="form-group row">
-                        <label for="{{ form.designation.id_for_label }}" class="col-sm-3 col-form-label text-right">DESIGNATION :</label>
+                        <label  class="col-sm-3 col-form-label text-right">DESIGNATION :</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="{{ form.designation.id_for_label }}" name="{{ form.designation.name }}"  required  oninput="this.value = this.value.toUpperCase()">
-                            {% if form.ean_13.errors %}
-                                <div class="text-danger">{{ form.designation.errors }}</div>
-                            {% endif %}
+                            <input type="text" class="form-control" id="designation" name="designation" value="{{conso.designation}}"  required  oninput="this.value = this.value.toUpperCase()">
+                            
                         </div>
                     </div>
 
                     <div class="form-group row">
-                        <label for="{{ form.montant.id_for_label }}" class="col-sm-3 col-form-label text-right">PRIX ACHAT HT :</label>
+                        <label class="col-sm-3 col-form-label text-right">PRIX ACHAT HT :</label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control" id="{{ form.prix_achat.id_for_label }}" name="{{ form.prix_achat.name }}" step="0.01" min="0" required>
-                            {% if form.montant.errors %}
-                                <div class="text-danger">{{ form.prix_achat.errors }}</div>
-                            {% endif %}
+                            <input type="number" class="form-control" id="prix_achat" name="prix_achat" step="0.01" min="0" value="{{conso.prix_achat}}"  required>
+                            
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="{{ form.montant.id_for_label }}" class="col-sm-3 col-form-label text-right">PRIXVENTE TTC :</label>
+                        <label for="{{ form.montant.id_for_label }}" class="col-sm-3 col-form-label text-right">PRIX VENTE TTC :</label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control" id="{{ form.prix_vente.id_for_label }}" name="{{ form.prix_vente.name }}"  step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="prix_vente" name="prix_vente" value="{{conso.prix_vente}}" step="0.01" min="0" required>
                             {% if form.montant.errors %}
                                 <div class="text-danger">{{ form.prix_vente.errors }}</div>
                             {% endif %}

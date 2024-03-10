@@ -435,17 +435,60 @@ def ajouter_avoir(request, client_id):
 
 
 
+def editer_avoir(request, id):
+    avoir = Avoir.objects.get(pk=id)
+   
+    if request.method == 'POST':
+        # Récupérer les données du formulaire depuis la requête POST
+        montant = request.POST.get('montant')
+        facture = request.FILES.get('facture')
+        if facture:
+            avoir.facture=facture
+        
+        avoir.montant=montant
+       
+        
+        # Enregistrer les modifications dans la base de données
+        avoir.save()
+        messages.success(request, f'LE CREDIT DE  A BIEN ÉTÉ CRÉÉE')
+        return redirect('client_details', client_id=avoir.client.id)
+        
+    return render(request, 'avoirs/editer_avoir.html', {'avoir': avoir})
+
+def editer_consommation(request, id):
+    conso = Consommation.objects.get(pk=id)
+   
+    if request.method == 'POST':
+        # Récupérer les données du formulaire depuis la requête POST
+        prix_achat = request.POST.get('prix_achat')
+        prix_vente = request.POST.get('prix_vente')
+        designation = request.POST.get('designation')
+        conso.prix_achat=prix_achat
+        conso.prix_vente=prix_vente
+        conso.designation=designation
+        # Enregistrer les modifications dans la base de données
+        conso.save()
+        messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE')
+        return redirect('client_details', client_id=conso.client.id)
+        
+    return render(request, 'avoirs/editer_consommation.html', {'conso': conso})
+    
+
 
 def consommer_avoir(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     print(client)
 
     if request.method == 'POST':
+        print(request)
         form = ConsommationForm(request.POST, request.FILES)
         if form.is_valid():
             prix_achat = form.cleaned_data['prix_achat']
             prix_vente = form.cleaned_data['prix_vente']
             designation=form.cleaned_data['designation']
+            code_barre=form.cleaned_data['code_barre']
+            
+            print(form.cleaned_data)
             print(f"famille={form.cleaned_data['famille']}")
             facture = request.FILES.get('facture')
             # Vérifier si le montant à consommer est valide
@@ -461,12 +504,14 @@ def consommer_avoir(request, client_id):
                     prix_achat=prix_achat,
                     prix_vente=prix_vente,
                     designation=designation,
-                    code_barre=form.cleaned_data['code_barre'],
-                    famille=famille_instance
+                    famille=famille_instance,
+                    code_barre=code_barre
+                    
                 )
                 if facture:
                     consommation.facture = facture
                     consommation.save()
+              
                 messages.success(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE')
 
                 return redirect('client_details', client_id=client.id)
@@ -478,7 +523,7 @@ def consommer_avoir(request, client_id):
 
     else:
         #form = AvoirConsumeForm()
-        form = ConsommationForm(initial={'code_barre': ''})
+        form = ConsommationForm()
         print("Avoir form to display in you page")
 
     return render(request, 'avoirs/consommer_avoir.html', {'client': client, 'form': form})
