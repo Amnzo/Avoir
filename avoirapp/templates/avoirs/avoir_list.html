@@ -219,7 +219,6 @@
                                 <tr>
                                     <th scope="col">MOIS</th>
                                     <th scope="col">NB CREDIT</th>
-
                                     <th scope="col">FACTURE</th>
                                 </tr>
                             </thead>
@@ -229,10 +228,10 @@
                                     <td>{{ item2.mois }}-{{ item2.annee }}</td>
                                     <td>{{ item2.credits |length }}</td>
                                     <td>
-
-                                        <a href="#" class="text-primary"><i class="bi bi-download"></i></a>
-
-
+                                        <a href="#" class="text-primary download-icon2"   data-periode="{{ item2.mois }}-{{ item2.annee }}">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                       
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -574,6 +573,68 @@ $(document).ready(function() {
             type: 'GET',
             data: {
                 'famille_id': familleId,
+                'periode': periode,
+            },
+            xhrFields: {
+                responseType: 'blob' // Spécifier le type de réponse attendu
+            },
+            success: function(response, status, xhr) {
+    // Vérifie si l'en-tête Content-Disposition existe dans la réponse
+    var contentDisposition = xhr.getResponseHeader('Content-Disposition');
+    
+    // Si l'en-tête existe, extrayez le nom de fichier du header
+    if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+            var filename = matches[1].replace(/['"]/g, '');
+            
+            // Créez un objet blob à partir de la réponse
+            var blob = new Blob([response], { type: 'application/pdf' });
+            var url = window.URL.createObjectURL(blob);
+            
+            // Créez un élément <a> pour télécharger le fichier PDF avec le nom du fichier renvoyé par le serveur
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename; // Utilisez le nom de fichier récupéré ici
+            document.body.appendChild(a);
+            a.click();
+            
+            // Libérer l'objet URL après le téléchargement
+            window.URL.revokeObjectURL(url);
+        }
+    }
+},
+
+            error: function(xhr, errmsg, err) {
+                // Gérer les erreurs ici
+                console.error('Une erreur s\'est produite lors de la requête AJAX:', errmsg);
+            }
+        });
+    });
+});
+
+
+
+
+/* SEARCHING CREDIT PAR PERIODE USING JAVASCRIPT */
+
+
+
+$(document).ready(function() {
+    $(document).on('click', '.download-icon2', function(event) {
+        event.preventDefault(); // Empêcher le comportement par défaut du lien
+       
+        var periode = $(this).data('periode');
+        console.log(periode)
+        
+        
+        // Envoyer une requête AJAX à votre vue Django avec l'identifiant de la facture
+        $.ajax({
+            url: "{% url 'credit_par_periode' %}",   
+            type: 'GET',
+            data: {
+               
                 'periode': periode,
             },
             xhrFields: {

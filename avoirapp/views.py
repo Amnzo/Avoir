@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
 from .models import Avoir, Client, Famille,Consommation, Invoice, Repertoire, Retour
@@ -224,9 +224,13 @@ def search_filter(request):
 
         if type == 'consommation':
             # Query consommations and select related client
+            
+
             consommations = Consommation.objects.filter(
-                date_ajout__range=[start_date_iso, end_date_iso]
-            ).select_related('client')
+            date_ajout__gte=start_date_iso,
+            date_ajout__lte=end_date_iso
+             ).select_related('client')
+
             if selected_families:
                 consommations = consommations.filter(famille__in=selected_families)
 
@@ -261,8 +265,10 @@ def search_filter(request):
         elif type == 'credit':
             # Query avoirs and select related client
             avoirs = Avoir.objects.filter(
-                date_ajout__range=[start_date_iso, end_date_iso]
+                date_ajout__gte=start_date_iso,
+                date_ajout__lte=end_date_iso
             ).select_related('client')
+
 
             # Construct JSON response for avoirs
             data = []
@@ -373,7 +379,16 @@ from weasyprint import HTML
 
 def generate_pdf_consommation(consommations,title):
     # Rendre le modèle HTML avec les données de consommation
-    html_string = render_to_string('pdf/template_consoomation_par_famille.html', {'consommations': consommations,'title':title})
+    html_string = render_to_string('pdf/consommation_par_famille.html', {'consommations': consommations,'title':title})
+    
+    # Convertir le HTML en objet PDF
+    pdf = HTML(string=html_string).write_pdf()
+
+    return pdf
+
+def generate_pdf_credit(avoirs,title):
+    # Rendre le modèle HTML avec les données de consommation
+    html_string = render_to_string('pdf/template_credit.html', {'avoirs': avoirs,'title':title})
     
     # Convertir le HTML en objet PDF
     pdf = HTML(string=html_string).write_pdf()
@@ -394,6 +409,27 @@ def consommation_par_famille_par_mois(request):
         pdf_data = generate_pdf_consommation(consommations,title)
 
         filename = f"CONSOMMATIONS_{famille}_{mois}_{annee}.pdf"
+
+        response = HttpResponse(pdf_data, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    else:
+        return HttpResponse("Méthode non autorisée", status=405)
+    
+
+
+def credit_par_periode(request):
+    if request.method == 'GET':
+        #famille_id = request.GET.get('famille_id')
+        #famille = Famille.objects.get(pk=famille_id)
+        periode = request.GET.get('periode')
+        mois, annee = map(int, periode.split('-'))
+        avoirs = Avoir.objects.filter( date_ajout__month=mois,date_ajout__year=annee)
+        title=f"Credit_{mois}_{annee}"
+
+        pdf_data = generate_pdf_credit(avoirs,title)
+
+        filename = f"CREDIT_{mois}_{annee}.pdf"
 
         response = HttpResponse(pdf_data, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -869,6 +905,8 @@ def add_retour(request):
 
 def edit_retour(request, id):
     retour = Retour.objects.get(pk=id)
+    previous_url = request.GET.get('previous_url', '')
+    print(f"referer_url={previous_url}")
     
     if request.method == 'POST':
         # Récupérer les données du formulaire depuis la requête POST
@@ -891,7 +929,8 @@ def edit_retour(request, id):
         # Enregistrer les modifications dans la base de données
         retour.save()
         messages.success(request, f'Le retour "{nom}" a été modifié avec succès.')
-        return redirect('retour_list')  # Rediriger vers la liste des retours après la mise à jour
+        return HttpResponseRedirect(previous_url)
+        #return redirect('retour_list')  # Rediriger vers la liste des retours après la mise à jour
     
     return render(request, 'retours/edit.html', {'retour': retour})
 

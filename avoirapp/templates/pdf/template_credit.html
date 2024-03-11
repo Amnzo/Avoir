@@ -32,32 +32,26 @@
     </style>
 </head>
 <body>
-    <h3>Rapport de consommations {{ title }}</h3>
+    <h3>Rapport de  {{ title }}</h3>
     <div class="container">
         <table>
             <thead>
                 <tr>
                     <th>NOM</th>
                     <th>PRENOM</th>
-                    <th>{{ "Prix achat HT"|upper }}</th>
-                    <th>{{ "Prix vente TTC"|upper }}</th>
-                    <th>{{ "Date consommation"|upper }}</th>
-                    <th>{{ "Designation"|upper }}</th>
+                    <th>{{ "montant"|upper }}</th>
+                    <th>{{ "Date credit "|upper }}</th>
                     <th>{{ "Créateur"|upper }}</th>
-                    <th>{{ "Code"|upper }}</th>
                 </tr>
             </thead>
             <tbody>
-                {% for consommation in consommations %}
+                {% for avoir in avoirs %}
                     <tr>
-                        <td>{{ consommation.client.nom }}</td>
-                        <td>{{ consommation.client.prenom }}</td>
-                        <td>{{ consommation.prix_achat }}</td>
-                        <td>{{ consommation.prix_vente }}</td>
-                        <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
-                        <td>{{ consommation.designation|upper }}</td>
-                        <td>{{ consommation.user.username|upper }}</td>
-                        <td>{{ consommation.code_barre }}</td>
+                        <td>{{ avoir.client.nom }}</td>
+                        <td>{{ avoir.client.prenom }}</td>
+                        <td>{{ avoir.montant }}</td>
+                        <td>{{ avoir.date_ajout|date:"d-m-Y" }}</td>
+                        <td>{{ avoir.user.username|upper }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

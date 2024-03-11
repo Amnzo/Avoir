@@ -18,12 +18,12 @@
             <div class="col-md-6">
                 <div class="card bg-primary text-white">
                     <div class="card-header">
-                        JOINDRE FICHIER
+                        JOINDRE AVOIR
                     </div>
                     <div class="card-body">
                         <form id="deleteForm" action="{% url 'confirme_validation' id=retour.id %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <p>ÊTES-VOUS SÛR DE VOULOIR JOINDRE UN FICHIER À CE RETOUR ?</p>
+                            <p>ÊTES-VOUS SÛR DE VOULOIR JOINDRE UN AVOIR À CE RETOUR ?</p>
                             <!-- Champ pour mettre à jour la facture -->
                             <div class="form-group">
                               
@@ -34,6 +34,12 @@
                                 <label class="form-check-label" for="confirmation">Oui, je suis sûr</label>
                             </div>
                             <button id="deleteButton" type="submit" class="btn btn-danger mt-3" disabled>CONFIRMER</button>
+
+
+                            <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
+                                <i class="fas fa-chevron-left"></i> RETOUR
+                            </a>
+                            
                         </form>
                     </div>
                 </div>

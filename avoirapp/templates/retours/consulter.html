@@ -33,11 +33,12 @@ tr.danger {
               <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
                     <i class="fas fa-plus"></i> AJOUTER RETOUR
                 </a>
+                <a href="{% url  'retour_list' %}" class="btn btn-success mb-4">
+                    <i class="fas fa-check"></i> CONSULTER LES RETOURS NON VALIDE
+                </a>
 
                
-                <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
-                    <i class="fas fa-chevron-left"></i> RETOUR
-                </a>
+                
                 
 
                 
@@ -72,6 +73,7 @@ tr.danger {
                 <th>NOM</th>
                 <th>PRENOM</th>
                 <th>FOURNISSEUR</th>
+                <th>MARQUE</th>
                 <th>DESIGNATION</th>
                 <th>CODE BARRE</th>
                 <th>AVOIR</th>
@@ -83,24 +85,43 @@ tr.danger {
             {% for retour in retours %}
            
             <tr class="success">
-            
-        
-
                 <td>{{ retour.date | date:"d-m-Y" }}</td>
                 <td>{{ retour.nom|upper }}</td>
                 <td>{{ retour.prenom|upper }}</td>
                 <td>{{ retour.fournisseur|upper }}</td>
-                <td>{{ retour.designation }}</td>
-                <td>{{ retour.code }}</td>
+                <td>
+                    {% if retour.marque %}
+                    {{ retour.marque|upper }}
+                    {% else %}
+                    -
+                    {% endif %}
+
+                </td>
+                <td>
+                    {% if retour.designation %}
+                    {{ retour.designation }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if retour.code %}
+                    {{ retour.code }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
                 <td>
                 {% if retour.facture %}
-                            <a href="{{ retour.facture.url }}" target="_blank">Voir la facture</a>
+                            <a href="{{ retour.facture.url }}" target="_blank">VOIR L'AVOIR</a>
+                            
                             {% else %}
                            -
                   {% endif %}  
                 <td>
+                    <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
                      
-                 <a href="{% url 'edit_retour' id=retour.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
+            
                  {% if retour.facture %}
                            
                     {% else %}

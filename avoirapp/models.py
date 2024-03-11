@@ -101,10 +101,10 @@ class Repertoire(models.Model):
     nom = models.CharField(max_length=100)
     adresse = models.CharField(max_length=200)
     telephone = models.CharField(max_length=20)
-    fax = models.CharField(max_length=20)
-    site_internet = models.URLField(max_length=200)
-    identifiant = models.CharField(max_length=100)
-    mot_de_passe = models.CharField(max_length=100)
+    fax = models.CharField(max_length=20,blank=True ,null=True)
+    site_internet = models.URLField(max_length=200,blank=True ,null=True)
+    identifiant = models.CharField(max_length=100,blank=True ,null=True)
+    mot_de_passe = models.CharField(max_length=100,blank=True ,null=True)
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -116,7 +116,8 @@ class Retour(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     fournisseur = models.CharField(max_length=100)
-    designation = models.CharField(max_length=100)
+    marque=models.CharField(max_length=100,blank=True ,null=True,default="-")
+    designation = models.CharField(max_length=100,blank=True ,null=True,)
     code = models.CharField(max_length=50,blank=True ,null=True)
     facture = models.FileField(
         upload_to=upload_invoice_path_retour,

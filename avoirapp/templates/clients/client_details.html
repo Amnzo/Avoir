@@ -46,7 +46,7 @@
                 <a class="nav-link" id="consomption-tab" data-toggle="tab" href="#consomption">HISTORIQUE CONSOMATIONS</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="avoir-tab" data-toggle="tab" href="#avoir">HISTORIQUE CREDIT</a>
+                <a class="nav-link" id="avoir-tab" data-toggle="tab" href="#avoir">HISTORIQUE CREDITS</a>
             </li>
         </ul>
 
@@ -104,7 +104,7 @@
                         <td>{{ consomation.date_ajout | date:"d-m-Y" }}</td>
                         {% if consomation.facture %}
                         <td>
-                            <a href="{{ consomation.facture.url }}" target="_blank">Voir la facture</a>
+                            <a href="{{ consomation.facture.url }}" target="_blank">VOIR L'AVOIR</a>
                         </td>
                         {% else %}
                          <td>-</td>
