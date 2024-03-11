@@ -219,8 +219,9 @@ def search_filter(request):
         end_date = request.POST.get('endDate')
 
         # Convert dates to ISO format
-        start_date_iso = datetime.strptime(start_date, '%Y-%m-%d').date()
-        end_date_iso = datetime.strptime(end_date, '%Y-%m-%d').date()
+        start_date_iso = datetime.strptime(start_date, '%d-%m-%Y').date()
+    
+        end_date_iso = datetime.strptime(end_date, '%d-%m-%Y').date()
 
         if type == 'consommation':
             # Query consommations and select related client
@@ -462,7 +463,7 @@ def ajouter_avoir(request, client_id):
             avoir = form.save(commit=False)
             avoir.client = client
             avoir.save()
-            messages.success(request, f'UNE CREDIT DE {avoir.montant} A BIEN ÉTÉ CRÉÉE')
+            messages.success(request, f'UNE CREDIT DE {avoir.montant} A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
             return redirect('client_details', client_id=client.id)
     else:
         form = AvoirForm()
@@ -486,7 +487,7 @@ def editer_avoir(request, id):
         
         # Enregistrer les modifications dans la base de données
         avoir.save()
-        messages.success(request, f'LE CREDIT DE  A BIEN ÉTÉ CRÉÉE')
+        messages.success(request, f'LE CREDIT DE  A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
         return redirect('client_details', client_id=avoir.client.id)
         
     return render(request, 'avoirs/editer_avoir.html', {'avoir': avoir})
@@ -504,7 +505,7 @@ def editer_consommation(request, id):
         conso.designation=designation
         # Enregistrer les modifications dans la base de données
         conso.save()
-        messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE')
+        messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE', extra_tags='temp')
         return redirect('client_details', client_id=conso.client.id)
         
     return render(request, 'avoirs/editer_consommation.html', {'conso': conso})
@@ -548,7 +549,7 @@ def consommer_avoir(request, client_id):
                     consommation.facture = facture
                     consommation.save()
               
-                messages.success(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE')
+                messages.success(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
 
                 return redirect('client_details', client_id=client.id)
             else:
@@ -586,7 +587,7 @@ def add_famille(request):
                 is_barre=True
 
         Famille.objects.create(famille=famille_name,is_facture=is_facture,is_active=is_active,is_barre=is_barre)
-        messages.success(request, 'FAMILLE A BIEN ÉTÉ CRÉÉE')
+        messages.success(request, 'FAMILLE A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
         return redirect('familles')
     else:
         return render(request, 'familles/add_famille.html')
@@ -616,7 +617,7 @@ def edit_famille(request,id):
             famille.save()
 
 
-            messages.success(request, 'FAMILLE A BIEN ÉTÉ MODIFIÉE')
+            messages.success(request, 'FAMILLE A BIEN ÉTÉ MODIFIÉE', extra_tags='temp')
 
             return redirect('familles')  # Redirect to the category list page
 
@@ -657,7 +658,7 @@ def add_client(request):
         form = ClientForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, f"VOUS AVEZ CREER LE CLIENT {form.cleaned_data['nom'].upper()} {form.cleaned_data['prenom'].upper()} AVEC SUCCÈS")
+            messages.success(request, f"VOUS AVEZ CREER LE CLIENT {form.cleaned_data['nom'].upper()} {form.cleaned_data['prenom'].upper()} AVEC SUCCÈS", extra_tags='temp')
 
             return redirect('client')  # Replace 'client_list' with the URL name of the client list view
     else:
@@ -672,7 +673,7 @@ def edit_client(request,id):
         form = ClientForm(request.POST,instance=client)
         if form.is_valid():
             form.save()
-            messages.success(request, f'VOUS AVEZ MODIFIÉ LE FICHIER DE {client.nom.upper()} {client.prenom.upper()} AVEC SUCCÈS')
+            messages.success(request, f'VOUS AVEZ MODIFIÉ LE FICHIER DE {client.nom.upper()} {client.prenom.upper()} AVEC SUCCÈS', extra_tags='temp')
             return redirect('client')  # Replace 'client_list' with the URL name of the client list view
     else:
 
@@ -702,7 +703,7 @@ from django.db.models import Q
 
 def repertoire_list(request):
     # Récupérer tous les enregistrements du modèle Repertoire
-    repertoires = Repertoire.objects.filter(is_active=True)
+    repertoires = Repertoire.objects.filter(is_active=True).order_by('-id')
     # Si une requête de recherche est soumise
     if request.method == 'GET' and request.GET.get('search'):
         print(f"recherche somit = {request.GET.get('search')}")
@@ -735,7 +736,7 @@ def valide_repertoire(request):
         print("Post")
 
     
-    repertoires = Repertoire.objects.filter(is_active=False)
+    repertoires = Repertoire.objects.filter(is_active=False).order_by('-id')
     return render(request, 'rep/valider.html', {'repertoires': repertoires})
 
 
@@ -797,7 +798,7 @@ def add_rep(request):
         
         # Enregistrer les modifications dans la base de données
         repertoire.save()
-        messages.success(request, f'Le répertoire "{nom}" a été modiféé avec succès.')
+        messages.success(request, f'Le répertoire "{nom}" a été modiféé avec succès.', extra_tags='temp')
         
         return redirect('repertoire_list')  # Rediriger vers la liste des répertoires après la mise à jour
     return render(request, 'rep/add.html')
@@ -808,7 +809,7 @@ def add_rep(request):
 from django.utils import timezone
 
 def retour_list(request):
-    retours = Retour.objects.filter(facture='')
+    retours = Retour.objects.filter(facture='').order_by('-date')
     maintenant = timezone.now()
     maintenant_moins_25_jours = maintenant - timedelta(days=25)
     search_query=""
@@ -821,6 +822,8 @@ def retour_list(request):
         retours = retours.filter(
             Q(nom__icontains=search_query) |
             Q(prenom__icontains=search_query) |
+            Q(designation__icontains=search_query) |
+            Q(marque=search_query) |
             Q(fournisseur__icontains=search_query)
         )
 
@@ -849,7 +852,7 @@ def retour_list(request):
 
 def consultation_list_retour(request):
     #retours = Retour.objects.filter(facture='')
-    retours = Retour.objects.exclude(facture='')
+    retours = Retour.objects.exclude(facture='').order_by('-date')
     search_query=""
     # Filtrer les enregistrements en fonction de la recherche de nom
     if request.method == 'GET' and request.GET.get('search'):
@@ -858,6 +861,8 @@ def consultation_list_retour(request):
         retours = retours.filter(
             Q(nom__icontains=search_query) |
             Q(prenom__icontains=search_query) |
+            Q(designation__icontains=search_query) |
+            Q(marque=search_query) |
             Q(fournisseur__icontains=search_query)
         )
 
@@ -895,7 +900,7 @@ def add_retour(request):
         
         # Enregistrer les modifications dans la base de données
         retour.save()
-        messages.success(request, 'Le retour a été ajouté avec succès.')
+        messages.success(request, 'Le retour a été ajouté avec succès.', extra_tags='temp')
         
         return redirect('retour_list')  # Rediriger vers la liste des retours après l'ajout
     return render(request, 'retours/add.html')
@@ -928,7 +933,7 @@ def edit_retour(request, id):
         
         # Enregistrer les modifications dans la base de données
         retour.save()
-        messages.success(request, f'Le retour "{nom}" a été modifié avec succès.')
+        messages.success(request, f'Le retour "{nom}" a été modifié avec succès.', extra_tags='temp')
         return HttpResponseRedirect(previous_url)
         #return redirect('retour_list')  # Rediriger vers la liste des retours après la mise à jour
     

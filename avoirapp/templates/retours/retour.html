@@ -29,7 +29,16 @@ tr.danger {
 
 </style>
 <div class="container mt-4">
-    <h1 class="text-center mb-4">CONSULTATION ET CONFIRMATION DES RETOURS</h1>
+    
+  
+    {% if messages %}
+    <ul class="message-list">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+ {% endif %}
+ <h1 class="text-center mb-4">CONSULTATION ET CONFIRMATION DES RETOURS</h1>
   
     <a href="{% url 'consultation_list_retour' %}" class="btn btn-secondary mb-4">
         <i class="fas fa-chevron-left"></i> RETOUR

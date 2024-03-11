@@ -5,8 +5,17 @@
 {% block title %}Liste des répertoires{% endblock %}
 
 {% block content %}
+
 <div class="container mt-4">
+    {% if messages %}
+    <ul class="message-list">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+ {% endif %}
     <h1 class="text-center mb-4">GESTION REPERTOIRE</h1>
+
 
     <!-- Formulaire de recherche -->
 
@@ -61,10 +70,19 @@
                 <td>{{ repertoire.nom|upper }}</td>
                 <td>{{ repertoire.adresse }}</td>
                 <td>{{ repertoire.telephone }}</td>
-                <td>{{ repertoire.fax }}</td>
-                <td>{{ repertoire.site_internet }}</td>
-                <td>{{ repertoire.identifiant }}</td>
-                <td>{{ repertoire.mot_de_passe }}</td>
+                <td>
+                {% if repertoire.fax %}{{ repertoire.fax }} {% else %} - {% endif %}
+                </td>
+                <td>
+                    {% if repertoire.site_internet %}{{ repertoire.site_internet }} {% else %} - {% endif %}
+                </td>
+                <td>
+                    {% if repertoire.identifiant %}{{ repertoire.identifiant }} {% else %} - {% endif %}
+                </td>
+                <td>
+                    {% if repertoire.mot_de_passe %}{{ repertoire.mot_de_passe }} {% else %} - {% endif %}
+
+                </td>
                 <td>
                  <a href="{% url 'edit_rep' id=repertoire.id %}" class="text-warning"><i class="bi bi-pencil"></i></a>
                 </td>

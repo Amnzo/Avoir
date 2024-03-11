@@ -29,6 +29,14 @@ tr.danger {
 
 </style>
 <div class="container mt-4">
+    
+    {% if messages %}
+    <ul class="message-list">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+ {% endif %}
     <h1 class="text-center mb-4">GESTION DES RETOURS </h1>
               <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
                     <i class="fas fa-plus"></i> AJOUTER RETOUR
