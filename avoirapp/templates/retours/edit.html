@@ -5,7 +5,7 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h2 class="mb-0 text-center">MODIFICATION : {{ retour.nom }}</h2>
+                <h2 class="mb-0 text-center">MODIFICATION : {{ retour.nom |upper  }} {{ retour.prenom |upper  }}</h2>
             </div>
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
@@ -31,7 +31,7 @@
                             <label for="fournisseur">{{ "Fournisseur :" | upper }}</label>
                         </div>
                         <div class="form-group col-md-8">
-                            <input type="text" class="form-control" id="fournisseur" name="fournisseur" value="{{ retour.fournisseur }}" oninput="this.value = this.value.toUpperCase()" >
+                            <input type="text" class="form-control" id="fournisseur" name="fournisseur" value="{{ retour.fournisseur }}" oninput="this.value = this.value.toUpperCase()" required >
                         </div>
                     </div>
 
@@ -40,7 +40,7 @@
                             <label for="fournisseur">{{ "marque :" | upper }}</label>
                         </div>
                         <div class="form-group col-md-8">
-                            <input type="text" class="form-control" id="marque" name="marque" value="{{ retour.marque }}" oninput="this.value = this.value.toUpperCase()">
+                            <input type="text" class="form-control" id="marque" name="marque" value="{{ retour.marque }}" oninput="this.value = this.value.toUpperCase()" required>
                         </div>
                     </div>
 
@@ -49,7 +49,7 @@
                             <label for="designation">{{ "Designation :" | upper }}</label>
                         </div>
                         <div class="form-group col-md-8">
-                            <input type="text" class="form-control" id="designation" name="designation" value="{{ retour.designation }}" oninput="this.value = this.value.toUpperCase()" >
+                            <input type="text" class="form-control" id="designation" name="designation" value="{{ retour.designation }}" oninput="this.value = this.value.toUpperCase()" required >
                         </div>
                     </div>
                     <div class="form-row">

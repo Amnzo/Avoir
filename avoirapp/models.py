@@ -116,7 +116,7 @@ class Retour(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     fournisseur = models.CharField(max_length=100)
-    marque=models.CharField(max_length=100,blank=True ,null=True,default="-")
+    marque=models.CharField(max_length=100,blank=True ,null=True)
     designation = models.CharField(max_length=100,blank=True ,null=True,)
     code = models.CharField(max_length=50,blank=True ,null=True)
     facture = models.FileField(

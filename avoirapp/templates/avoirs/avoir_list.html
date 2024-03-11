@@ -39,6 +39,13 @@
 </style>
 
 <div class="container mt-4">
+    {% if messages %}
+    <ul class="message-list">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+ {% endif %}
     <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" id="liste-credits-tab" data-toggle="tab" href="#liste-credits" role="tab"
@@ -86,7 +93,7 @@
                         <td>{{ avoir.user|upper }}</td>
                         <td>
                             {% if avoir.facture %}
-                            <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
+                            <a href="{{ avoir.facture.url }}" target="_blank">VOIRE LA FACTURE</a>
                             {% else %}
                             N/A
                             {% endif %}
@@ -172,6 +179,9 @@
         <tr>
             <th>{{ "NOM" |upper }}</th>
             <th>{{ "PRENOM" |upper }}</th>
+            <th>{{ "FAMILLE" |upper }}</th>
+            <th>{{ "DESIGNATION" |upper }}</th>
+           
             <th>{{ "Prix Achat HT" |upper }}</th>
             <th>{{ "Prix Vente ttc" |upper }}</th>
             <th>{{ "Date CONSOMMATION" |upper }}</th>
@@ -219,7 +229,7 @@
                                 <tr>
                                     <th scope="col">MOIS</th>
                                     <th scope="col">NB CREDIT</th>
-                                    <th scope="col">FACTURE</th>
+                                    <th scope="col">ETAT </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -254,7 +264,7 @@
                 <table class="table table-bordered text-center">
                     <thead style="background-color: #007BFF; color: #FFFFFF;">
                       <tr>
-                        <th scope="col">-</th>
+                        <th scope="col">PERIODE</th>
                         {% for famille_data in data.0.consommations_familles %}
                         <th scope="col">{{ famille_data.famille }}</th>
                         {% endfor %}
@@ -400,12 +410,14 @@
                         var row = '<tr>' +
                             '<td>' + item.client_nom + '</td>' +
                             '<td>' + item.client_prenom + '</td>' +
+                            '<td>' + item.famille + '</td>' +
+                            '<td>' + item.designation + '</td>' +
                             '<td>' + item.prix_achat + '</td>' +
                             '<td>' + item.prix_vente + '</td>' +        
                             '<td>' + formatDate(item.date_ajout) + '</td>' ;
                             // Vérifier si l'attribut facture n'est pas vide
                         if (item.facture) {
-                            row += '<td><a href="#" class="voir-facture2" data-facture2="' + item.id + '">Voir la facture</a></td>';
+                            row += '<td><a href="#" class="voir-facture2" data-facture2="' + item.id + '">VOIRE LA FACTURE</a></td>';
                         } else {
                             row += '<td>-</td>';
                         }
@@ -430,7 +442,7 @@
                             '<td>' + item.client_prenom + '</td>' +
                             '<td>' + item.montant + '</td>' + 
                             '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date 
-                            '<td><a href="#" class="voir-facture" data-facture="' + item.id + '">Voir la facture</a></td>'+
+                            '<td><a href="#" class="voir-facture" data-facture="' + item.id + '">VOIRE LA FACTURE</a></td>'+
                             '<td style="display: none;">' + item.id + '</td>' + // Cellule cachée
                             '</tr>';
                         $('#creditTable tbody').append(row);

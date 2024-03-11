@@ -14,7 +14,10 @@
         {% endfor %}
     </ul>
  {% endif %}
-    <h1 class="text-center mb-4">REPERTOIRES A VALIDER</h1>
+ <a href="{% url 'repertoire_list' %}" class="btn btn-secondary mb-4">
+    <i class="fas fa-chevron-left"></i> RETOUR
+</a>
+    <h1 class="text-center mb-4">CONTACTS A VALIDER</h1>
 
     <!-- Formulaire de recherche -->
 
@@ -64,7 +67,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8">Aucun répertoire trouvé.</td>
+                <td colspan="8">AUCUN CONTACT TROUVÉ</td>
             </tr>
             {% endfor %}
         </tbody>

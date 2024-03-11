@@ -1,5 +1,3 @@
-<!-- templates/repertoire_list.html -->
-
 {% extends 'layout/base.html' %}
 
 {% block title %}Liste des répertoires{% endblock %}
@@ -7,26 +5,32 @@
 {% block content %}
 {% load tz %}  {# Charger les filtres de fuseau horaire #}
 <style>
+    /* Réduire la largeur de la colonne DESIGNATION */
+    .designation-col {
+        max-width: 100px; /* ou toute autre valeur souhaitée */
+        overflow: hidden;
+        text-overflow: ellipsis; /* Ajouter des points de suspension si le texte dépasse */
+        white-space: nowrap; /* Empêcher le texte de se retourner à la ligne */
+    }
 
-tr.success {
-    background-color: lightgreen; /* Vert léger */
-    color: black;
-}
+    tr.success {
+        background-color: lightgreen; /* Vert léger */
+        color: black;
+    }
 
-tr.warning {
-    background-color: #ffe6b3; /* Orange léger */
-    color: black;
-}
+    tr.warning {
+        background-color: #ffe6b3; /* Orange léger */
+        color: black;
+    }
 
-tr.danger {
-    background-color: lightcoral; /* Rouge léger */
-    color: black;
-}
+    tr.danger {
+        background-color: lightcoral; /* Rouge léger */
+        color: black;
+    }
 
-.text-black {
-    color: rgb(9, 0, 128) !important;
-}
-
+    .text-black {
+        color: rgb(9, 0, 128) !important;
+    }
 </style>
 <div class="container mt-4">
     
@@ -37,21 +41,11 @@ tr.danger {
         {% endfor %}
     </ul>
  {% endif %}
-    <h1 class="text-center mb-4">GESTION DES RETOURS </h1>
-              <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
-                    <i class="fas fa-plus"></i> AJOUTER RETOUR
-                </a>
-                <a href="{% url  'retour_list' %}" class="btn btn-success mb-4">
-                    <i class="fas fa-check"></i> CONSULTER LES RETOURS NON VALIDE
-                </a>
-
-               
-                
-                
-
-                
-                
-
+    <h1 class="text-center mb-4">ÉTAT DES RETOURS VALIDES </h1>
+    <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
+        <i class="fas fa-chevron-left"></i> RETOUR
+    </a>
+              
     <!-- Formulaire de recherche -->
 
     <div class="card">
@@ -82,7 +76,7 @@ tr.danger {
                 <th>PRENOM</th>
                 <th>FOURNISSEUR</th>
                 <th>MARQUE</th>
-                <th>DESIGNATION</th>
+                <th class="designation-col">DESIGNATION</th>
                 <th>CODE BARRE</th>
                 <th>AVOIR</th>
                 <th>ACTION</th>
@@ -105,7 +99,7 @@ tr.danger {
                     {% endif %}
 
                 </td>
-                <td>
+                <td class="designation-col">
                     {% if retour.designation %}
                     {{ retour.designation }}
                     {% else %}
@@ -120,36 +114,23 @@ tr.danger {
                     {% endif %}
                 </td>
                 <td>
-                {% if retour.facture %}
-                            <a href="{{ retour.facture.url }}" target="_blank">VOIR L'AVOIR</a>
-                            
-                            {% else %}
-                           -
-                  {% endif %}  
+                    {% if retour.facture %}
+                        <a href="{{ retour.facture.url }}" target="_blank">VOIR L'AVOIR</a>
+                    {% else %}
+                        -
+                    {% endif %}  
+                </td>
                 <td>
                     <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
-                     
-            
-                 {% if retour.facture %}
-                           
+                    <span class="space"></span>
+                    {% if retour.facture %}
                     {% else %}
-                    
-                    <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
-                  {% endif %} 
-                 
-                 
-
-                 
-                 
+                        <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
+                    {% endif %} 
                 </td>
-                
             </tr>
-
-            
             {% endfor %}
         </tbody>
     </table>
-
- 
 </div>
 {% endblock %}

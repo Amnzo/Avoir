@@ -251,6 +251,8 @@ def search_filter(request):
                 consommation_data = {
                     'client_nom': client_nom,
                     'client_prenom': client_prenom,
+                    'famille': consommation.famille.famille,
+                    'designation': consommation.designation,
                     'prix_achat': consommation.prix_achat,
                     'prix_vente': consommation.prix_vente,
                     'date_ajout': consommation.date_ajout,
@@ -405,7 +407,7 @@ def consommation_par_famille_par_mois(request):
         consommations = Consommation.objects.filter(famille=famille,
                                                     date_ajout__month=mois,
                                                     date_ajout__year=annee)
-        title=f"{famille}_{mois}_{annee}"
+        title=f"{famille} DU {mois}-{annee}"
 
         pdf_data = generate_pdf_consommation(consommations,title)
 
@@ -426,7 +428,7 @@ def credit_par_periode(request):
         periode = request.GET.get('periode')
         mois, annee = map(int, periode.split('-'))
         avoirs = Avoir.objects.filter( date_ajout__month=mois,date_ajout__year=annee)
-        title=f"Credit_{mois}_{annee}"
+        title=f"DES CREDITS DU {mois}-{annee}"
 
         pdf_data = generate_pdf_credit(avoirs,title)
 
@@ -885,11 +887,13 @@ def add_retour(request):
         prenom = request.POST.get('prenom')
         fournisseur = request.POST.get('fournisseur')
         designation = request.POST.get('designation')
+        marque = request.POST.get('marque')
         code = request.POST.get('code')
         facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
         
         # Créer un nouvel objet Retour
         retour = Retour.objects.create(
+            marque=marque,
             nom=nom,
             prenom=prenom,
             fournisseur=fournisseur,
@@ -916,6 +920,7 @@ def edit_retour(request, id):
     if request.method == 'POST':
         # Récupérer les données du formulaire depuis la requête POST
         nom = request.POST.get('nom')
+        marque = request.POST.get('marque')
         prenom = request.POST.get('prenom')
         fournisseur = request.POST.get('fournisseur')
         designation = request.POST.get('designation')
@@ -924,6 +929,8 @@ def edit_retour(request, id):
         
         # Mettre à jour les champs du retour avec les nouvelles valeurs
         retour.nom = nom
+        retour.marque = marque
+
         retour.prenom = prenom
         retour.fournisseur = fournisseur
         retour.designation = designation
