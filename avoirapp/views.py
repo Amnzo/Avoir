@@ -496,21 +496,36 @@ def editer_avoir(request, id):
 
 def editer_consommation(request, id):
     conso = Consommation.objects.get(pk=id)
+    familles=Famille.objects.all()
+    print(familles)
    
     if request.method == 'POST':
         # Récupérer les données du formulaire depuis la requête POST
         prix_achat = request.POST.get('prix_achat')
         prix_vente = request.POST.get('prix_vente')
         designation = request.POST.get('designation')
+        facture = request.FILES.get('facture')
+        famille = request.POST.get('familles')
+        print(famille)
+        code=request.POST.get('code')
+        print(code)
         conso.prix_achat=prix_achat
         conso.prix_vente=prix_vente
         conso.designation=designation
+        if facture:
+            conso.facture=facture
+        if code :
+            conso.code_barre=code
+        if famille:
+            f=Famille.objects.get(pk=famille)
+            conso.famille=f
+        
         # Enregistrer les modifications dans la base de données
         conso.save()
         messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE', extra_tags='temp')
         return redirect('client_details', client_id=conso.client.id)
         
-    return render(request, 'avoirs/editer_consommation.html', {'conso': conso})
+    return render(request, 'avoirs/editer_consommation.html', {'conso': conso,'familles':familles})
     
 
 
