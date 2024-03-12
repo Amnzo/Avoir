@@ -216,28 +216,21 @@ def search_filter(request):
     if request.method == 'POST':
         type = request.POST.get('type')
         selected_families = request.POST.getlist('families[]')
+        print(f"selected famille is {len(selected_families)}")
         start_date = request.POST.get('startDate')
         end_date = request.POST.get('endDate')
-
         # Convert dates to ISO format
         start_date_iso = datetime.strptime(start_date, '%d-%m-%Y').date()
-    
         end_date_iso = datetime.strptime(end_date, '%d-%m-%Y').date()
-
         if type == 'consommation':
             # Query consommations and select related client
-            
-
             consommations = Consommation.objects.filter(
             date_ajout__gte=start_date_iso,
             date_ajout__lte=end_date_iso
              ).select_related('client')
 
-            if selected_families:
+            if len(selected_families) > 0 :
                 consommations = consommations.filter(famille__in=selected_families)
-
-        
-
             # Construct JSON response for consommations
             data = []
             for consommation in consommations:
@@ -948,9 +941,11 @@ def edit_retour(request, id):
         designation = request.POST.get('designation')
         code = request.POST.get('code')
         facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
-        
+        date = request.POST.get('date')
+        date_retour= datetime.strptime(date, '%d-%m-%Y').date()
         # Mettre à jour les champs du retour avec les nouvelles valeurs
         retour.nom = nom
+        retour.date=date_retour
         retour.marque = marque
 
         retour.prenom = prenom

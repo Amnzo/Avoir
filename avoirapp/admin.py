@@ -53,7 +53,7 @@ admin.site.register(Avoir,AvoirAdmin)
 admin.site.register(Consommation,ConsommationAdmin)
 
 class FamilleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'famille')
+    list_display = ('id', 'famille','is_facture','is_barre')
 admin.site.register(Famille,FamilleAdmin)
 class RepertoireAdmin(admin.ModelAdmin):
     list_display = ('nom', 'adresse', 'telephone', 'fax', 'site_internet', 'identifiant', 'mot_de_passe', 'is_active')

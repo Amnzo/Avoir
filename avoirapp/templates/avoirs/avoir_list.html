@@ -9,6 +9,57 @@
 
 {% block content %}
 <style>
+    #consommationTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #007BFF;
+    color: #FFFFFF;
+}
+#consommationTable {
+    border-collapse: collapse;
+}
+
+#consommationTable th, #consommationTable td {
+    border: 1px solid #ddd; /* Choisissez une couleur adaptée */
+    padding: 8px; /* Ajustez selon vos besoins */
+}
+#consommationTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Choisissez une couleur de fond */
+}
+
+#consommationTable th, #consommationTable td {
+    width: 150px; /* Ajustez selon vos besoins */
+}
+#consommationTable {
+    overflow-x: auto;
+}
+
+/*  duplication style pour credit  */
+#creditTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #007BFF;
+    color: #FFFFFF;
+}
+#creditTable {
+    border-collapse: collapse;
+}
+
+#creditTable th, #creditTable td {
+    border: 1px solid #ddd; /* Choisissez une couleur adaptée */
+    padding: 8px; /* Ajustez selon vos besoins */
+}
+#creditTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Choisissez une couleur de fond */
+}
+
+#creditTable th, #creditTable td {
+    width: 150px; /* Ajustez selon vos besoins */
+}
+#creditTable {
+    overflow-x: auto;
+}
+
     .pagination {
         margin-top: 20px;
         text-align: center;
@@ -185,7 +236,7 @@
             <th>{{ "Prix Achat HT" |upper }}</th>
             <th>{{ "Prix Vente ttc" |upper }}</th>
             <th>{{ "Date CONSOMMATION" |upper }}</th>
-            <th>{{ "AVOIR" |upper }}</th>
+            <th>{{ "facture" |upper }}</th>
             
         </tr>
     </thead>

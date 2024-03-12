@@ -12,6 +12,14 @@
                     {% csrf_token %}
                     <div class="form-row">
                         <div class="form-group col-md-2">
+                            <label for="nom">{{ "date :" | upper }}</label>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <input type="text" class="form-control" id="date" name="date" value="{{ retour.date|date:'d-m-Y' }}" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
                             <label for="nom">{{ "Nom :" | upper }}</label>
                         </div>
                         <div class="form-group col-md-8">
@@ -81,4 +89,20 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block extra_js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    $( function() {
+        $( "#date" ).datepicker({
+            dateFormat: "dd-mm-yy" // Format de date souhaité
+            // Vous pouvez également ajouter d'autres options selon vos besoins
+        });
+    } );
+
+    
+</script>
 {% endblock %}

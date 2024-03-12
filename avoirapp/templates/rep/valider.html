@@ -5,6 +5,33 @@
 {% block title %}Liste des répertoires{% endblock %}
 
 {% block content %}
+<style>
+      
+#repTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #007BFF;
+    color: #FFFFFF;
+}
+#repTable {
+    border-collapse: collapse;
+}
+
+#repTable th, #repTable td {
+    border: 1px solid #ddd; /* Choisissez une couleur adaptée */
+    padding: 8px; /* Ajustez selon vos besoins */
+}
+#repTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Choisissez une couleur de fond */
+}
+
+#repTable th, #repTable td {
+    width: 150px; /* Ajustez selon vos besoins */
+}
+#repTable {
+    overflow-x: auto;
+}
+</style>
 
 <div class="container mt-4">
     {% if messages %}
@@ -22,7 +49,7 @@
     <!-- Formulaire de recherche -->
 
     <!-- Tableau des répertoires -->
-    <table class="table table-bordered table-hover text-center"> <!-- Ajout de la classe text-center pour centrer le contenu de la table -->
+    <table class="table table-bordered table-hover text-center" id="repTable"> <!-- Ajout de la classe text-center pour centrer le contenu de la table -->
         <thead style="background-color: #ff0000; color: #FFFFFF;">
             <tr>
                 <th>NOM</th>

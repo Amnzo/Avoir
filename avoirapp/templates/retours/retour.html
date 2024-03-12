@@ -5,6 +5,31 @@
 {% block content %}
 {% load tz %}  {# Charger les filtres de fuseau horaire #}
 <style>
+    
+#retoursTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #007BFF;
+    color: #FFFFFF;
+}
+#retoursTable {
+    border-collapse: collapse;
+}
+
+#retoursTable th, #retoursTable td {
+    border: 1px solid #ddd; /* Choisissez une couleur adaptée */
+    padding: 8px; /* Ajustez selon vos besoins */
+}
+#retoursTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Choisissez une couleur de fond */
+}
+
+#retoursTable th, #retoursTable td {
+    width: 150px; /* Ajustez selon vos besoins */
+}
+#retoursTable {
+    overflow-x: auto;
+}
     /* Réduire la largeur de la colonne DESIGNATION */
     .designation-col {
         max-width: 100px; /* ou toute autre valeur souhaitée */
@@ -87,7 +112,7 @@
     </div>
 
     <!-- Tableau des répertoires -->
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover" id="retoursTable">
         <thead style="background-color: #007BFF; color: #FFFFFF;">
             <tr>
                 
