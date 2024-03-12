@@ -10,10 +10,11 @@ from django.db.models import Sum, Count
 import json
 from django.contrib import messages
 from django.utils import formats
+from django.contrib.auth.models import User
 # myapp/views.py
 
 from django.contrib.auth import authenticate, login,logout
-from .forms import ClientForm, CustomLoginForm, RepertoireSearchForm
+from .forms import ClientForm, CustomLoginForm, CustomUserRegistrationForm, RepertoireSearchForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def custom_login(request):
@@ -481,10 +482,13 @@ def editer_avoir(request, id):
         # Récupérer les données du formulaire depuis la requête POST
         montant = request.POST.get('montant')
         facture = request.FILES.get('facture')
+        
         if facture:
             avoir.facture=facture
-        
+        date = request.POST.get('date')
+        date_= datetime.strptime(date, '%d-%m-%Y').date()
         avoir.montant=montant
+        avoir.date_ajout= date_
        
         
         # Enregistrer les modifications dans la base de données
@@ -512,6 +516,9 @@ def editer_consommation(request, id):
         conso.prix_achat=prix_achat
         conso.prix_vente=prix_vente
         conso.designation=designation
+        date = request.POST.get('date')
+        date_= datetime.strptime(date, '%d-%m-%Y').date()
+        conso.date_ajout=date_
         if facture:
             conso.facture=facture
         if code :
@@ -1059,3 +1066,78 @@ def test(request):
         return HttpResponse('Error generating PDF')
 
     return response
+
+
+
+#------------Utilisateur-----------------------
+
+#---------------------------------UTILISATEUR-------------------------------------------------------
+def list_user(request):
+        users = User.objects.filter(is_superuser=False).order_by('-id')
+        return render(request, 'utilisateurs/liste_user.html', {'users': users})
+
+
+
+def add_user(request):
+    if request.method == 'POST':
+        form = CustomUserRegistrationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            user = User.objects.create_user(username=username,password=password)
+            messages.success(request, 'UTILISATEUR créé avec succes')
+
+            # Redirect to a success page or login the user, etc.
+            return redirect('list_user')
+
+    else:
+        form = CustomUserRegistrationForm()
+
+    return render(request, 'utilisateurs/ajouter.html', {'form': form})
+
+
+
+def profile(request):
+    if request.method == 'POST':
+        form = CustomUserRegistrationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            request.user.username = username
+            request.user.set_password(password)  # Use set_password to securely update the password
+            request.user.save()
+            messages.success(request, "PROFILE ADMINISTRATEUR CHANGÉ AVEC SUCCÈS")
+            return redirect('list_user')
+    else:
+        form = CustomUserRegistrationForm()  # Moved form instantiation inside the else block
+
+    return render(request, 'utilisateurs/profile.html', {'form': form})
+
+
+from django.contrib.auth import get_user_model
+def profile_user(request, id):
+    profile = User.objects.get(id=id)
+
+    if request.method == 'POST':
+        is_active=False
+        form = CustomUserRegistrationForm(request.POST)
+        if form.is_valid():
+            print("inside form validation")
+            active=request.POST.get('is_active')
+            print(active)
+            if active=="on":
+                is_active=True
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            profile.username = username
+            profile.set_password(password)
+            profile.is_active=is_active
+            profile.save()
+            messages.success(request, f"LE PROFILE DE {profile.username} CHANGÉ AVEC SUCCÈS")
+            return redirect('list_user')
+    else:
+        form = CustomUserRegistrationForm()  # Pass profile as instance
+
+    return render(request, 'utilisateurs/profile_user.html', {'form': form, 'profile': profile})
+
+

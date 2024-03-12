@@ -1,0 +1,81 @@
+{% extends 'layout/base.html' %}
+
+
+
+{% block content %}
+<style>
+
+    /* Add these styles to your CSS */
+    input[type="checkbox"][disabled] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid;
+        border-radius: 4px;
+        cursor: not-allowed;
+    }
+
+    input[type="checkbox"][disabled]:checked {
+        background-color: green;
+        border-color: green; /* Adjust border color */
+    }
+
+    input[type="checkbox"][disabled]:not(:checked) {
+        background-color: red;
+        border-color: red; /* Adjust border color */
+    }
+    </style>
+    <div class="container mt-4">
+
+
+        <div class="container">
+                                {% if messages %}
+                            <ul class="message-list">
+                            {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                <a href="{% url 'add_user' %}" class="btn btn-primary mb-4">AJOUTER</a>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">LISTE DES UTILISATEURS</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">NOM D'UTILISATEUR</th>
+                                <th style="text-align: center;">ACTIF</th>
+                                <th style="text-align: center;">ACTION</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for user in users %}
+                                <tr style="text-align: center;">
+                                    <td>{{user.username}}</td>
+                                    <td style="text-align: center;">
+                                        <input type="checkbox" disabled {% if user.is_active %}checked{% endif %}>
+                                    </td>
+
+
+                                    <td>
+
+                                        <a href="{% url 'profile_user' user.id %}" class="text-warning"><i class="bi bi-pencil"></i></a>
+                                    </td>
+
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

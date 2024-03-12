@@ -20,15 +20,14 @@
                         <input type="text" class="form-control" value="{{ request.user.username }}" readonly>
                     </div>
                 </div>
-
-                <!-- Hidden field for date and time of the operation -->
                 <div class="form-group row">
-                    <label class="col-sm-3 col-form-label text-right"> DATE :</label>
+                    <label class="col-sm-3 col-form-label text-right">DATE :</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="date" name="date"
-                            value="{{ conso.date_ajout | date:"d-m-Y" }}" readonly>
+                        <input type="text" class="form-control" id="date" name="date" value="{{ conso.date_ajout |date:'d-m-Y'  }}"  required>
                     </div>
                 </div>
+
+               
 
                 <div class="form-group row">
                     <label for="{{ form.famille.id_for_label }}"
@@ -114,7 +113,17 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
 <script>
+    $( function() {
+        $( "#date" ).datepicker({
+            dateFormat: "dd-mm-yy" // Format de date souhaité
+            // Vous pouvez également ajouter d'autres options selon vos besoins
+        });
+    } );
    $(document).ready(function() {
         // Fonction pour gérer l'affichage des champs facture et code-barres
         function gererChamps(familleId) {

@@ -154,16 +154,19 @@
 
             <div class="sidebar-header">
 
-
-
-
-                    <h2><a href="{% url 'statistique' %}"><i class="fas fa-euro-sign" style="color: #0f0f0f;"></i></a></h2>
-
-
-
-
             </div>
             <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="{% url 'profile' %}" title="USERS">
+
+                        <i class="fas fa-user-circle"></i> PROFIL ADMIN
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'list_user' %}" title="USERS">
+                        <i class="fas fa-user"></i> LISTE DES UTILISATEURS
+                    </a>
+                </li>
 
                    <li class="active">
                         <a href="{% url 'familles' %}" title="Famille de catégories de produits">

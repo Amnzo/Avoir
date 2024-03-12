@@ -27,6 +27,10 @@ urlpatterns = [
     path('edit_retour/<int:id>/', edit_retour, name='edit_retour'),
     path('valider_retour/<int:id>/', valider_retour, name='valider_retour'),
     path('confirme-validation/<int:id>/', confirme_validation, name='confirme_validation'),
+    path('add_user/', user_passes_test(is_superuser, login_url='login')(add_user), name='add_user'),
+    path('list_user/', user_passes_test(is_superuser, login_url='login')(list_user), name='list_user'),
+    path('profile/', user_passes_test(is_superuser, login_url='login')(profile), name='profile'),
+    path('profile_user/<int:id>/', user_passes_test(is_superuser, login_url='bl_login')(profile_user), name='profile_user'),
     
     
     

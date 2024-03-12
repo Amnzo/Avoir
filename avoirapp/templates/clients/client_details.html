@@ -3,6 +3,36 @@
 {% block title %}Détail Client{% endblock %}
 
 {% block content %}
+<style>
+
+.table-sm th,
+.table-sm td {
+    font-size: smaller; /* Réduire la taille de la police */
+    padding: 0.25rem; /* Réduire le rembourrage */
+    margin: 0; /* Supprimer les marges */
+}
+
+.table-responsive {
+    overflow-x: auto; /* Ajouter un défilement horizontal si nécessaire */
+    max-height: 300px; /* Limiter la hauteur pour éviter un défilement vertical */
+}
+
+.table {
+    margin: 0; /* Supprimer les marges */
+}
+
+.card-body {
+    padding: 0; /* Supprimer le rembourrage */
+}
+.btn-add-consommation {
+    position: absolute;
+    bottom: 20px; /* Ajustez cette valeur selon vos besoins */
+    right: 20px; /* Ajustez cette valeur selon vos besoins */
+    z-index: 1000; /* Assurez-vous qu'il est au-dessus de tout autre contenu */
+}
+
+
+</style>
 <div class="container">
     {% if messages %}
     <ul class="message-list">
@@ -69,59 +99,62 @@
         </div>
     </div>
 
-   <!-- Consomption History Tab -->
-<div class="tab-pane fade" id="consomption">
-    <div class="card-body">
-        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-            <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success mb-3">AJOUTER CONSOMMATION</a>
-            {% if consommations %}
-            <table class="table table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="small-font">FAMILLE</th>
-                        <th scope="col" class="small-font">DÉSIGNATION</th>
-                        <th scope="col" class="small-font">CODE BARRE</th>
-                        <th scope="col" class="small-font">PRIX ACHAT HT</th>
-                        <th scope="col" class="small-font">PRIX VENTE TTC</th>
-                        <th scope="col" class="small-font">CRÉATEUR</th>
-                        <th scope="col" class="small-font">DATE CONSOMMATION</th>
-                        <th scope="col" class="small-font">FACTURE</th>
-                        <th scope="col" class="small-font">ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for consommation in consommations %}
-                    <tr>
-                        <td>{{ consommation.famille.famille|upper }}</td>
-                        <td>{{ consommation.designation|upper }}</td>
-                        <td>{{ consommation.code_barre }}</td>
-                        <td>{{ consommation.prix_achat }}</td>
-                        <td>{{ consommation.prix_vente }}</td>
-                        <td>{{ consommation.user|upper }}</td>
-                        <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
-                        {% if consommation.facture %}
-                        <td>
-                            <a href="{{ consommation.facture.url }}" target="_blank">VOIR FACTURE</a>
-                        </td>
-                        {% else %}
-                        <td>-</td>
-                        {% endif %}
-                        <td><a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
+    <div class="tab-pane fade" id="consomption">
+        <card-header><a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success  mb-3">AJOUTER CONSOMMATION</a></card-header>
+        <div class="card-body">
+            <div class="table-responsive">
+                
+                
+
+                {% if consommations %}
+                <table class="table table-striped table-sm">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" class="small-font">FAMILLE</th>
+                            <th scope="col" class="small-font">DÉSIGNATION</th>
+                            <th scope="col" class="small-font">CODE BARRE</th>
+                            <th scope="col" class="small-font">PRIX ACHAT HT</th>
+                            <th scope="col" class="small-font">PRIX VENTE TTC</th>
+                            <th scope="col" class="small-font">CRÉATEUR</th>
+                            <th scope="col" class="small-font">DATE CONSOMMATION</th>
+                            <th scope="col" class="small-font">FACTURE</th>
+                            <th scope="col" class="small-font">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for consommation in consommations %}
+                        <tr>
+                            <td>{{ consommation.famille.famille|upper }}</td>
+                            <td>{{ consommation.designation|upper }}</td>
+                            <td>{{ consommation.code_barre }}</td>
+                            <td>{{ consommation.prix_achat }}</td>
+                            <td>{{ consommation.prix_vente }}</td>
+                            <td>{{ consommation.user|upper }}</td>
+                            <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
+                            {% if consommation.facture %}
+                            <td>
+                                <a href="{{ consommation.facture.url }}" target="_blank">VOIR FACTURE</a>
+                            </td>
+                            {% else %}
+                            <td>-</td>
+                            {% endif %}
+                            <td><a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
-
+    
 
 
     <!-- Avoir History Tab -->
     <div class="tab-pane fade" id="avoir">
         <div class="card-body">
-            <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mb-3">AJOUTER CRÉDIT</a>
+            <card-header> <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mb-3">AJOUTER CRÉDIT</a></card-header>
+           
             {% if avoirs %}
             <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
                 <table class="table table-striped">

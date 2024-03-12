@@ -1,0 +1,119 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">PROFIL DE {{profile.username}}</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <!-- Row 1 -->
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <label for="username">NOM D'UTILISATEUR</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="username" name="username" required value="{{profile.username}}" oninput="this.value = this.value.toUpperCase()">
+                                    </div>
+                                    {% if form.username.errors %}
+                                        <span class="text-danger">{{ form.username.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+
+
+                            <!-- Row 3 -->
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="password1">MOT DE PASSE</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password1" name="password1"  required>
+                                    </div>
+                                    {% if form.password1.errors %}
+                                        <span class="text-danger">{{ form.password1.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="password2">CONFIRMER  MOT DE PASSE</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password2" name="password2"  required>
+                                    </div>
+                                    {% if form.password2.errors %}
+                                        <span class="text-danger">{{ form.password2.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-1">
+                                    <label for="is_active">ACTIF</label>
+                                    <div class="input-group">
+                                        <input type="checkbox" class="form-control" id="is_active" name="is_active" {% if profile.is_active %}checked{% endif %}>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">Valider</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    // Get the password input elements
+    var passwordInput1 = document.getElementById("password1");
+    var passwordInput2 = document.getElementById("password2");
+
+    // Function to validate input for both password fields
+    function validatePasswordInput(event, inputElement) {
+        // Get the key code of the pressed key
+        var keyCode = event.keyCode;
+
+        // Check if the pressed key is a number
+        if (keyCode < 48 || keyCode > 57) {
+            // Prevent the default action (typing the character)
+            event.preventDefault();
+        }
+    }
+
+    // Add event listeners to intercept key presses for both password fields
+    passwordInput1.addEventListener("keypress", function(event) {
+        validatePasswordInput(event, passwordInput1);
+    });
+
+    passwordInput2.addEventListener("keypress", function(event) {
+        validatePasswordInput(event, passwordInput2);
+    });
+
+    // Function to handle paste events for both password fields
+    function handlePaste(event, inputElement) {
+        // Get the text being pasted
+        var pastedText = (event.clipboardData || window.clipboardData).getData('text');
+
+        // Check if the pasted text contains only numeric characters
+        if (!/^\d+$/.test(pastedText)) {
+            // Prevent the default action (pasting the text)
+            event.preventDefault();
+        }
+    }
+
+    // Add event listeners to handle paste events for both password fields
+    passwordInput1.addEventListener("paste", function(event) {
+        handlePaste(event, passwordInput1);
+    });
+
+    passwordInput2.addEventListener("paste", function(event) {
+        handlePaste(event, passwordInput2);
+    });
+</script>
+
+{% endblock%}
