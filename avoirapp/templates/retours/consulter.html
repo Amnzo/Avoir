@@ -1,164 +1,154 @@
+<!-- templates/repertoire_list.html -->
+
+{% extends 'layout/base.html' %}
+
+{% block title %}Liste des répertoires{% endblock %}
+
 {% block content %}
-<div class="container">
+{% load tz %}  {# Charger les filtres de fuseau horaire #}
+<style>
+
+tr.success {
+    background-color: lightgreen; /* Vert léger */
+    color: black;
+}
+
+tr.warning {
+    background-color: #ffe6b3; /* Orange léger */
+    color: black;
+}
+
+tr.danger {
+    background-color: lightcoral; /* Rouge léger */
+    color: black;
+}
+
+.text-black {
+    color: rgb(9, 0, 128) !important;
+}
+
+</style>
+<div class="container mt-4">
+    
     {% if messages %}
     <ul class="message-list">
-    {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-<div class="card mt-5">
-    <div class="card-header bg-primary text-white">
-        <div class="row">
-            <div class="col">
-                <h2>{{ client.nom|upper }} {{ client.prenom|upper }}</h2>
-            </div>
-            <div class="col text-end">
-                <div class="{% if client.total_avoir_client == 0 %}bg-danger{% else %}bg-warning{% endif %} rounded p-3">
-                    <div class="text-center">
-                        <p class="mb-0" style="color: black;"><strong>SOLDE CRÉDIT :</strong></p>
-                        <h4 class="mb-0">{{ client.total_avoir_client|floatformat:2 }} €</h4>
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+ {% endif %}
+    <h1 class="text-center mb-4">GESTION DES RETOURS </h1>
+    <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
+        <i class="fas fa-chevron-left"></i> RETOUR
+    </a>
+              
+                
+
+               
+                
+                
+
+                
+                
+
+    <!-- Formulaire de recherche -->
+
+    <div class="card">
+        <div class="card-body">
+          
+            <form id="searchForm" action="{% url 'consultation_list_retour' %}" method="GET">
+                
+                <div class="form-row">
+                    <div class="form-group col-md-5">
+                        <label for="searchInput" class="sr-only">Rechercher par nom... :</label>
+                        <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom"  value="{{ search_query }}" oninput="this.value = this.value.toUpperCase()">
                     </div>
+                    
+                    <div class="col-md-2"> <button type="submit" class="btn btn-primary">RECHERCHE</button></div>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-
-    <div class="card-body">
-        <!-- Contenu de la carte -->
-    </div>
-</div>
-
-<ul class="nav nav-tabs" id="myTabs">
-    <li class="nav-item">
-        <a class="nav-link active" id="client-details-tab" data-toggle="tab" href="#client-details">DÉTAIL CLIENT</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="consomption-tab" data-toggle="tab" href="#consomption">HISTORIQUE CONSOMMATIONS</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" id="avoir-tab" data-toggle="tab" href="#avoir">HISTORIQUE CRÉDITS</a>
-    </li>
-</ul>
-
-<div class="tab-content">
-    <!-- Client Details Tab -->
-    <div class="tab-pane fade show active" id="client-details">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-2"><strong>NOM : </strong> {{ client.nom|upper}} </p>
-                    <p class="mb-2"><strong>PRÉNOM : </strong> {{ client.prenom|upper}}</p>
-                    <p class="mb-2"><strong>DATE DE NAISSANCE : </strong> {{ client.datenaissance|date:"d/m/Y" }}</p>
-                </div>
-                <div class="col-md-6">
-
-                    <!-- Buttons for Ajouter Avoir and Consommer Avoir -->
-
-                </div>
-            </div>
-            <div class="mt-3">
-                <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">AJOUTER CRÉDIT</a>
-                <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMMATION </a>
-            </div>
+                
+            </form>
         </div>
     </div>
 
-   <!-- Consomption History Tab -->
-<div class="tab-pane fade" id="consomption">
-    <div class="card-body">
-        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-            <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success mb-3">AJOUTER CONSOMMATION</a>
-            {% if consommations %}
-            <table class="table table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="small-font">FAMILLE</th>
-                        <th scope="col" class="small-font">DÉSIGNATION</th>
-                        <th scope="col" class="small-font">CODE BARRE</th>
-                        <th scope="col" class="small-font">PRIX ACHAT HT</th>
-                        <th scope="col" class="small-font">PRIX VENTE TTC</th>
-                        <th scope="col" class="small-font">CRÉATEUR</th>
-                        <th scope="col" class="small-font">DATE CONSOMMATION</th>
-                        <th scope="col" class="small-font">FACTURE</th>
-                        <th scope="col" class="small-font">ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for consommation in consommations %}
-                    <tr>
-                        <td>{{ consommation.famille.famille|upper }}</td>
-                        <td>{{ consommation.designation|upper }}</td>
-                        <td>{{ consommation.code_barre }}</td>
-                        <td>{{ consommation.prix_achat }}</td>
-                        <td>{{ consommation.prix_vente }}</td>
-                        <td>{{ consommation.user|upper }}</td>
-                        <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
-                        {% if consommation.facture %}
-                        <td>
-                            <a href="{{ consommation.facture.url }}" target="_blank">VOIR FACTURE</a>
-                        </td>
-                        {% else %}
-                        <td>-</td>
-                        {% endif %}
-                        <td><a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
-        </div>
-    </div>
+    <!-- Tableau des répertoires -->
+    <table class="table table-bordered table-hover">
+        <thead style="background-color: #007BFF; color: #FFFFFF;">
+            <tr>
+                
+                <th>DATE</th>
+                <th>NOM</th>
+                <th>PRENOM</th>
+                <th>FOURNISSEUR</th>
+                <th>MARQUE</th>
+                <th>DESIGNATION</th>
+                <th>CODE BARRE</th>
+                <th>AVOIR</th>
+                <th>ACTION</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for retour in retours %}
+           
+            <tr class="success">
+                <td>{{ retour.date | date:"d-m-Y" }}</td>
+                <td>{{ retour.nom|upper }}</td>
+                <td>{{ retour.prenom|upper }}</td>
+                <td>{{ retour.fournisseur|upper }}</td>
+                <td>
+                    {% if retour.marque %}
+                    {{ retour.marque|upper }}
+                    {% else %}
+                    -
+                    {% endif %}
+
+                </td>
+                <td>
+                    {% if retour.designation %}
+                    {{ retour.designation }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if retour.code %}
+                    {{ retour.code }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                {% if retour.facture %}
+                            <a href="{{ retour.facture.url }}" target="_blank">VOIR L'AVOIR</a>
+                            
+                            {% else %}
+                           -
+                  {% endif %}  
+                <td>
+                    <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
+                     
+            
+                 {% if retour.facture %}
+                           
+                    {% else %}
+                    
+                    <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
+                  {% endif %} 
+                 
+                 
+
+                 
+                 
+                </td>
+                
+            </tr>
+
+            
+            {% endfor %}
+        </tbody>
+    </table>
+
+ 
 </div>
-
-
-
-    <!-- Avoir History Tab -->
-    <div class="tab-pane fade" id="avoir">
-        <div class="card-body">
-            <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mb-3">AJOUTER CRÉDIT</a>
-            {% if avoirs %}
-            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                <table class="table table-striped">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">MONTANT</th>
-                            <th scope="col">DATE CRÉDIT</th>
-                            <th scope="col">CRÉATEUR</th>
-                            <th scope="col">FACTURE</th>
-                            <th scope="col">ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for avoir in avoirs %}
-                        <tr>
-                            <td>{{ avoir.montant }}</td>
-                            <td>{{ avoir.date_ajout|date:"d-m-Y" }}</td>
-                            <td>{{ avoir.user|upper }}</td>
-                            <td>
-                                <a href="{{ avoir.facture.url }}" target="_blank">Voir la facture</a>
-                            </td>
-                            <td><a href="{% url 'editer_avoir' id=avoir.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-</div>
-</div>
-
-<!-- JavaScript to handle Bootstrap tabs -->
-<script>
-    $(document).ready(function(){
-        $('#myTabs a').click(function (e) {
-            e.preventDefault()
-            $(this).tab('show')
-        })
-    });
-</script>
 {% endblock %}
