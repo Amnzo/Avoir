@@ -40,10 +40,12 @@
                     {% endif %}
 
         <h1 class="text-center mb-4">LISTE DES FAMILLES</h1>
+        {% if user.is_superuser %}
 
         <a href="{% url 'add_famille' %}" class="btn btn-primary mb-4">
             <i class="fas fa-plus"></i> AJOUTER FAMILLE
         </a>
+        {% endif %}
 
         <!-- Formulaire de recherche -->
 
@@ -57,7 +59,9 @@
                 <tr>
                     <th>FAMILLE</th>
                     <th>ETAT</th>
+                    {% if user.is_superuser %}
                     <th>ACTION</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -68,13 +72,17 @@
                             <input type="checkbox" disabled {% if famille.is_active %}checked{% endif %}>
                         </td>
 
-                        <td>
+                        
+                            {% if user.is_superuser %}
+                            <td>
                             <a href="{% url 'edit_famille' id=famille.id %}">
                                 <i class="fas fa-edit  text-primary" title="Voir les détails"></i>
                             </a>
-
-
                         </td>
+                            {% endif %}
+
+
+                        
                     </tr>
                 {% endfor %}
             </tbody>

@@ -31,14 +31,26 @@
                             </div>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="confirmation" name="confirmation">
-                                <label class="form-check-label" for="confirmation">Oui, je suis sûr</label>
+                                <label class="form-check-label" for="confirmation">{{"Oui, je suis sûr"|upper}}</label>
                             </div>
-                            <button id="deleteButton" type="submit" class="btn btn-danger mt-3" disabled>CONFIRMER</button>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <button id="deleteButton" type="submit" class="btn btn-danger mt-3" disabled>CONFIRMER</button>
+
+                                </div>
+                                <div class="col-md-2"></div>
+                                <div class="col-md-2">
+                                    <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
+                                        <i class="fas fa-chevron-left"></i> RETOUR
+                                    </a>
+                                </div>
+                                
+
+                            </div>
+                           
 
 
-                            <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
-                                <i class="fas fa-chevron-left"></i> RETOUR
-                            </a>
+                            
                             
                         </form>
                     </div>

@@ -156,6 +156,7 @@
 
             </div>
             <ul class="list-unstyled components">
+                {% if user.is_superuser %}
                 <li class="active">
                     <a href="{% url 'profile' %}" title="USERS">
 
@@ -167,6 +168,7 @@
                         <i class="fas fa-user"></i> LISTE DES UTILISATEURS
                     </a>
                 </li>
+                {% endif %}
 
                    <li class="active">
                         <a href="{% url 'familles' %}" title="Famille de catégories de produits">
@@ -207,7 +209,7 @@
 
                 <li>
                     <a href="{% url 'logout' %}" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                        <i class="fas fa-sign-out-alt"></i> {{"Logout"|upper}}
                     </a>
                 </li>
             </ul>

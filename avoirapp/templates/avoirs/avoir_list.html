@@ -131,6 +131,9 @@
                         <th scope="col">DATE CREATION</th>
                         <th scope="col">CREATEUR</th>
                         <th scope="col">FACTURE</th>
+                        {% if user.is_superuser %}
+                        <th scope="col">ACTION</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -146,9 +149,14 @@
                             {% if avoir.facture %}
                             <a href="{{ avoir.facture.url }}" target="_blank">VOIRE LA FACTURE</a>
                             {% else %}
-                            N/A
+                           -
                             {% endif %}
                         </td>
+                        {% if user.is_superuser %}
+                        <td>
+                            <a href="{% url 'editer_avoir' id=avoir.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

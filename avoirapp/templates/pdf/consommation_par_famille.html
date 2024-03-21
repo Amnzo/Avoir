@@ -46,7 +46,7 @@
                 <th>{{ "Date consommation"|upper }}</th>
                 <th>{{ "Designation"|upper }}</th>
                 <th>{{ "Créateur"|upper }}</th>
-                <th>{{ "Code"|upper }}</th>
+                <th>{{ "Code barre"|upper }}</th>
             </tr>
         </thead>
         <tbody>
@@ -60,7 +60,7 @@
                     <td>{{ consommation.designation|upper }}</td>
                     <td>{{ consommation.user.username|upper }}</td>
                     <td>
-                        {% if consommation.code_barre %}
+                        {% if consommation.famille.is_barre %}
                             {{ consommation.code_barre }}
                         {% else %}
                             -

@@ -458,6 +458,8 @@ def ajouter_avoir(request, client_id):
         if form.is_valid():
             avoir = form.save(commit=False)
             avoir.client = client
+            print(f"l'utilisateur qui est ajouter est {request.user}")
+            avoir.user = request.user
             avoir.save()
             messages.success(request, f'UNE CREDIT DE {avoir.montant} A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
             return redirect('client_details', client_id=client.id)
@@ -559,7 +561,9 @@ def consommer_avoir(request, client_id):
                     prix_vente=prix_vente,
                     designation=designation,
                     famille=famille_instance,
-                    code_barre=code_barre
+                    code_barre=code_barre,
+                    user=request.user,
+
                     
                 )
                 if facture:
