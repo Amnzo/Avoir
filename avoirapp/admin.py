@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Client, Avoir, Famille,Consommation, Repertoire, Retour
+from .models import Client, Avoir, Famille,Consommation, JourneeVente, Repertoire, Retour, Vente
 from django.utils.html import format_html
 
 from django.db.models import Sum
@@ -65,4 +65,14 @@ class RetourAdmin(admin.ModelAdmin):
     list_display = ('date','nom', 'prenom', 'fournisseur', 'designation', 'code', 'facture')
 # Register the Repertoire model with the custom admin class
 admin.site.register(Retour, RetourAdmin)
+#admin.site.register(Vente)
+
+class JourneeVenteAdmin(admin.ModelAdmin):
+    list_display = ('vendeur','date', 'cloturee')
+admin.site.register(JourneeVente,JourneeVenteAdmin)
+
+class VenteAdmin(admin.ModelAdmin):
+    list_display = ('nom_client','prenom_client', 'prix_achat','prix_vente','vendeur','date_vente')
+
+admin.site.register(Vente,VenteAdmin)
 

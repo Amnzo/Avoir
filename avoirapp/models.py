@@ -134,3 +134,28 @@ class Retour(models.Model):
         # Calculer la différence de jours entre la date de retour et la date actuelle
         difference = timezone.now() - self.date
         return difference.days
+    
+
+from django.db.models import Sum
+#---COMPTE RENDU-----------------
+class Vente(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    nom_client = models.CharField(max_length=100)
+    prenom_client = models.CharField(max_length=100)
+    designation_produit = models.CharField(max_length=100)
+    code_barre = models.CharField(max_length=100)
+    prix_vente = models.DecimalField(max_digits=10, decimal_places=2)
+    prix_achat = models.DecimalField(max_digits=10, decimal_places=2)
+    date_vente = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+      return f"nom={self.nom_client} - prenom={self.prenom_client}"
+
+class JourneeVente(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    cloturee = models.BooleanField(default=False)
+    ca_jour=models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    ca_jour_1=models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    def __str__(self):
+      return f"vendeur={self.vendeur} - date={self.date}"
+   

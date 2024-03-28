@@ -1,9 +1,10 @@
+from decimal import Decimal
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
-from .models import Avoir, Client, Famille,Consommation, Invoice, Repertoire, Retour
+from .models import Avoir, Client, Famille,Consommation, JourneeVente, Repertoire, Retour, Vente
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Count
@@ -89,7 +90,7 @@ def statistique(request):
     }
     return render(request, 'dashbord/statistique.html', context)
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import calendar
 from collections import defaultdict
 from django.db.models import Sum,functions,Count
@@ -1140,3 +1141,129 @@ def profile_user(request, id):
     return render(request, 'utilisateurs/profile_user.html', {'form': form, 'profile': profile})
 
 
+
+
+#------------COMPTE RENDU --------------------
+@login_required
+def saisie_vente(request):
+    if request.method == 'POST':
+        date_aujourdhui = timezone.now().date()
+        vente_journee, created = JourneeVente.objects.get_or_create(
+            date=date_aujourdhui,
+            vendeur=request.user,
+
+            )
+        nom_client = request.POST.get('nom')
+        prenom_client = request.POST.get('prenom')
+        designation_produit = request.POST.get('designation')
+        code_barre = request.POST.get('code_barre')
+        prix_vente = Decimal(request.POST.get('prix_vente'))
+        print(prix_vente)
+        
+        prix_achat = Decimal(request.POST.get('prix_achat'))
+        print(prix_achat)
+        vendeur = request.user
+        Vente.objects.create(nom_client=nom_client, prenom_client=prenom_client, designation_produit=designation_produit,
+                             code_barre=code_barre, prix_vente=prix_vente, prix_achat=prix_achat, vendeur=vendeur)
+        
+        
+        # Vérifier s'il y a une deuxième ligne de vente
+        
+        if request.POST.get('designation_2') and request.POST.get('code_barre_2') \
+                and request.POST.get('prix_vente_2') and request.POST.get('prix_achat_2'):
+            designation_produit_2 = request.POST.get('designation_2')
+            code_barre_2 = request.POST.get('code_barre_2')
+            prix_vente_2 = Decimal(request.POST.get('prix_vente_2'))
+            prix_achat_2 = Decimal(request.POST.get('prix_achat_2'))
+            Vente.objects.create(nom_client=nom_client, prenom_client=prenom_client, designation_produit=designation_produit_2,
+                                 code_barre=code_barre_2, prix_vente=prix_vente_2, prix_achat=prix_achat_2, vendeur=vendeur)
+        return redirect('ventes_journee')
+
+    return render(request, 'rendu/saisie_vente.html')
+
+from django.db.models import Max
+def ventes_journee(request):
+    current_date = timezone.now().strftime('%d-%m-%Y')
+    vendeur = request.user
+    today = date.today()
+    #dernier_jour_vente = JourneeVente.objects.filter(vendeur=vendeur, date__lt=today).aggregate(dernier_jour=Max('date'))['dernier_jour']
+    dernier_jour_vente = JourneeVente.objects.filter(vendeur=vendeur, date__lt=today).order_by('-date').first()
+    #dernier_jour_vente = JourneeVente.objects.filter(vendeur=vendeur, date__lt=today).aggregate(dernier_jour=Max('date'))['dernier_jour']
+    print(f"dernier_jour_vente ={dernier_jour_vente}")
+    if   dernier_jour_vente:
+        if dernier_jour_vente.cloturee==False:
+            print(f"journee_precedente_cloturee******** {dernier_jour_vente.date}")        # Rediriger l'utilisateur vers une page d'erreur ou afficher un message d'avertissement
+            return render(request, 'rendu/erreur_journee_precedente_non_cloturee.html',{'dernier_jour_vente': dernier_jour_vente.date})  
+    ventes = Vente.objects.filter(vendeur=vendeur, date_vente__date=timezone.now().date())
+    total_ventes = Decimal(0)
+    today_vente = JourneeVente.objects.filter(vendeur=vendeur, date=today).order_by('-date').first()
+
+    for vente in ventes:
+        total_ventes += vente.prix_vente
+    context = {'current_date': current_date,
+                'ventes': ventes, 'total_ventes': total_ventes ,'today_vente':today_vente}
+    #print (f"les ventes : {ventes}")
+    return render(request, 'rendu/ventes_journee.html', context)
+
+
+@login_required
+def cloturer_journee(request):
+    print(f"cloture journé pour ce vendeur  {request.user} ")
+    if request.method == 'POST':
+        vendeur = request.user
+        journee = JourneeVente.objects.get(vendeur=vendeur, cloturee=False)
+        journee.cloturee = True
+        journee.ca_jour=request.POST.get('ca_jour')
+        journee.ca_jour_1=request.POST.get('ca_jour_1')
+        journee.save()
+        return redirect('ventes_journee')
+    return render(request, 'rendu/cloturer_journee.html')
+
+
+def valider_cloture(request):
+    day = request.GET.get('day')
+    #day = datetime.strptime(day, "%B %d, %Y, %I:%M %p")
+    # Parse the string into a datetime object
+    #day_datetime = datetime.strptime(day, "%d-%m-%Y")
+    #day_datetime = datetime.strptime(day, '%B %d, %Y, %I:%M %p')
+    print(day)
+    date_filter = datetime.strptime(day, "%d-%m-%Y")
+    ventes = Vente.objects.filter(vendeur=request.user, date_vente__date=date_filter)
+    print(ventes)
+    total_ventes = Decimal(0)
+    #today_vente = JourneeVente.objects.filter(vendeur=request.user, date=day).order_by('-date').first()
+
+    for vente in ventes:
+        total_ventes += vente.prix_vente
+    print(total_ventes)
+    return render(request, 'rendu/valider_cloture.html',{'day':day,'ca_jour':total_ventes})
+
+
+
+
+
+@login_required
+def edit_rendu(request,id):
+    vente=Vente.objects.get(pk=id)
+    print(vente)
+
+    if request.method == 'POST':
+
+        vente.nom_client = request.POST.get('nom')
+        vente.prenom_client = request.POST.get('prenom')
+        vente.designation_produit = request.POST.get('designation')
+        vente.code_barre = request.POST.get('code_barre')
+        vente.prix_vente = Decimal(request.POST.get('prix_vente'))
+        vente.prix_achat = Decimal(request.POST.get('prix_achat'))
+        vente.save()
+
+
+            
+        return redirect('ventes_journee')
+
+    return render(request, 'rendu/edit_vente.html',{"vente":vente})
+
+
+
+
+    

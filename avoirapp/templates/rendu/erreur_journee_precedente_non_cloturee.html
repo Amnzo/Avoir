@@ -1,0 +1,58 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Erreur: Journée précédente non clôturée{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .error-container {
+            margin-top: 50px;
+        }
+
+        .error-message {
+            padding: 20px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            color: #721c24;
+        }
+
+        .error-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .error-details {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        .error-details p {
+            margin-bottom: 5px;
+        }
+
+        .cloture-button {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-message">
+        <div class="error-header">{{"Erreur: Journée précédente non clôturée" |upper}}</div>
+        <div class="error-details">
+            <p>{{"La journée de ventes précédente n'a pas été clôturée." |upper}}</p>
+            <p>{{"Vous devez d'abord clôturer la journée de ventes précédente avant de continuer." |upper}}</p>
+            <p>{{"La journée non clôturée était le " |upper}} {{ dernier_jour_vente | date:"d-m-Y" }}.</p>
+        </div>
+    </div>
+    <div class="cloture-button text-center">
+       
+        <a href="{% url 'valider_cloture' %}?day={{ dernier_jour_vente | date:"d-m-Y"  }}" class="btn btn-info  btn-lg mr-2">
+            <i class="fas fa-lock mr-2"></i>{{"Cliquer ici pour clôturer le" |upper}} {{ dernier_jour_vente | date:"d-m-Y" }}
+        </a>
+    
+    </div>
+</div>
+{% endblock %}

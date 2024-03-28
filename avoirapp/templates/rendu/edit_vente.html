@@ -1,0 +1,73 @@
+{% extends 'layout/base.html' %}
+{% load tz %}
+
+{% block content %}
+    <div class="container mt-5">
+        <form method="post" id="saisie_vente_form">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="col-md-6">
+                    <label for="nom">{{ "Nom :" | upper }}</label>
+                    <input type="text" class="form-control" id="nom" value="{{vente.nom_client}}" name="nom" oninput="this.value = this.value.toUpperCase()" required>
+                    <div class="invalid-feedback">Veuillez remplir ce champ.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="prenom">{{ "Prénom :" | upper }}</label>
+                    <input type="text" class="form-control" id="prenom" name="prenom" value="{{vente.prenom_client}}"  oninput="this.value = this.value.toUpperCase()" required>
+                </div>
+            </div>
+
+            <div class="form-row mt-3">
+                <div class="col-md-3">
+                    <label for="designation">{{ "Désignation :" | upper }}</label>
+                    <input type="text" class="form-control" name="designation" value="{{vente.designation_produit}}"  placeholder="Désignation du produit" oninput="this.value = this.value.toUpperCase()" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="code_barre">{{ "Code barre :" | upper }}</label>
+                    <input type="text" class="form-control" name="code_barre" value="{{vente.code_barre}}" placeholder="Code barre" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="prix_vente">{{ "Prix vente :" | upper }}</label>
+                    <input type="text" class="form-control prix-input" name="prix_vente" value="{{vente.prix_vente}}"  required>
+                </div>
+                <div class="col-md-3">
+                    <label for="prix_achat">{{ "Prix achat :" | upper }}</label>
+                    <input type="text" class="form-control prix-input" name="prix_achat"  value="{{vente.prix_achat}}"   required>
+                </div>
+            </div>
+
+            <div class="form-group row mt-3">
+                <div class="col-sm-12 text-center">
+                    <button type="submit" class="btn btn-primary" id="valider_vente">
+                        <i class="fas fa-check"></i> {{"MODIFIER vente" | upper}}
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary">{{"Annuler" | upper}}</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.prix-input').on('input', function() {
+                var inputValue = $(this).val();
+                // Supprimer tout sauf les chiffres et le point décimal
+                inputValue = inputValue.replace(/[^0-9.]/g, '');
+                // Remplacer les points décimaux multiples par un seul point
+                inputValue = inputValue.replace(/(\..*)\./g, '$1');
+                // Limiter à un seul point décimal
+                var decimalCount = (inputValue.match(/\./g) || []).length;
+                if (decimalCount > 1) {
+                    inputValue = inputValue.substring(0, inputValue.lastIndexOf('.'));
+                }
+                $(this).val(inputValue);
+            });
+
+            $('#valider_vente').click(function() {
+                $('#saisie_vente_form').submit();
+            });
+        });
+    </script>
+{% endblock %}

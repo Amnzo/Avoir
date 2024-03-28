@@ -41,6 +41,14 @@ urlpatterns = [
     path('add_famille/', login_required(add_famille), name='add_famille'),
     path('fetch_is_facture/', login_required(fetch_is_facture), name='fetch_is_facture'),
     path('edit_famille/<int:id>/', login_required(edit_famille), name='edit_famille'),
+    path('saisie-vente/', saisie_vente, name='saisie_vente'),
+    path('ventes-journee/', ventes_journee, name='ventes_journee'),
+    path('ventes-cloturer_ventes/', cloturer_journee, name='cloturer_ventes'),
+    path('valider_cloture', login_required(valider_cloture), name='valider_cloture'),
+    path('edit_rendu/<int:id>/', login_required(edit_rendu), name='edit_rendu'),
+    
+    
+    
 
     path('login/', custom_login, name='login'),
     path('logout/', custom_logout, name='logout'),

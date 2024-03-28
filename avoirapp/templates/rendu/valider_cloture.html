@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{"Clôture de la journée"|upper}}</title>
+    <!-- Inclure Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Votre CSS personnalisé -->
+    <style>
+        /* Ajoutez ici votre CSS personnalisé */
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card bg-primary text-white">
+                    <div class="card-header">
+                        {{ "Clôture de la journée"|upper }} : {{ day }}
+
+                    </div>
+                    <div class="card-body">
+                        <form id="clotureForm" action="{% url 'cloturer_ventes' %}" method="post">
+                            {% csrf_token %}
+                            <p>Veuillez entrer les valeurs décimales :</p>
+                            <!-- Champ pour la première valeur décimale -->
+                            <div class="form-group">
+                                <label for="decimal1">C.A JOUR :</label>
+                                <input type="number" class="form-control" id="ca_jour" name="ca_jour" value="{{ca_jour}}" required>
+                            </div>
+                            <!-- Champ pour la deuxième valeur décimale -->
+                            <div class="form-group">
+                                <label for="decimal2">C.A JOUR-1 :</label>
+                                <input type="number" class="form-control" id="ca_jour_1" name="ca_jour_1" required>
+                            </div>
+                            <!-- Bouton de confirmation -->
+                            <div class="form-group d-flex justify-content-between">
+                                <button id="confirmButton" type="submit" class="btn btn-success" disabled>CONFIRMER CLOTURE</button>
+                                <a href="{% url  'ventes_journee' %}" class="btn btn-secondary mb-4">
+                                    <i class="fas fa-chevron-left"></i> RETOUR
+                                </a>
+                            </div>
+                            
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Inclure Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Votre JavaScript personnalisé -->
+<script>
+    // Fonction pour activer le bouton de confirmation si les deux champs décimaux sont remplis
+    function checkDecimalFields() {
+        var decimal1Value = document.getElementById('ca_jour').value;
+        var decimal2Value = document.getElementById('ca_jour_1').value;
+        var confirmButton = document.getElementById('confirmButton');
+
+        if (decimal1Value && decimal2Value) {
+            confirmButton.disabled = false;
+        } else {
+            confirmButton.disabled = true;
+        }
+    }
+
+    // Écouter les événements de changement sur les champs décimaux
+    document.getElementById('ca_jour').addEventListener('input', checkDecimalFields);
+    document.getElementById('ca_jour_1').addEventListener('input', checkDecimalFields);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% extends 'layout/base.html' %}
+{% load tz %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Titre et informations utilisateur -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2 class="font-weight-bold">
+                <i class="fas fa-chart-line mr-2"></i> VENTES DE LA JOURNÉE
+            </h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <p class="font-weight-bold">
+                <i class="fas fa-user-circle mr-2"></i> {{ request.user|upper }} - <i class="fas fa-calendar-day ml-2 mr-1"></i> {{ current_date }}
+            </p>
+        </div>
+    </div>
+
+  <!-- Actions de clôture et de nouvelle vente -->
+<div class="row mb-3">
+    {% if not today_vente.cloturee %}
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between">
+            
+    <a href="{% url 'valider_cloture' %}?ca-jour={{ total_ventes }}&day={{ current_date  }}" class="btn btn-danger btn-lg mr-2">
+                <i class="fas fa-lock mr-2"></i> CLOTURER LES VENTES
+      </a>
+            <a href="{% url 'saisie_vente' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-cart-plus mr-2"></i> NOUVELLE VENTE
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-md-4">
+        <div class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle"></i> {{"Vous avez déjà clôturé la journée."|upper}}
+        </div>
+    </div>
+    {% endif %}
+    <div class="col-md-4 text-right">
+        <p class="font-weight-bold">
+            <i class="fas fa-cash-register mr-2"></i> TOTAL DES VENTES : {{ total_ventes }}
+        </p>
+    </div>
+</div>
+
+
+    <!-- Tableau des ventes -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">NOM</th>
+                    <th scope="col">PRÉNOM</th>
+                    <th scope="col">DÉSIGNATION</th>
+                    <th scope="col">CODE BARRE</th>
+                    <th scope="col">PRIX VENTE</th>
+                    <th scope="col">PRIX ACHAT</th>
+                    <th scope="col">ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vente in ventes %}
+                <tr>
+                    <td>{{ vente.nom_client|title }}</td>
+                    <td>{{ vente.prenom_client|title }}</td>
+                    <td>{{ vente.designation_produit }}</td>
+                    <td>{{ vente.code_barre }}</td>
+                    <td>{{ vente.prix_vente }}</td>
+                    <td>{{ vente.prix_achat }}</td>
+                    <td><a href="{% url 'edit_rendu' id=vente.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">AUCUNE VENTE ENREGISTRÉE</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}
