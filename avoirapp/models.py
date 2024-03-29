@@ -149,6 +149,72 @@ class Vente(models.Model):
     date_vente = models.DateTimeField(default=timezone.now)
     def __str__(self):
       return f"nom={self.nom_client} - prenom={self.prenom_client}"
+    
+
+
+
+class Teletransmition(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    amo = models.DecimalField(max_digits=10, decimal_places=2)
+    amc = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"AMO: {self.amo}"
+
+class Stock(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    marque = models.CharField(max_length=100)
+    qtt = models.IntegerField()
+
+    def __str__(self):
+        return self.marque
+
+class Sav(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+    fournisseur = models.CharField(max_length=100)
+    reference = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.nom} {self.prenom}"
+
+class Anomalie(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    subject = models.TextField()
+
+    def __str__(self):
+        return self.subject
+
+class RemiseBanque(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    piece = models.FileField(upload_to='remises/')
+
+    def __str__(self):
+        return f"Montant: {self.montant}"
+
+class Livraison(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.nom} {self.prenom}"
+
+class Litige(models.Model):
+    vendeur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    subject = models.TextField()
+
+    def __str__(self):
+        return self.subject
 
 class JourneeVente(models.Model):
     vendeur = models.ForeignKey(User, on_delete=models.CASCADE)

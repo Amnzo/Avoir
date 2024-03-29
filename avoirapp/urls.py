@@ -46,6 +46,10 @@ urlpatterns = [
     path('ventes-cloturer_ventes/', cloturer_journee, name='cloturer_ventes'),
     path('valider_cloture', login_required(valider_cloture), name='valider_cloture'),
     path('edit_rendu/<int:id>/', login_required(edit_rendu), name='edit_rendu'),
+    path('open_day/', login_required(open_day), name='open_day'),
+    path('add/<str:model_name>/', add_item, name='add_item'),
+
+    
     
     
     

@@ -1,7 +1,7 @@
 # myapp/forms.py
 
 from django import forms
-from .models import Avoir, Client,Consommation,Famille
+from .models import Avoir, Client,Consommation,Famille,Teletransmition, Stock, Sav, Anomalie, RemiseBanque, Livraison, Litige
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 class CustomLoginForm(forms.Form):
@@ -79,5 +79,20 @@ class CustomUserRegistrationForm(forms.Form):
             raise forms.ValidationError('Passwords do not match.')
 
         return password2
+    
+
+
+
+class GenericModelForm(forms.ModelForm):
+    class Meta:
+        model = None  # On spécifie pas de modèle ici
+
+    def __init__(self, *args, **kwargs):
+        model = kwargs.pop('model', None)
+        super(GenericModelForm, self).__init__(*args, **kwargs)
+        
+        if model:
+            self.Meta.model = model
+
 
 

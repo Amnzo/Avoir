@@ -1,0 +1,75 @@
+{% extends 'layout/base.html' %}
+{% load tz %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-center">Ajouter un élément - {{ model_name }}</h1>
+        <form method="post" class="mt-4" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Champs spécifiques à votre modèle -->
+            {% if model_name == 'teletransmition' %}
+                <div class="form-group">
+                    <label for="amo">AMO:</label>
+                    <input type="text" class="form-control" id="amo" name="amo" required>
+                </div>
+                <div class="form-group">
+                    <label for="amc">AMC:</label>
+                    <input type="text" class="form-control" id="amc" name="amc" required>
+                </div>
+            {% elif model_name == 'stock' %}
+                <div class="form-group">
+                    <label for="marque">Marque:</label>
+                    <input type="text" class="form-control" id="marque" name="marque" required>
+                </div>
+                <div class="form-group">
+                    <label for="qtt">Quantité:</label>
+                    <input type="number" class="form-control" id="qtt" name="qtt" required>
+                </div>
+            {% elif model_name == 'sav' %}
+                <div class="form-group">
+                    <label for="nom">Nom:</label>
+                    <input type="text" class="form-control" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom:</label>
+                    <input type="text" class="form-control" id="prenom" name="prenom" required>
+                </div>
+                <!-- Ajoutez d'autres champs pour le modèle Sav au besoin -->
+            {% elif model_name == 'anomalie' %}
+                <div class="form-group">
+                    <label for="subject">Sujet:</label>
+                    <textarea class="form-control" id="subject" name="subject" required></textarea>
+                </div>
+                <!-- Ajoutez d'autres champs pour le modèle Anomalie au besoin -->
+            {% elif model_name == 'remisebanque' %}
+                <div class="form-group">
+                    <label for="montant">Montant:</label>
+                    <input type="number" class="form-control" id="montant" name="montant" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="piece">Pièce jointe:</label>
+                    <input type="file" class="form-control-file" id="piece" name="piece" accept="application/pdf,image/*" required>
+                </div>
+                <!-- Ajoutez d'autres champs pour le modèle RemiseBanque au besoin -->
+            {% elif model_name == 'livraison' %}
+                <div class="form-group">
+                    <label for="nom">Nom:</label>
+                    <input type="text" class="form-control" id="nom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom:</label>
+                    <input type="text" class="form-control" id="prenom" name="prenom" required>
+                </div>
+                <!-- Ajoutez d'autres champs pour le modèle Livraison au besoin -->
+            {% elif model_name == 'litige' %}
+                <div class="form-group">
+                    <label for="subject">Sujet:</label>
+                    <textarea class="form-control" id="subject" name="subject" required></textarea>
+                </div>
+                <!-- Ajoutez d'autres champs pour le modèle Litige au besoin -->
+            {% endif %}
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </form>
+    </div>
+
+{% endblock %}

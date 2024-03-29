@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.db.models import Sum
-from .models import Client, Avoir, Famille,Consommation, JourneeVente, Repertoire, Retour, Vente
+from .models import Anomalie, Client, Avoir, Famille,Consommation, JourneeVente, Litige, Livraison, RemiseBanque, Repertoire, Retour, Sav, Stock, Teletransmition, Vente
 from django.utils.html import format_html
 
 from django.db.models import Sum
@@ -76,3 +76,12 @@ class VenteAdmin(admin.ModelAdmin):
 
 admin.site.register(Vente,VenteAdmin)
 
+
+#admin.site.register(Vente)
+admin.site.register(Teletransmition)
+admin.site.register(Stock)
+admin.site.register(Sav)
+admin.site.register(Anomalie)
+admin.site.register(RemiseBanque)
+admin.site.register(Livraison)
+admin.site.register(Litige)

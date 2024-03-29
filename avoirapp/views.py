@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
-from .models import Avoir, Client, Famille,Consommation, JourneeVente, Repertoire, Retour, Vente
+from .models import Anomalie, Avoir, Client, Famille,Consommation, JourneeVente, Litige, Livraison, RemiseBanque, Repertoire, Retour, Sav, Stock, Teletransmition, Vente
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, Count
@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 # myapp/views.py
 
 from django.contrib.auth import authenticate, login,logout
-from .forms import ClientForm, CustomLoginForm, CustomUserRegistrationForm, RepertoireSearchForm
+from .forms import ClientForm, CustomLoginForm, CustomUserRegistrationForm, GenericModelForm, RepertoireSearchForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def custom_login(request):
@@ -1195,13 +1195,32 @@ def ventes_journee(request):
             print(f"journee_precedente_cloturee******** {dernier_jour_vente.date}")        # Rediriger l'utilisateur vers une page d'erreur ou afficher un message d'avertissement
             return render(request, 'rendu/erreur_journee_precedente_non_cloturee.html',{'dernier_jour_vente': dernier_jour_vente.date})  
     ventes = Vente.objects.filter(vendeur=vendeur, date_vente__date=timezone.now().date())
+    teletransitions = Teletransmition.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
+    stocks = Stock.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
+    savs = Sav.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
+    anomalies = Anomalie.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
+    remises_banque = RemiseBanque.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
+    livraisons = Livraison.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
+    litiges = Litige.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
     total_ventes = Decimal(0)
     today_vente = JourneeVente.objects.filter(vendeur=vendeur, date=today).order_by('-date').first()
 
     for vente in ventes:
         total_ventes += vente.prix_vente
-    context = {'current_date': current_date,
-                'ventes': ventes, 'total_ventes': total_ventes ,'today_vente':today_vente}
+    context = {
+    'current_date': current_date,
+    'ventes': ventes,
+    'total_ventes': total_ventes,
+    'today_vente': today_vente,
+    'teletransitions': teletransitions,
+    'stocks': stocks,
+    'savs': savs,
+    'anomalies': anomalies,
+    'remises_banque': remises_banque,
+    'livraisons': livraisons,
+    'litiges': litiges
+}
+
     #print (f"les ventes : {ventes}")
     return render(request, 'rendu/ventes_journee.html', context)
 
@@ -1222,10 +1241,6 @@ def cloturer_journee(request):
 
 def valider_cloture(request):
     day = request.GET.get('day')
-    #day = datetime.strptime(day, "%B %d, %Y, %I:%M %p")
-    # Parse the string into a datetime object
-    #day_datetime = datetime.strptime(day, "%d-%m-%Y")
-    #day_datetime = datetime.strptime(day, '%B %d, %Y, %I:%M %p')
     print(day)
     date_filter = datetime.strptime(day, "%d-%m-%Y")
     ventes = Vente.objects.filter(vendeur=request.user, date_vente__date=date_filter)
@@ -1238,7 +1253,19 @@ def valider_cloture(request):
     print(total_ventes)
     return render(request, 'rendu/valider_cloture.html',{'day':day,'ca_jour':total_ventes})
 
+def open_day(request):
+    day = request.GET.get('day')
+    date_filter = datetime.strptime(day, "%d-%m-%Y")
+    try:
+        journee = JourneeVente.objects.get(vendeur=request.user, date__date=date_filter)
+        journee.cloturee = False
+        journee.save()
+        print(f"++++++++++++++++{journee}")
+    except JourneeVente.DoesNotExist:
+        # Gérer le cas où aucune journée n'est trouvée
+        pass
 
+    return redirect('ventes_journee')
 
 
 
@@ -1263,6 +1290,78 @@ def edit_rendu(request,id):
 
     return render(request, 'rendu/edit_vente.html',{"vente":vente})
 
+from django.contrib import messages
+
+def add_item(request, model_name):
+    if request.method == 'POST':
+        if model_name == 'teletransmition':
+            # Créer une instance de Teletransmition
+            Teletransmition.objects.create(
+                vendeur=request.user,
+                amo=request.POST['amo'],
+                amc=request.POST['amc']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVELLE TÉLÉTRANSMISSION AJOUTÉE AVEC SUCCÈS!")
+        elif model_name == 'stock':
+            # Créer une instance de Stock
+            Stock.objects.create(
+                vendeur=request.user,
+                marque=request.POST['marque'],
+                qtt=request.POST['qtt']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVEAU STOCK AJOUTÉ AVEC SUCCÈS!")
+        elif model_name == 'sav':
+            # Créer une instance de Sav
+            Sav.objects.create(
+                vendeur=request.user,
+                nom=request.POST['nom'],
+                prenom=request.POST['prenom'],
+                fournisseur=request.POST['fournisseur'],
+                reference=request.POST['reference']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVEAU SAV AJOUTÉ AVEC SUCCÈS!")
+        elif model_name == 'anomalie':
+            # Créer une instance de Anomalie
+            Anomalie.objects.create(
+                vendeur=request.user,
+                subject=request.POST['subject']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVELLE ANOMALIE AJOUTÉE AVEC SUCCÈS!")
+        elif model_name == 'remisebanque':
+            # Créer une instance de RemiseBanque
+            RemiseBanque.objects.create(
+                vendeur=request.user,
+                montant=request.POST['montant'],
+                piece=request.FILES['piece']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVELLE REMISE BANCAIRE AJOUTÉE AVEC SUCCÈS!")
+        elif model_name == 'livraison':
+            # Créer une instance de Livraison
+            Livraison.objects.create(
+                vendeur=request.user,
+                nom=request.POST['nom'],
+                prenom=request.POST['prenom']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVELLE LIVRAISON AJOUTÉE AVEC SUCCÈS!")
+        elif model_name == 'litige':
+            # Créer une instance de Litige
+            Litige.objects.create(
+                vendeur=request.user,
+                subject=request.POST['subject']
+            )
+            # Ajouter un message de succès
+            messages.success(request, "NOUVEAU LITIGE AJOUTÉ AVEC SUCCÈS!")
+
+        # Rediriger l'utilisateur vers une page de confirmation ou une autre vue
+        return redirect('ventes_journee')  # Remplacez 'nom_de_la_vue_de_confirmation' par le nom de votre vue de confirmation
+    else:
+        return render(request, 'rendu/add_item.html', {'model_name': model_name})
 
 
 
