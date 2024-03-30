@@ -1147,12 +1147,6 @@ def profile_user(request, id):
 @login_required
 def saisie_vente(request):
     if request.method == 'POST':
-        date_aujourdhui = timezone.now().date()
-        vente_journee, created = JourneeVente.objects.get_or_create(
-            date=date_aujourdhui,
-            vendeur=request.user,
-        )
-
         # Traiter les données de la première ligne de vente
         nom_client = request.POST.get('nom')
         prenom_client = request.POST.get('prenom')
@@ -1186,6 +1180,11 @@ def saisie_vente(request):
 
 from django.db.models import Max
 def ventes_journee(request):
+    date_aujourdhui = timezone.now().date()
+    vente_journee, created = JourneeVente.objects.get_or_create(
+            date=date_aujourdhui,
+            vendeur=request.user,
+        )
     current_date = timezone.now().strftime('%d-%m-%Y')
     vendeur = request.user
     today = date.today()
