@@ -1151,32 +1151,35 @@ def saisie_vente(request):
         vente_journee, created = JourneeVente.objects.get_or_create(
             date=date_aujourdhui,
             vendeur=request.user,
+        )
 
-            )
+        # Traiter les données de la première ligne de vente
         nom_client = request.POST.get('nom')
         prenom_client = request.POST.get('prenom')
-        designation_produit = request.POST.get('designation')
-        code_barre = request.POST.get('code_barre')
-        prix_vente = Decimal(request.POST.get('prix_vente'))
-        print(prix_vente)
-        
-        prix_achat = Decimal(request.POST.get('prix_achat'))
-        print(prix_achat)
+        designation_produit = request.POST.get('designation_1')
+        code_barre = request.POST.get('code_barre_1')
+        prix_vente = Decimal(request.POST.get('prix_vente_1'))
+        prix_achat = Decimal(request.POST.get('prix_achat_1'))
         vendeur = request.user
         Vente.objects.create(nom_client=nom_client, prenom_client=prenom_client, designation_produit=designation_produit,
                              code_barre=code_barre, prix_vente=prix_vente, prix_achat=prix_achat, vendeur=vendeur)
-        
-        
-        # Vérifier s'il y a une deuxième ligne de vente
-        
-        if request.POST.get('designation_2') and request.POST.get('code_barre_2') \
-                and request.POST.get('prix_vente_2') and request.POST.get('prix_achat_2'):
-            designation_produit_2 = request.POST.get('designation_2')
-            code_barre_2 = request.POST.get('code_barre_2')
-            prix_vente_2 = Decimal(request.POST.get('prix_vente_2'))
-            prix_achat_2 = Decimal(request.POST.get('prix_achat_2'))
-            Vente.objects.create(nom_client=nom_client, prenom_client=prenom_client, designation_produit=designation_produit_2,
-                                 code_barre=code_barre_2, prix_vente=prix_vente_2, prix_achat=prix_achat_2, vendeur=vendeur)
+
+        # Traiter les données des lignes de vente supplémentaires
+        ligne_count = 2  # Commencer à partir de la deuxième ligne
+        while True:
+            if request.POST.get(f'designation_{ligne_count}') and request.POST.get(f'code_barre_{ligne_count}') \
+                    and request.POST.get(f'prix_vente_{ligne_count}') and request.POST.get(f'prix_achat_{ligne_count}'):
+                # S'il y a des données pour la ligne suivante, les traiter
+                designation_produit = request.POST.get(f'designation_{ligne_count}')
+                code_barre = request.POST.get(f'code_barre_{ligne_count}')
+                prix_vente = Decimal(request.POST.get(f'prix_vente_{ligne_count}'))
+                prix_achat = Decimal(request.POST.get(f'prix_achat_{ligne_count}'))
+                Vente.objects.create(nom_client=nom_client, prenom_client=prenom_client, designation_produit=designation_produit,
+                                     code_barre=code_barre, prix_vente=prix_vente, prix_achat=prix_achat, vendeur=vendeur)
+                ligne_count += 1  # Passer à la ligne suivante
+            else:
+                break  # Sortir de la boucle si aucune donnée n'est trouvée pour la ligne suivante
+
         return redirect('ventes_journee')
 
     return render(request, 'rendu/saisie_vente.html')
@@ -1366,3 +1369,78 @@ def add_item(request, model_name):
 
 
     
+
+def edit_item(request, model_name, item_id):
+    # Récupérer l'objet correspondant à l'identifiant
+    if model_name == 'teletransmition':
+        item = get_object_or_404(Teletransmition, pk=item_id)
+    elif model_name == 'stock':
+        item = get_object_or_404(Stock, pk=item_id)
+    elif model_name == 'sav':
+        item = get_object_or_404(Sav, pk=item_id)
+    elif model_name == 'anomalie':
+        item = get_object_or_404(Anomalie, pk=item_id)
+    elif model_name == 'remisebanque':
+        item = get_object_or_404(RemiseBanque, pk=item_id)
+    elif model_name == 'livraison':
+        item = get_object_or_404(Livraison, pk=item_id)
+    elif model_name == 'litige':
+        item = get_object_or_404(Litige, pk=item_id)
+    else:
+        # Gérer le cas où le modèle n'est pas trouvé
+        return HttpResponseNotFound("Model not found")
+
+    if request.method == 'POST':
+        if model_name == 'teletransmition':
+            # Mettre à jour l'instance de Teletransmition
+            item.amo = request.POST['amo']
+            item.amc = request.POST['amc']
+            item.save()
+            messages.success(request, "TÉLÉTRANSMISSION MODIFIÉE AVEC SUCCÈS!")
+        elif model_name == 'stock':
+            # Mettre à jour l'instance de Stock
+            item.marque = request.POST['marque']
+            item.qtt = request.POST['qtt']
+            item.save()
+            messages.success(request, "STOCK MODIFIÉ AVEC SUCCÈS!")
+        elif model_name == 'sav':
+            # Mettre à jour l'instance de Sav
+            item.nom = request.POST['nom']
+            item.prenom = request.POST['prenom']
+            item.fournisseur = request.POST['fournisseur']
+            item.reference = request.POST['reference']
+            item.save()
+            messages.success(request, "SAV MODIFIÉ AVEC SUCCÈS!")
+        elif model_name == 'anomalie':
+            # Mettre à jour l'instance de Anomalie
+            item.subject = request.POST['subject']
+            item.save()
+            messages.success(request, "ANOMALIE MODIFIÉE AVEC SUCCÈS!")
+        elif model_name == 'remisebanque':
+            # Mettre à jour l'instance de RemiseBanque
+            item.montant = request.POST['montant']
+            if 'piece' in request.FILES:
+                item.piece = request.FILES['piece']
+            item.save()
+            messages.success(request, "REMISE BANCAIRE MODIFIÉE AVEC SUCCÈS!")
+        elif model_name == 'livraison':
+            # Mettre à jour l'instance de Livraison
+            item.nom = request.POST['nom']
+            item.prenom = request.POST['prenom']
+            item.save()
+            messages.success(request, "LIVRAISON MODIFIÉE AVEC SUCCÈS!")
+        elif model_name == 'litige':
+            # Mettre à jour l'instance de Litige
+            item.subject = request.POST['subject']
+            item.save()
+            messages.success(request, "LITIGE MODIFIÉ AVEC SUCCÈS!")
+
+        return redirect('ventes_journee')
+
+    else:
+        # Afficher le formulaire d'édition avec les données existantes
+        context = {
+            'item': item,
+            'model_name': model_name,
+        }
+        return render(request, 'rendu/edit_item.html', context)

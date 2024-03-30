@@ -48,6 +48,7 @@ urlpatterns = [
     path('edit_rendu/<int:id>/', login_required(edit_rendu), name='edit_rendu'),
     path('open_day/', login_required(open_day), name='open_day'),
     path('add/<str:model_name>/', add_item, name='add_item'),
+    path('edit/<str:model_name>/<int:item_id>/', edit_item, name='edit_item'),
 
     
     

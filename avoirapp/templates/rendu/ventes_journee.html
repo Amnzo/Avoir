@@ -20,8 +20,7 @@
             {{ message }}
         {% endfor %}
     </div>
-{% endif %}
-
+    {% endif %}
 
     <!-- Section Ventes Journalières -->
     <div class="row mb-4">
@@ -37,13 +36,12 @@
                 <i class="fas fa-check-circle"></i> {{"Vous avez déjà clôturé la journée."|upper}}
             </div>
             {% endif%}
-           
         </div>
         <div class="col-md-5">
             <p class="font-weight-bold">
                 <i class="fas fa-user-circle mr-2"></i>{{ request.user|upper }} - 
-                 <i class="fas fa-calendar-day ml-2 mr-1"></i> {{ current_date }}-
-                 <i class="fas fa-cash-register mr-2 custom-cash-icon-color"></i>  {{ total_ventes }}
+                <i class="fas fa-calendar-day ml-2 mr-1"></i> {{ current_date }}-
+                <i class="fas fa-cash-register mr-2 custom-cash-icon-color"></i>  {{ total_ventes }}
             </p>
         </div>
     </div>
@@ -86,7 +84,6 @@
         </div>
     </div>
 
-
     <!-- Section Insertion en TELETRANSITION -->
     <div class="row mb-4">
         <div class="col-md-8">
@@ -94,10 +91,8 @@
                 <i class="fas fa-exchange-alt mr-2 custom-teletrans-icon-color"></i> 
                 {{"teletransmition" |upper}}</h5>
                 {% if not today_vente.cloturee %}
-         
                 <a href="{% url 'add_item' model_name='teletransmition' %}" class="btn btn-primary ml-3">{{"Ajouter une teletransmition" |upper}}</a>
-        {% endif %}
-           
+                {% endif %}
         </div>
     </div>
     <div class="row mb-4">
@@ -108,6 +103,7 @@
                         <tr>
                             <th scope="col">A.M.O</th>
                             <th scope="col">A.M.C</th>
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,6 +112,9 @@
                         <tr>
                             <td>{{ teletransition.amo }}</td>
                             <td>{{ teletransition.amc }}</td>
+                            <a href="#">Editer</a>
+
+                            <td><a href="{% url 'edit_item' model_name='teletransmition' item_id=teletransition.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -129,7 +128,6 @@
         </div>
     </div>
 
-
     <!-- Section Insertion en Stock -->
     <div class="row mb-4">
         <div class="col-md-8">
@@ -137,9 +135,8 @@
                 <i class="fas fa-cube mr-2 custom-stock-icon-color"></i> 
                 {{"Insertion en Stock" |upper}}</h5>
                 {% if not today_vente.cloturee %}
-           
-            <a href="{% url 'add_item' model_name='stock' %}" class="btn btn-primary ml-3">{{ "Ajouter un stock" | upper }}</a>
-            {% endif %}
+                <a href="{% url 'add_item' model_name='stock' %}" class="btn btn-primary ml-3">{{ "Ajouter un stock" | upper }}</a>
+                {% endif %}
         </div>
     </div>
     <div class="row mb-4">
@@ -150,6 +147,7 @@
                         <tr>
                             <th scope="col">MARQUE</th>
                             <th scope="col">{{"Quantité " |upper}}</th>
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -158,6 +156,7 @@
                         <tr>
                             <td>{{ stock.marque }}</td>
                             <td>{{ stock.qtt }}</td>
+                            <td><a href="{% url 'edit_item' model_name='stock' item_id=stock.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -171,7 +170,6 @@
         </div>
     </div>
 
-  
     <!-- Section Commande SAV -->
     <div class="row mb-4">
         <div class="col-md-8">
@@ -179,9 +177,8 @@
                 <i class="fas fa-tools mr-2 custom-sav-icon-color"></i> 
                 {{"Commande S.A.V" |upper}}</h5>
                 {% if not today_vente.cloturee %}
-           
-            <a href="{% url 'add_item' model_name='sav' %}" class="btn btn-primary ml-3">{{ "Ajouter un SAV" | upper }}</a>
-            {% endif %}
+                <a href="{% url 'add_item' model_name='sav' %}" class="btn btn-primary ml-3">{{ "Ajouter un SAV" | upper }}</a>
+                {% endif %}
         </div>
     </div>
     <div class="row mb-4">
@@ -194,6 +191,7 @@
                             <th scope="col">{{"Prénom" |upper}}</th>
                             <th scope="col">{{"Fournisseur" |upper}}</th>
                             <th scope="col">{{"Référence" |upper}}</th>
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -204,11 +202,12 @@
                             <td>{{ sav.prenom }}</td>
                             <td>{{ sav.fournisseur }}</td>
                             <td>{{ sav.reference }}</td>
+                            <td><a href="{% url 'edit_item' model_name='sav' item_id=sav.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                         </tr>
                         {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center">AUCUNE COMMANDE S.A.V ENREGISTRÉE</td>
+                            <td colspan="5" class="text-center">AUCUNE COMMANDE S.A.V ENREGISTRÉE</td>
                         </tr>
                         {% endif %}
                     </tbody>
@@ -217,18 +216,15 @@
         </div>
     </div>
 
-
-
-    <!-- ------ANOMALIE --------------->
+    <!-- Section Anomalie -->
     <div class="row mb-4">
         <div class="col-md-8">
             <h5 class="font-weight-bold d-inline">
                 <i class="fas fa-exclamation-triangle mr-2 custom-anomaly-icon-color"></i> 
                 {{"ANOMALIE" |upper}}</h5>
                 {% if not today_vente.cloturee %}
-           
-            <a href="{% url 'add_item' model_name='anomalie' %}" class="btn btn-primary ml-3">{{ "Ajouter une anomalie" | upper }}</a>
-            {% endif %}
+                <a href="{% url 'add_item' model_name='anomalie' %}" class="btn btn-primary ml-3">{{ "Ajouter une anomalie" | upper }}</a>
+                {% endif %}
         </div>
     </div>
     <div class="row mb-4">
@@ -238,7 +234,7 @@
                     <thead class="thead-dark">
                         <tr>
                             <th scope="col">{{"Problématique" |upper}}</th>
-                            
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -246,12 +242,12 @@
                         {% for anomaly in anomalies %}
                         <tr>
                             <td>{{ anomaly.subject }}</td>
-                            
+                            <td><a href="{% url 'edit_item' model_name='anomalie' item_id=anomaly.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                         </tr>
                         {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center">AUCUNE ANOMALIE ENREGISTRÉE</td>
+                            <td colspan="2" class="text-center">AUCUNE ANOMALIE ENREGISTRÉE</td>
                         </tr>
                         {% endif %}
                     </tbody>
@@ -260,64 +256,15 @@
         </div>
     </div>
 
-
-    
-    <!-- ------REMISE EN BANQUE --------------->
+    <!-- Section Livraison Client -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <h5 class="font-weight-bold d-inline">
-                <i class="fas fa-university mr-2 custom-bank-icon-color"></i> 
-                {{"REMISE EN BANQUE" |upper}}</h5>
-                {% if not today_vente.cloturee %}
-
-            <a href="{% url 'add_item' model_name='remisebanque' %}" class="btn btn-primary ml-3">{{ "Ajouter une remise banque" | upper }}</a>
-            {% endif %}
-        </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">MONTANT</th>
-                            <th scope="col">AVOIR</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if remises_banque %}
-                        {% for remise in remises_banque %}
-                        <tr>
-                            <td>{{ remise.montant }}</td>
-                            <td>
-                                <a href="{{ remise.piece.url }}" target="_blank">VOIRE LA FACTURE</a>
-                            </td>
-                            
-                        </tr>
-                        {% endfor %}
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center">AUCUNE REMISE EN BANQUE ENREGISTRÉE</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-
-      <!-- ------LIVRAISON CLIENT --------------->
-      <div class="row mb-4">
         <div class="col-md-8">
             <h5 class="font-weight-bold d-inline">
                 <i class="fas fa-truck mr-2 custom-delivery-icon-color"></i> 
                 {{"LIVRAISON CLIENT" |upper}}</h5>
                 {% if not today_vente.cloturee %}
-
-            <a href="{% url 'add_item' model_name='livraison' %}" class="btn btn-primary ml-3">{{ "Ajouter une livraison" | upper }}</a>
-            {% endif %}
+                <a href="{% url 'add_item' model_name='livraison' %}" class="btn btn-primary ml-3">{{ "Ajouter une livraison" | upper }}</a>
+                {% endif %}
         </div>
     </div>
     <div class="row mb-4">
@@ -328,7 +275,7 @@
                         <tr>
                             <th scope="col">{{"Nom"|upper}}</th>
                             <th scope="col">{{"Prénom"|upper}}</th>
-                            
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -337,7 +284,7 @@
                         <tr>
                             <td>{{ livraison.nom }}</td>
                             <td>{{ livraison.prenom }}</td>
-                            
+                            <td><a href="{% url 'edit_item' model_name='livraison' item_id=livraison.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -351,17 +298,15 @@
         </div>
     </div>
 
-
-     <!-- ------LItige --------------->
-     <div class="row mb-4">
+    <!-- Section Remise en Banque -->
+    <div class="row mb-4">
         <div class="col-md-8">
             <h5 class="font-weight-bold d-inline">
-                <i class="fas fa-exclamation-circle mr-2 custom-litige-icon-color"></i> 
-                {{"litige" |upper}}</h5>
+                <i class="fas fa-university mr-2 custom-bank-icon-color"></i> 
+                {{"REMISE EN BANQUE" |upper}}</h5>
                 {% if not today_vente.cloturee %}
-
-            <a href="{% url 'add_item' model_name='litige' %}" class="btn btn-primary ml-3">{{ "Ajouter un litige" | upper }}</a>
-            {% endif %}
+                <a href="{% url 'add_item' model_name='remisebanque' %}" class="btn btn-primary ml-3">{{ "Ajouter une remise banque" | upper }}</a>
+                {% endif %}
         </div>
     </div>
     <div class="row mb-4">
@@ -370,25 +315,65 @@
                 <table class="table table-striped">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Nom</th>
-                            <th scope="col">Prénom</th>
-                            <th scope="col">Fournisseur</th>
-                            <th scope="col">Référence</th>
+                            <th scope="col">MONTANT</th>
+                            <th scope="col">AVOIR</th>
+                            <th scope="col">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if remises_banque %}
+                        {% for remise in remises_banque %}
+                        <tr>
+                            <td>{{ remise.montant }}</td>
+                            <td>
+                                <a href="{{ remise.piece.url }}" target="_blank">VOIRE LA FACTURE</a>
+                            </td>
+                            <td><a href="{% url 'edit_item' model_name='remisebanque' item_id=remise.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">AUCUNE REMISE EN BANQUE ENREGISTRÉE</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Litige -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h5 class="font-weight-bold d-inline">
+                <i class="fas fa-exclamation-circle mr-2 custom-litige-icon-color"></i> 
+                {{"litige" |upper}}</h5>
+                {% if not today_vente.cloturee %}
+                <a href="{% url 'add_item' model_name='litige' %}" class="btn btn-primary ml-3">{{ "Ajouter un litige" | upper }}</a>
+                {% endif %}
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">SUJECT</th>
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if litiges %}
                         {% for litige in litiges %}
                         <tr>
-                            <td>{{ litige.nom }}</td>
-                            <td>{{ litige.prenom }}</td>
-                            <td>{{ litige.fournisseur }}</td>
-                            <td>{{ litige.reference }}</td>
+                            <td>{{ litige.subject }}</td>
+                            <td><a href="{% url 'edit_item' model_name='litige' item_id=litige.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a></td>
                         </tr>
                         {% endfor %}
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center">AUCUN LITIGE ENREGISTRÉ</td>
+                            <td colspan="2" class="text-center">AUCUN LITIGE ENREGISTRÉ</td>
                         </tr>
                         {% endif %}
                     </tbody>
@@ -414,5 +399,3 @@
 
 </div>
 {% endblock %}
-
-

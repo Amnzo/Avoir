@@ -8,7 +8,7 @@
             
             <div class="form-group row mt-3">
                 <div class="col-sm-9">
-                    <button type="button" class="btn btn-info" id="ajouter_ligne">Ajouter une ligne</button>
+                    <button type="button" class="btn btn-info" id="ajouter_ligne">{{ "Ajouter une ligne" | upper }}</button>
                 </div>
             </div>
             <div class="form-row">
@@ -23,41 +23,27 @@
                 </div>
             </div>
             <!-- Première ligne de vente -->
-            <div class="form-row mt-3">
+            <div class="form-row mt-3 ligne-vente" id="ligne_1">
                 <div class="col-md-3">
-                    <label for="designation">{{ "Désignation :" | upper }}</label>
-                    <input type="text" class="form-control" name="designation" placeholder="Désignation du produit" oninput="this.value = this.value.toUpperCase()" required>
+                    <label for="designation_1">{{ "Désignation :" | upper }}</label>
+                    <input type="text" class="form-control" name="designation_1" placeholder="Désignation du produit" oninput="this.value = this.value.toUpperCase()" required>
                 </div>
                 <div class="col-md-3">
-                    <label for="code_barre">{{ "Code barre :" | upper }}</label>
-                    <input type="text" class="form-control" name="code_barre" placeholder="Code barre" required>
+                    <label for="code_barre_1">{{ "Code barre :" | upper }}</label>
+                    <input type="text" class="form-control" name="code_barre_1" placeholder="Code barre" required>
                 </div>
                 <div class="col-md-3">
-                    <label for="prix_vente">{{ "Prix vente :" | upper }}</label>
-                    <input type="text" class="form-control prix-input" name="prix_vente" required>
+                    <label for="prix_achat_1">{{ "Prix achat :" | upper }}</label>
+                    <input type="text" class="form-control prix-input" name="prix_achat_1"  required>
                 </div>
                 <div class="col-md-3">
-                    <label for="prix_achat">{{ "Prix achat :" | upper }}</label>
-                    <input type="text" class="form-control prix-input" name="prix_achat"  required>
+                    <label for="prix_vente_1">{{ "Prix vente :" | upper }}</label>
+                    <input type="text" class="form-control prix-input" name="prix_vente_1" required>
                 </div>
+                
             </div>
             <!-- Deuxième ligne de vente (initiallement cachée) -->
-            <div id="deuxieme_vente" style="display: none;">
-                <div class="form-row mt-3">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="designation_2" placeholder="Désignation du produit">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="code_barre_2" placeholder="Code barre">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="prix_vente_2" placeholder="Prix de vente">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="prix_achat_2" placeholder="Prix d'achat">
-                    </div>
-                </div>
-            </div>
+            <div id="deuxieme_vente"></div>
             <div class="form-group row mt-3">
                 <div class="col-sm-12 text-center">
                     <button type="submit" class="btn btn-primary" id="valider_vente">
@@ -69,58 +55,95 @@
         </form>
     </div>
 
-    <!-- Script jQuery pour afficher/cacher la deuxième ligne de vente -->
+    <!-- Script jQuery pour afficher/cacher la deuxième ligne de vente et ajouter/supprimer des lignes -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#ajouter_ligne').click(function() {
-                $('#deuxieme_vente').toggle();  // Afficher/cacher la deuxième ligne de vente
-            });
+    var ligneCount = 2; // Commence à 2 car la première ligne est déjà présente
 
-            $('.prix-input').on('input', function() {
-                var inputValue = $(this).val();
-                // Supprimer tout sauf les chiffres et le point décimal
-                inputValue = inputValue.replace(/[^0-9.]/g, '');
-                // Remplacer les points décimaux multiples par un seul point
-                inputValue = inputValue.replace(/(\..*)\./g, '$1');
-                // Limiter à un seul point décimal
-                var decimalCount = (inputValue.match(/\./g) || []).length;
-                if (decimalCount > 1) {
-                    inputValue = inputValue.substring(0, inputValue.lastIndexOf('.'));
-                }
-                $(this).val(inputValue);
-            });
+    $('#ajouter_ligne').click(function() {
+        var nouvelleLigneHtml = '<div class="form-row mt-3 ligne-vente" id="ligne_' + ligneCount + '">';
+        nouvelleLigneHtml += '<div class="col-md-3">';
+        nouvelleLigneHtml += '<label for="designation_' + ligneCount + '">{{ "Désignation :" | upper }}</label>';
+        nouvelleLigneHtml += '<input type="text" class="form-control" name="designation_' + ligneCount + '" placeholder="Désignation du produit" oninput="this.value = this.value.toUpperCase()" required>';
+        nouvelleLigneHtml += '</div>';
+        nouvelleLigneHtml += '<div class="col-md-3">';
+        nouvelleLigneHtml += '<label for="code_barre_' + ligneCount + '">{{ "Code barre :" | upper }}</label>';
+        nouvelleLigneHtml += '<input type="text" class="form-control" name="code_barre_' + ligneCount + '" placeholder="Code barre" required>';
+        nouvelleLigneHtml += '</div>';
+        nouvelleLigneHtml += '<div class="col-md-3">';
+        nouvelleLigneHtml += '<label for="prix_achat_' + ligneCount + '">{{ "Prix achat :" | upper }}</label>';
+        nouvelleLigneHtml += '<input type="text" class="form-control prix-input" name="prix_achat_' + ligneCount + '"  required>';
+        nouvelleLigneHtml += '</div>';
+        nouvelleLigneHtml += '<div class="col-md-3">';
+        nouvelleLigneHtml += '<label for="prix_vente_' + ligneCount + '">{{ "Prix vente :" | upper }}</label>';
+        nouvelleLigneHtml += '<input type="text" class="form-control prix-input" name="prix_vente_' + ligneCount + '" required>';
+        nouvelleLigneHtml += '</div>';
+        nouvelleLigneHtml += '<div class="col-md-1 mt-auto">';
+        nouvelleLigneHtml += '<button type="button" class="btn btn-danger supprimer-ligne" style="margin-top: 32px;">-</button>';
+        nouvelleLigneHtml += '</div>';
+        nouvelleLigneHtml += '</div>';
 
-            $('#valider_vente').click(function(event) {
-                var formIsValid = true;
+        $('#deuxieme_vente').append(nouvelleLigneHtml);
 
-                // Vérifier les champs requis dans la première ligne de vente
-                $('#saisie_vente_form input[required]').each(function() {
-                    if ($(this).val().trim() === '') {
-                        formIsValid = false;
-                        $(this).addClass('is-invalid');
-                    } else {
-                        $(this).removeClass('is-invalid');
-                    }
-                });
+        ligneCount++; // Incrémente le compteur pour les prochaines lignes
+    });
 
-                // Vérifier les champs requis dans la deuxième ligne de vente si elle est visible
-                if ($('#deuxieme_vente').is(':visible')) {
-                    $('#deuxieme_vente input[required]').each(function() {
-                        if ($(this).val().trim() === '') {
-                            formIsValid = false;
-                            $(this).addClass('is-invalid');
-                        } else {
-                            $(this).removeClass('is-invalid');
-                        }
-                    });
-                }
+    $(document).on('click', '.supprimer-ligne', function() {
+        $(this).closest('.ligne-vente').remove();
+    });
 
-                if (!formIsValid) {
-                    event.preventDefault(); // Empêcher la soumission du formulaire
-                    
-                }
-            });
+    $('.prix-input').on('input', function() {
+        var inputValue = $(this).val();
+        // Supprimer tout sauf les chiffres et le point décimal
+        inputValue = inputValue.replace(/[^0-9,.]/g, '');
+        // Remplacer les virgules multiples par une seule virgule
+        inputValue = inputValue.replace(/(,.*)\,/g, '$1');
+        // Limiter à une seule virgule décimale
+        var decimalCount = (inputValue.match(/,/g) || []).length;
+        if (decimalCount > 1) {
+            inputValue = inputValue.substring(0, inputValue.lastIndexOf(','));
+        }
+        $(this).val(inputValue);
+    });
+
+    $('#valider_vente').click(function(event) {
+        var formIsValid = true;
+
+        // Vérifier les champs requis dans toutes les lignes de vente
+        $('.ligne-vente input[required]').each(function() {
+            if ($(this).val().trim() === '') {
+                formIsValid = false;
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
         });
+
+        if (!formIsValid) {
+            event.preventDefault(); // Empêcher la soumission du formulaire
+        }
+    });
+});
+// Fonction pour gérer les événements d'entrée sur les champs de prix
+function handlePrixInput() {
+    var inputValue = $(this).val();
+    // Supprimer tout sauf les chiffres et le point décimal
+    inputValue = inputValue.replace(/[^0-9.]/g, '');
+    // Remplacer les points décimaux multiples par un seul point
+    inputValue = inputValue.replace(/(\..*)\./g, '$1');
+    // Limiter à un seul point décimal
+    var decimalCount = (inputValue.match(/\./g) || []).length;
+    if (decimalCount > 1) {
+        inputValue = inputValue.substring(0, inputValue.lastIndexOf('.'));
+    }
+    $(this).val(inputValue);
+}
+
+// Appliquer la fonction handlePrixInput à tous les champs de prix
+$(document).on('input', '.prix-input', handlePrixInput);
+
+
+   
     </script>
 {% endblock %}

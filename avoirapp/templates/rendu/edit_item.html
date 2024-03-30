@@ -3,68 +3,68 @@
 
 {% block content %}
     <div class="container mt-5">
-        <h1 class="text-center">{{"Ajouter un élément" |upper}} - {{ model_name |upper }}</h1>
+        <h1 class="text-center">{{"Modifier un élément" |upper}} - {{ model_name |upper }}</h1>
         <form method="post" class="mt-4" enctype="multipart/form-data">
             {% csrf_token %}
             <!-- Champs spécifiques à votre modèle -->
             {% if model_name == 'teletransmition' %}
                 <div class="form-group">
                     <label for="amo">AMO :</label>
-                    <input type="text" class="form-control" id="amo" name="amo" required>
+                    <input type="text" class="form-control" id="amo" name="amo" value="{{ item.amo }}" required>
                 </div>
                 <div class="form-group">
                     <label for="amc">AMC :</label>
-                    <input type="text" class="form-control" id="amc" name="amc" required>
+                    <input type="text" class="form-control" id="amc" name="amc" value="{{ item.amc }}" required>
                 </div>
             {% elif model_name == 'stock' %}
                 <div class="form-group">
                     <label for="marque">MARQUE :</label>
-                    <input type="text" class="form-control" id="marque" name="marque" oninput="this.value = this.value.toUpperCase()" required>
+                    <input type="text" class="form-control" id="marque" name="marque" value="{{ item.marque }}" oninput="this.value = this.value.toUpperCase()" required>
                 </div>
                 <div class="form-group">
                     <label for="qtt">QUANTITE :</label>
-                    <input type="number" class="form-control" id="qtt" name="qtt" required>
+                    <input type="number" class="form-control" id="qtt" name="qtt" value="{{ item.qtt }}" required>
                 </div>
             {% elif model_name == 'sav' %}
                 <div class="form-group">
                     <label for="nom">NOM :</label>
-                    <input type="text" class="form-control" id="nom" name="nom" oninput="this.value = this.value.toUpperCase()" required>
+                    <input type="text" class="form-control" id="nom" name="nom" value="{{ item.nom }}" oninput="this.value = this.value.toUpperCase()" required>
                 </div>
                 <div class="form-group">
                     <label for="prenom">PRENOM :</label>
-                    <input type="text" class="form-control" id="prenom" name="prenom" oninput="this.value = this.value.toUpperCase()" required>
+                    <input type="text" class="form-control" id="prenom" name="prenom" value="{{ item.prenom }}" oninput="this.value = this.value.toUpperCase()" required>
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle Sav au besoin -->
             {% elif model_name == 'anomalie' %}
                 <div class="form-group">
                     <label for="subject">SUJECT :</label>
-                    <textarea class="form-control" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required></textarea>
+                    <textarea class="form-control" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required>{{ item.subject }}</textarea>
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle Anomalie au besoin -->
             {% elif model_name == 'remisebanque' %}
                 <div class="form-group">
                     <label for="montant">MONATNT :</label>
-                    <input type="number" class="form-control" id="montant" name="montant" step="0.01" required>
+                    <input type="number" class="form-control" id="montant" name="montant" step="0.01" value="{{ item.montant }}" required>
                 </div>
                 <div class="form-group">
                     <label for="piece">{{"Pièce jointe :" |upper}}</label>
-                    <input type="file" class="form-control-file" id="piece" name="piece" accept="application/pdf,image/*" required>
+                    <input type="file" class="form-control-file" id="piece" name="piece" accept="application/pdf,image/*">
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle RemiseBanque au besoin -->
             {% elif model_name == 'livraison' %}
                 <div class="form-group">
                     <label for="nom">NOM :</label>
-                    <input type="text" class="form-control" id="nom" name="nom" oninput="this.value = this.value.toUpperCase()" required>
+                    <input type="text" class="form-control" id="nom" name="nom" value="{{ item.nom }}" oninput="this.value = this.value.toUpperCase()" required>
                 </div>
                 <div class="form-group">
                     <label for="prenom">PRENOM :</label>
-                    <input type="text" class="form-control" id="prenom" name="prenom" oninput="this.value = this.value.toUpperCase()" required>
+                    <input type="text" class="form-control" id="prenom" name="prenom" value="{{ item.prenom }}" oninput="this.value = this.value.toUpperCase()" required>
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle Livraison au besoin -->
             {% elif model_name == 'litige' %}
                 <div class="form-group">
                     <label for="subject">SUJET :</label>
-                    <textarea class="form-control" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required></textarea>
+                    <textarea class="form-control" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required>{{ item.subject }}</textarea>
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle Litige au besoin -->
             {% endif %}
