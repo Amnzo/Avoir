@@ -1446,6 +1446,19 @@ def edit_item(request, model_name, item_id):
 
 from django.db.models import Sum
 from django.db.models.functions import TruncDate
+
+
+
+def calculate_statistics(model, seller, start_date, end_date):
+    if seller:
+        searching_seller = User.objects.get(pk=seller)
+        data = model.objects.filter(vendeur=searching_seller, date__date__range=(start_date, end_date))
+    else:
+        data = model.objects.filter(date__date__range=(start_date, end_date))
+    
+    statistics = data.annotate(date=TruncDate('date')).values('date').annotate(total_sales=Sum('prix_vente'))
+    return statistics
+
 def vente_statistique(request):
     ventes = Vente.objects.all()
     sellers=User.objects.all()
@@ -1460,6 +1473,8 @@ def vente_statistique(request):
         if stat_type == "Vente":
             if seller:  # Si un vendeur spécifique est sélectionné
                 seraching_seller=User.objects.get(pk=seller)
+                print("serching user")
+                print(seraching_seller.id)
                 sales_data = Vente.objects.filter(vendeur=seraching_seller, date_vente__date__range=(start_date, end_date))
                 #sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date_vente').annotate(total_sales=Sum('prix_vente'))
                 sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date').annotate(total_sales=Sum('prix_vente'))
@@ -1468,7 +1483,17 @@ def vente_statistique(request):
                 #sales_data = Vente.objects.filter(date__range=(start_date, end_date))
                 sales_data = Vente.objects.filter(date_vente__date__range=(start_date, end_date))
                 sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date').annotate(total_sales=Sum('prix_vente'))
-                
+        if stat_type == "Anomalie":
+            if seller:  # Si un vendeur spécifique est sélectionné
+                searching_seller = User.objects.get(pk=seller)
+                print(sales_data)
+                sales_data = Anomalie.objects.filter(vendeur=searching_seller, date__date__range=(start_date, end_date))
+                sales_per_day = sales_data.annotate(date_truncated=TruncDate('date')).values('date_truncated').annotate(total_sales=Count('subject'))
+                print(sales_per_day)
+            else:  # Si tous les vendeurs sont sélectionnés
+                sales_data = Anomalie.objects.filter(date__date__range=(start_date, end_date))
+                sales_per_day = sales_data.annotate(date_truncated=TruncDate('date')).values('date_truncated').annotate(total_sales=Count('subject'))
+                print(sales_per_day)
 
         
         # Passer les données calculées au template
@@ -1484,6 +1509,95 @@ def vente_statistique(request):
 
     return render(request, 'rendu/statistique.html', {'sellers': sellers})
 
+#----------STATI-------------------------------
+@login_required
+def get_statistics(request):
+    if request.method == "POST":
+        selected_date = request.POST.get('selected_date')
+        sellers = User.objects.all()
+        statistics_by_seller = {}
+        for seller in sellers:
+            statistics_by_seller[seller.id] = {
+                'vendeur': seller,
+                'total_sales': get_total_sales(selected_date, seller.id),
+                'total_ventes': get_total_ventes(selected_date, seller.id),
+                'total_teletransmitions': get_total_teletransmitions(selected_date, seller.id),
+                'total_insertions_stock': get_total_insertions_stock(selected_date, seller.id),
+                'total_sav': get_total_sav(selected_date, seller.id),
+                'total_anomalies': get_total_anomalies(selected_date, seller.id),
+                'total_remises_banque': get_total_remises_banque(selected_date, seller.id),
+                'total_livraisons': get_total_livraisons(selected_date, seller.id),
+                'total_litiges': get_total_litiges(selected_date, seller.id),
+                'average_cart': get_average_cart(selected_date, seller.id),
+               
+            }
+        print(f"day {selected_date}")
+        return render(request, 'rendu/statistique.html', {'statistics_by_seller': statistics_by_seller, 'selected_date':selected_date})
+    else :
+        return render(request, 'rendu/statistique.html')
+
+        
+
+# Fonctions pour récupérer les statistiques
+# Fonctions pour récupérer les statistiques pour chaque modèle par vendeur
+def get_total_sales(selected_date, seller_id=None):
+    sales_data = Vente.objects.filter(vendeur_id=seller_id, date_vente__date=selected_date)
+    total_sales = sales_data.aggregate(total_sales=Sum('prix_vente')).get('total_sales') or 0
+    return total_sales
+
+def get_total_remises_banque(selected_date, seller_id=None):
+    remises_banque_data = RemiseBanque.objects.filter(vendeur_id=seller_id, date__date=selected_date)
+    return remises_banque_data.aggregate(total_remises=Sum('montant')).get('total_remises') or 0
+
+
+
+def get_total_ventes(selected_date, seller_id=None):
+    ventes_data = Vente.objects.filter(vendeur_id=seller_id,date_vente__date=selected_date)
+    return ventes_data.count()
+
+def get_total_teletransmitions(selected_date, seller_id=None):
+    teletransmitions_data = Teletransmition.objects.filter(vendeur_id=seller_id, date__date=selected_date)
+    total_amo = teletransmitions_data.aggregate(total_amo=Sum('amo'))['total_amo'] or 0
+    total_amc = teletransmitions_data.aggregate(total_amc=Sum('amc'))['total_amc'] or 0
+    return total_amo, total_amc
+
+def get_total_insertions_stock(selected_date, seller_id=None):
+    total_quantity = Stock.objects.filter(vendeur_id=seller_id, date__date=selected_date).aggregate(total_quantity=Sum('qtt'))
+    total_quantity_value = total_quantity['total_quantity']
+    if total_quantity_value is not None:
+        total_quantity_value = int(total_quantity_value)
+    else:
+        total_quantity_value = 0
+    print(f'total_quantity_value {total_quantity_value}')
+    return total_quantity_value
+
+
+def get_total_sav(selected_date, seller_id=None):
+    sav_data = Sav.objects.filter(vendeur_id=seller_id,date__date=selected_date)
+    return sav_data.count()
+
+def get_total_anomalies(selected_date, seller_id=None):
+    anomalies_data = Anomalie.objects.filter(vendeur_id=seller_id,date__date=selected_date)
+    return anomalies_data.count()
+
+
+def get_total_livraisons(selected_date, seller_id=None):
+    livraisons_data = Livraison.objects.filter(vendeur_id=seller_id,date__date=selected_date)
+    return livraisons_data.count()
+
+def get_total_litiges(selected_date, seller_id=None):
+    litiges_data = Litige.objects.filter(vendeur_id=seller_id,date__date=selected_date)
+    return litiges_data.count()
+
+
+def get_average_cart(selected_date, seller_id=None):
+    total_sales = get_total_sales(selected_date, seller_id)
+    total_ventes = get_total_ventes(selected_date, seller_id)
+    if total_ventes != 0:
+        average_cart = total_sales / total_ventes
+    else:
+        average_cart = 0
+    return average_cart
 
 #----------DUMMY DATA--------------------
 from faker import Faker

@@ -1,0 +1,139 @@
+{% extends 'layout/base.html' %}
+{% load tz %}
+
+{% block content %}
+<style>
+    table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+</style>
+<div class="container mt-5">
+
+    <!-- Filtres pour sélectionner les dates et les vendeurs -->
+    <form method="GET" action="">
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="start_date">Date de début</label>
+                <input type="date" class="form-control" id="start_date" value="{{start_date}}" name="start_date" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="end_date">Date de fin</label>
+                <input type="date" class="form-control" id="end_date" value="{{end_date}}" name="end_date" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="seller">VENDEUR</label>
+                <select class="form-control" id="seller" name="seller">
+                    {{ seraching_seller }}
+                    {{ seraching_seller.id }}
+                    <option value="">TOUS LES VENDEURS</option>
+                    {% for seller_item in sellers %}
+                        {% if seller_item.id == seraching_seller.id %}
+                            <option value="{{ seller_item.id }}" selected>{{ seller_item|upper }}</option>
+                        {% else %}
+                            <option value="{{ seller_item.id }}">{{ seller_item|upper }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                    <label for="stat_type">Type de statistique</label>
+                    <select class="form-control" id="stat_type" name="stat_type">
+                        <option value="Vente">VENTES</option>
+                        <option value="Teletransmition">TÉLÉTRANSMISSIONS</option>
+                        <option value="Stock">STOCKS</option>
+                        <option value="Sav">SAV</option>
+                        <option value="Anomalie">ANOMALIES</option>
+                        <option value="RemiseBanque">REMISES EN BANQUE</option>
+                        <option value="Livraison">LIVRAISONS</option>
+                        <option value="Litige">LITIGES</option>
+                    </select>
+                    
+
+            </div>
+        </div>
+        <div class="form-group">
+            
+        </div>
+        <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
+    </form>
+
+    <!-- Section des résultats -->
+    <div class="mt-4">
+        <!-- Insérez ici les statistiques calculées -->
+        {% if statistics %}
+        {% if stat_type == "Vente" %}
+        <h2>{{"Chiffre d'affaires par jour" |upper}} {{seraching_seller |upper}}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>{{"Chiffre d'affaires"}}</th>
+                        {% if seraching_seller %}
+                        <th>VENDEUR</th>
+                        {% endif %}
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in statistics %}
+                    <tr>
+                        <td>{{ item.date | date:"d-m-Y" }}</td>
+                        <td>{{ item.total_sales }}</td>
+                        {% if seraching_seller %}
+                        <td>{{ seraching_seller }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif stat_type == "Anomalie" %}
+        
+        <h2>{{"Nombre d'anomalies par jour" |upper}} {{seraching_seller |upper}}</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>{{"suject"}}</th>
+                    {% if seraching_seller %}
+                    <th>VENDEUR</th>
+                    {% endif %}
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in statistics %}
+                <tr>
+                    <td>{{ item.date | date:"d-m-Y" }}</td>
+                    <td>{{ item.subject }}</td>
+                    {% if seraching_seller %}
+                    <td>{{ seraching_seller }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+
+        {% elif stat_type == "total_teletransmissions" %}
+        <p>Nombre total de télétransmissions : {{ statistics.total_teletransmissions }}</p>
+        <!-- Ajoutez d'autres types de statistiques ici -->
+        {% endif %}
+        
+        
+        
+        
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

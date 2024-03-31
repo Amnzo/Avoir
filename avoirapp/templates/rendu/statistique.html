@@ -3,104 +3,211 @@
 
 {% block content %}
 <style>
-    table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-</style>
-<div class="container mt-5">
-    <h2>Statistiques</h2>
-    <!-- Filtres pour sélectionner les dates et les vendeurs -->
-    <form method="GET" action="">
-        <div class="form-row">
-            <div class="form-group col-md-3">
-                <label for="start_date">Date de début</label>
-                <input type="date" class="form-control" id="start_date" value="{{start_date}}" name="start_date" required>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="end_date">Date de fin</label>
-                <input type="date" class="form-control" id="end_date" value="{{end_date}}" name="end_date" required>
-            </div>
-            <div class="form-group col-md-3">
-                <label for="seller">VENDEUR</label>
-                <select class="form-control" id="seller" name="seller">
-                    <option value="">TOUS LES VENDEURS</option>
-                    {% for seller_item in sellers %}
-                        {% if seller_item.id == searching_seller.id %}
-                            <option value="{{ seller_item.id }}" selected>{{ seller_item|upper }}</option>
-                        {% else %}
-                            <option value="{{ seller_item.id }}">{{ seller_item|upper }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group col-md-3">
-                    <label for="stat_type">Type de statistique</label>
-                    <select class="form-control" id="stat_type" name="stat_type">
-                        <option value="Vente">VENTES</option>
-                        <option value="Teletransmition">TÉLÉTRANSMISSIONS</option>
-                        <option value="Stock">STOCKS</option>
-                        <option value="Sav">SAV</option>
-                        <option value="Anomalie">ANOMALIES</option>
-                        <option value="RemiseBanque">REMISES EN BANQUE</option>
-                        <option value="Livraison">LIVRAISONS</option>
-                        <option value="Litige">LITIGES</option>
-                    </select>
-                    
+    .bold-text {
+        font-weight: bold;
+    }
 
-            </div>
-        </div>
+    .card {
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+
+    .card-body {
+        padding: 10px; /* Réduit l'espacement interne des cartes */
+    }
+
+    .table {
+        width: 90%; /* Réduit la largeur du tableau à 90% */
+        margin-bottom: 20px; /* Réduit la marge inférieure du tableau */
+        border-collapse: collapse;
+    }
+
+    .th {
+        background-color: #f2f2f2;
+        border-bottom: 1px solid #ccc;
+        padding: 8px; /* Réduit l'espacement interne des cellules d'en-tête */
+        text-align: center;
+    }
+
+    .tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    .td {
+        padding: 8px; /* Réduit l'espacement interne des cellules de données */
+        text-align: center;
+    }
+
+    .card-text {
+        font-size: 14px; /* Réduit la taille de la police pour le texte des cartes */
+    }
+</style>
+
+
+
+<div class="container mt-5">
+
+    <form method="post" action="{% url 'get_statistics' %}">
+        {% csrf_token %}
         <div class="form-group">
             
+            <label for="selected_date">Sélectionner une date: {{ selected_date }} </label>
+            <input type="date" class="form-control" id="selected_date" name="selected_date" value="{{selected_date}}" required>
         </div>
+        
         <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
     </form>
 
-    <!-- Section des résultats -->
-    <div class="mt-4">
-        <!-- Insérez ici les statistiques calculées -->
-        {% if statistics %}
-         {% if stat_type == "Vente" %}
-      
-        <h2>{{"Chiffre d'affaires par jour" |upper}} {{seraching_seller |upper}}</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>{{"Chiffre d'affaires"}}</th>
-                        {% if seraching_seller %}
-                        <th>VENDEUR</th>
-                        {% endif %}
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in statistics %}
-                    <tr>
-                        <td>{{ item.date | date:"d-m-Y" }}</td>
-                        <td>{{ item.total_sales }}</td>
-                        {% if seraching_seller %}
-                        <td>{{ seraching_seller }}</td>
-                        {% endif %}
-                    </tr>
+    <div class="row mt-3">
+        <div class="col-md-12">
+            {% if selected_date %}
+            <table class="table">
+                <tr class="tr">
+                    <th class="th">-</th>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                        <th class="th">{{ statistics.vendeur.username }}</th>
                     {% endfor %}
-                </tbody>
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">{{"Chiffre d'affaires "|upper}}</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.total_sales |floatformat:"2" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    
+                    {% endfor %}
+                </tr>
+                
+                <tr class="tr">
+                    <td class="th bold-text">NOMBRE DES VENTES</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                        
+                        <td class="td">
+                            <div class="card">
+                                <div class="card-body">  
+                                    <p class="card-text">{{ statistics.total_ventes }}</p>
+                                </div>
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">{{ "Panier Moyenne" | upper }}</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.average_cart | floatformat:"2" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                
+                <tr class="tr">
+                    <td class="th bold-text">TELETRANSMITION</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                        
+
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">AMO :{{ statistics.total_teletransmitions.0 | floatformat:"2" }} <br>
+                                    AMC :{{ statistics.total_teletransmitions.1| floatformat:"2"}}
+
+                                </p>
+                            </div>
+                        </div>
+                    </td>
+
+                             
+                    {% endfor %}
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">NB MONTURE EN STOCK</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                        
+                        <td class="td">
+                            <div class="card">
+                                <div class="card-body">  
+                                    <p class="card-text">{{ statistics.total_insertions_stock  }}</p>
+                                </div>
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">S.A.V</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.total_sav }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+
+                <tr class="tr">
+                    <td class="th bold-text">REMISE EN BANQUE</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.total_remises_banque| floatformat:"2" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">ANOMALIE</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.total_anomalies }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">LIVRAISON</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.total_livraisons }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr class="tr">
+                    <td class="th bold-text">LITIGE</td>
+                    {% for seller_id, statistics in statistics_by_seller.items %}
+                    <td class="td">
+                        <div class="card">
+                            <div class="card-body">  
+                                <p class="card-text">{{ statistics.total_litiges }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <!-- Ajoutez d'autres lignes de données ici -->
             </table>
-        {% elif stat_type == "total_anomalies" %}
-        <p>Nombre total d'anomalies : {{ statistics.total_anomalies }}</p>
-        {% elif stat_type == "total_teletransmissions" %}
-        <p>Nombre total de télétransmissions : {{ statistics.total_teletransmissions }}</p>
-        <!-- Ajoutez d'autres types de statistiques ici -->
-        {% endif %}
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
+
 </div>
 {% endblock %}
