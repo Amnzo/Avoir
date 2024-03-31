@@ -243,6 +243,8 @@ class JourneeVente(models.Model):
     cloturee = models.BooleanField(default=False)
     ca_jour=models.DecimalField(max_digits=10, decimal_places=2,default=0)
     ca_jour_1=models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    ca_mois=models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    ca_mois_1=models.DecimalField(max_digits=10, decimal_places=2,default=0)
     def __str__(self):
       return f"vendeur={self.vendeur} - date={self.date}"
    

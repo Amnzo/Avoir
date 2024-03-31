@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseRedirect, JsonResponse
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
 from .models import Anomalie, Avoir, Client, Famille,Consommation, JourneeVente, Litige, Livraison, RemiseBanque, Repertoire, Retour, Sav, Stock, Teletransmition, Vente
@@ -1233,6 +1233,8 @@ def cloturer_journee(request):
         journee.cloturee = True
         journee.ca_jour=request.POST.get('ca_jour')
         journee.ca_jour_1=request.POST.get('ca_jour_1')
+        journee.ca_mois=request.POST.get('ca_mois')
+        journee.ca_mois_1=request.POST.get('ca_mois_1')
         journee.save()
         return redirect('ventes_journee')
     return render(request, 'rendu/cloturer_journee.html')
