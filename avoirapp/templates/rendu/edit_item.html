@@ -38,7 +38,7 @@
             {% elif model_name == 'anomalie' %}
                 <div class="form-group">
                     <label for="subject">SUJECT :</label>
-                    <textarea class="form-control" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required>{{ item.subject }}</textarea>
+                    <textarea class="form-control" id="subject" rows="10" name="subject" oninput="this.value = this.value.toUpperCase()" required>{{ item.subject }}</textarea>
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle Anomalie au besoin -->
             {% elif model_name == 'remisebanque' %}
@@ -64,7 +64,7 @@
             {% elif model_name == 'litige' %}
                 <div class="form-group">
                     <label for="subject">SUJET :</label>
-                    <textarea class="form-control" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required>{{ item.subject }}</textarea>
+                    <textarea class="form-control" rows="10" id="subject" name="subject" oninput="this.value = this.value.toUpperCase()" required>{{ item.subject }}</textarea>
                 </div>
                 <!-- Ajoutez d'autres champs pour le modèle Litige au besoin -->
             {% endif %}
