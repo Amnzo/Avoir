@@ -1444,8 +1444,45 @@ def edit_item(request, model_name, item_id):
         return render(request, 'rendu/edit_item.html', context)
     
 
+from django.db.models import Sum
+from django.db.models.functions import TruncDate
+def vente_statistique(request):
+    ventes = Vente.objects.all()
+    sellers=User.objects.all()
+    if request.method == 'GET':
+        # Récupérer les paramètres du formulaire
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        seller = request.GET.get('seller')
+        stat_type = request.GET.get('stat_type')
+        sales_per_day=""
+        seraching_seller=""
+        if stat_type == "Vente":
+            if seller:  # Si un vendeur spécifique est sélectionné
+                seraching_seller=User.objects.get(pk=seller)
+                sales_data = Vente.objects.filter(vendeur=seller, date_vente__date__range=(start_date, end_date))
+                #sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date_vente').annotate(total_sales=Sum('prix_vente'))
+                sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date').annotate(total_sales=Sum('prix_vente'))
+                print(sales_per_day)
+            else:  # Si tous les vendeurs sont sélectionnés
+                #sales_data = Vente.objects.filter(date__range=(start_date, end_date))
+                sales_data = Vente.objects.filter(date_vente__date__range=(start_date, end_date))
+                sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date').annotate(total_sales=Sum('prix_vente'))
+                
 
+        
+        # Passer les données calculées au template
+        return render(request, 'rendu/statistique.html', {
+            'sellers': sellers,
+            'seller':seraching_seller,
+            'stat_type': stat_type,
+            'statistics': sales_per_day , # ou total_sales_per_day en fonction du cas
+            'start_date':start_date,
+            'end_date':end_date
 
+        })
+
+    return render(request, 'rendu/statistique.html', {'sellers': sellers})
 
 
 #----------DUMMY DATA--------------------
