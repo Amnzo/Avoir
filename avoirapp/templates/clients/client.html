@@ -50,7 +50,7 @@
         <!-- Formulaire de recherche -->
         <form id="searchForm" class="mb-4">
             <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-5">
                     <label for="searchInput" class="sr-only">Rechercher par nom ou prénom :</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" oninput="this.value = this.value.toUpperCase()">
@@ -59,6 +59,15 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-2"></div>
+                <div class="col-md-5">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="orangeCheckbox" name="orange" value="orange">
+<label class="form-check-label" for="orangeCheckbox">{{"ORANGE"|upper}}</label>
+                    </div>
+
+                </div>
+                
             </div>
         </form>
 
@@ -70,31 +79,41 @@
             <thead style="background-color: #007BFF; color: #FFFFFF;">
                 <tr>
                     <th>NOM</th>
-                     <th>PRENOM</th>
+                    <th>PRENOM</th>
                     <th>DATE NAISSANCE</th>
+                    <th>DATE DERNIER SOLDE</th>
                     <th>SOLDE</th>
                     <th>DÉTAILS</th>
                 </tr>
             </thead>
             <tbody>
                 {% for client in clients %}
-                    <tr>
-                        <td>{{ client.nom|upper }}  {{client.date_naissance}}</td>
+                <tr {% if client.dernier_avoir_plus_de_24_mois %} style="background-color: orange;" data-color="orange" {% endif %}>
+
+                        <td>{{ client.nom|upper }}</td>
                         <td>{{ client.prenom|upper }}</td>
-                        <td>{{ client.datenaissance |date:"d/m/Y" }}</td>
-                        <td>{{ client.total_avoir_client |floatformat:2 }}</td>
+                        <td>{{ client.datenaissance|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if client.date_dernier_avoir %}
+                                {{ client.date_dernier_avoir|date:"d-m-Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ client.total_avoir_client|floatformat:2 }}</td>
                         <td>
                             <a href="{% url 'client_details' client.id %}">
                                 <i class="fas fa-eye text-primary" title="Voir les détails"></i>
                             </a>
                             <a href="{% url 'edit_client' client.id %}">
-                            <i class="fas fa-edit text-secondary" title="Modifier"></i>
-                        </a>
+                                <i class="fas fa-edit text-secondary" title="Modifier"></i>
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
+        
         <div class="pagination-inner">
         {% if clients.has_previous %}
             <a class="pagination-link" href="?page=1">&laquo; First</a>
@@ -138,6 +157,24 @@
             });
         });
     });
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const orangeCheckbox = document.getElementById("orangeCheckbox");
+    const tableRows = document.querySelectorAll(".table tbody tr");
+
+    orangeCheckbox.addEventListener("change", function() {
+        const isChecked = orangeCheckbox.checked;
+        tableRows.forEach(function(row) {
+            if (isChecked && row.dataset.color === "orange") {
+                row.style.display = "table-row";
+            } else {
+                row.style.display = isChecked ? "none" : "table-row";
+            }
+        });
+    });
+});
+
 </script>
 
     </div>

@@ -24,6 +24,7 @@
                     <div class="card-body">
                         <form id="clotureForm" action="{% url 'cloturer_ventes' %}" method="post">
                             {% csrf_token %}
+                            <input type="hidden" name="day" id="day" value="{{day}}">
                            
                             <!-- Champ pour la première valeur décimale -->
                             <div class="form-group">

@@ -43,21 +43,14 @@ def client(request):
     clients = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id').all()
     items_per_page = 8
     paginator = Paginator(clients, items_per_page)
-         # Get the current page number from the request's GET parameters
     page = request.GET.get('page')
-
     try:
-        # Get the Page object for the requested page
         clients = paginator.page(page)
     except PageNotAnInteger:
-        # If the page parameter is not an integer, show the first page
         clients = paginator.page(1)
     except EmptyPage:
-        # If the page parameter is out of range, show the last page
         clients = paginator.page(paginator.num_pages)
-
     return render(request, 'clients/client.html', {'clients': clients})
-    #return render(request, 'client.html')
 
 
 @login_required(login_url='login')
@@ -1180,22 +1173,24 @@ def saisie_vente(request):
 
 from django.db.models import Max
 def ventes_journee(request):
-    date_aujourdhui = timezone.now().date()
-    vente_journee, created = JourneeVente.objects.get_or_create(
-            date=date_aujourdhui,
-            vendeur=request.user,
-        )
+   
     current_date = timezone.now().strftime('%d-%m-%Y')
     vendeur = request.user
     today = date.today()
     #dernier_jour_vente = JourneeVente.objects.filter(vendeur=vendeur, date__lt=today).aggregate(dernier_jour=Max('date'))['dernier_jour']
     dernier_jour_vente = JourneeVente.objects.filter(vendeur=vendeur, date__lt=today).order_by('-date').first()
+    
     #dernier_jour_vente = JourneeVente.objects.filter(vendeur=vendeur, date__lt=today).aggregate(dernier_jour=Max('date'))['dernier_jour']
     print(f"dernier_jour_vente ={dernier_jour_vente}")
     if   dernier_jour_vente:
         if dernier_jour_vente.cloturee==False:
             print(f"journee_precedente_cloturee******** {dernier_jour_vente.date}")        # Rediriger l'utilisateur vers une page d'erreur ou afficher un message d'avertissement
             return render(request, 'rendu/erreur_journee_precedente_non_cloturee.html',{'dernier_jour_vente': dernier_jour_vente.date})  
+    date_aujourdhui = timezone.now().date()
+    vente_journee, created = JourneeVente.objects.get_or_create(
+            date=date_aujourdhui,
+            vendeur=request.user,
+        )
     ventes = Vente.objects.filter(vendeur=vendeur, date_vente__date=timezone.now().date())
     teletransitions = Teletransmition.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
     stocks = Stock.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
@@ -1231,8 +1226,10 @@ def ventes_journee(request):
 def cloturer_journee(request):
     print(f"cloture journé pour ce vendeur  {request.user} ")
     if request.method == 'POST':
+        day_str = request.POST.get('day')
+        day_date = datetime.strptime(day_str, '%d-%m-%Y').date()
         vendeur = request.user
-        journee = JourneeVente.objects.get(vendeur=vendeur, cloturee=False)
+        journee = JourneeVente.objects.get(vendeur=vendeur, cloturee=False,date=day_date)
         journee.cloturee = True
         journee.ca_jour=request.POST.get('ca_jour')
         journee.ca_jour_1=request.POST.get('ca_jour_1')

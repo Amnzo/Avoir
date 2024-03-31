@@ -5,6 +5,7 @@ from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.db.models import Max
 class Client(models.Model):
     nom = models.CharField(max_length=100, unique=True)
     prenom = models.CharField(max_length=100, blank=True, null=True)
@@ -25,6 +26,26 @@ class Client(models.Model):
         consommation_total = self.total_consommation_client()
         solde=avoir_total-consommation_total
         return solde
+    def date_dernier_avoir(self):
+        dernier_avoir = self.avoir_set.aggregate(Max('date_ajout'))['date_ajout__max']
+        return dernier_avoir
+    
+    from datetime import datetime, timedelta
+
+    from datetime import datetime, timedelta
+
+    def dernier_avoir_plus_de_24_mois(self):
+        if self.date_dernier_avoir():
+            # Convertir la date de dernier avoir en datetime.date
+            date_dernier_avoir = self.date_dernier_avoir().date()
+            # Calculer la différence entre la date actuelle et la date de dernier avoir
+            difference = datetime.now().date() - date_dernier_avoir
+            # Vérifier si la différence est supérieure à 24 mois (730 jours)
+            return difference.days > 730
+        else:
+            # Si la date de dernier avoir n'est pas définie, retourner False
+            return False
+
 
 def upload_invoice_path(instance, filename):
     # This function defines the upload path for the PDF invoices.
