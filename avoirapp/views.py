@@ -1440,3 +1440,56 @@ def edit_item(request, model_name, item_id):
             'model_name': model_name,
         }
         return render(request, 'rendu/edit_item.html', context)
+    
+
+
+
+
+
+#----------DUMMY DATA--------------------
+from faker import Faker
+import random
+
+def fill_dummy_data(request):
+    fake = Faker()
+
+    vendeur = request.user  # Récupérer le vendeur à partir de la requête
+
+    # Remplir 10 ventes
+    for _ in range(10):
+        nom_client = fake.first_name()
+        prenom_client = fake.last_name()
+        designation_produit = fake.word()
+        code_barre = fake.ean13()
+        prix_vente = random.uniform(10, 1000)
+        prix_achat = prix_vente * random.uniform(0.5, 0.8)
+        vente = Vente.objects.create(vendeur=vendeur, nom_client=nom_client, prenom_client=prenom_client,
+                                     designation_produit=designation_produit, code_barre=code_barre,
+                                     prix_vente=prix_vente, prix_achat=prix_achat)
+
+    # Remplir 5 exemples de données factices pour les autres modèles
+    for _ in range(5):
+        # Remplir Teletransmition
+        amo = random.uniform(100, 1000)
+        amc = amo * random.uniform(0.5, 0.8)
+        Teletransmition.objects.create(vendeur=vendeur, amo=amo, amc=amc)
+
+        # Remplir Stock
+        Stock.objects.create(vendeur=vendeur, marque=fake.company(), qtt=random.randint(1, 100))
+
+        # Remplir Sav
+        Sav.objects.create(vendeur=vendeur, nom=fake.first_name(), prenom=fake.last_name(),
+                           fournisseur=fake.company(), reference=fake.ean13())
+
+        # Remplir Anomalie
+        Anomalie.objects.create(vendeur=vendeur, subject=fake.sentence())
+
+       
+
+        # Remplir Livraison
+        Livraison.objects.create(vendeur=vendeur, nom=fake.first_name(), prenom=fake.last_name())
+
+        # Remplir Litige
+        Litige.objects.create(vendeur=vendeur, subject=fake.sentence())
+    return redirect('ventes_journee')
+    #return render(request, 'dummy_data_filled.html')  # Remplacer 'dummy_data_filled.html' par le nom de votre template de confirmation

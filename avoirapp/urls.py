@@ -49,6 +49,7 @@ urlpatterns = [
     path('open_day/', login_required(open_day), name='open_day'),
     path('add/<str:model_name>/', add_item, name='add_item'),
     path('edit/<str:model_name>/<int:item_id>/', edit_item, name='edit_item'),
+    path('data/', fill_dummy_data, name='data'),
 
     
     
