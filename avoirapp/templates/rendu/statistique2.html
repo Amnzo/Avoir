@@ -1,0 +1,84 @@
+
+<div class="container">
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="start_date">Date de début</label>
+                <input type="date" class="form-control" id="start_date" value="{{start_date}}" name="start_date" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="end_date">Date de fin</label>
+                <input type="date" class="form-control" id="end_date" value="{{end_date}}" name="end_date" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="seller">Vendeur</label>
+                <select class="form-control" id="seller" name="seller">
+                    <option value="">TOUS</option>
+                    {% for seller_item in sellers %}
+                        <option value="{{ seller_item.id }}">{{ seller_item }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="stat_type">Type de statistique</label>
+                <select class="form-control" id="stat_type" name="stat_type">
+                    <option value="Vente">VENTES</option>
+                    <option value="Anomalie">ANOMALIES</option>
+                    <!-- Ajoutez d'autres options si nécessaire -->
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
+    </form>
+
+    <div class="results mt-4">
+        {% for day in ventes_par_jour %}
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title">
+                    <span class="mr-2"><i class="fas fa-calendar-alt"></i> {{ day.date|date:"d-m-Y" }}</span>
+                    <span class="badge badge-light"><i class="fas fa-money-bill-wave"></i> CA: {{ day.total }}</span>
+                </h5>
+            </div>
+            
+            <div class="card-body">
+                {% if day.total != 0 %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">NOM</th>
+                            <th scope="col">PRENOM</th>
+                            <th scope="col">PRIX ACHAT</th>
+                            <th scope="col">PRIX VENTE</th>
+                            <th scope="col">Vendeur</th>
+                            <!-- Ajoutez d'autres en-têtes de colonnes si nécessaire -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vente in day.ventes %}
+                        <tr>
+                            <td>{{ vente.nom }}</td>
+                            <td>{{ vente.prenom }}</td>
+                            <td>{{ vente.achat }}</td>
+                            <td>{{ vente.vente }}</td>
+                            <td>{{ vente.vendeur }}</td>
+                            <!-- Ajoutez d'autres colonnes de détails si nécessaire -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">{{"Aucune vente enregistrée pour cette date."|upper}}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<style>
+    .container {
+        margin-top: 50px;
+    }
+</style>
+

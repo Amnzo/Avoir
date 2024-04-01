@@ -1,60 +1,80 @@
 {% extends 'layout/base.html' %}
 {% load tz %}
 
+{% block extra_css %}
+    <!-- Ajoutez ceci à la section head -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+    <style>
+        .bold-text {
+            font-weight: bold;
+        }
+    
+        .card {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+    
+        .card-body {
+            padding: 10px; /* Réduit l'espacement interne des cartes */
+        }
+    
+        .table {
+            width: 90%; /* Réduit la largeur du tableau à 90% */
+            margin-bottom: 20px; /* Réduit la marge inférieure du tableau */
+            border-collapse: collapse;
+        }
+    
+        .th {
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #ccc;
+            padding: 8px; /* Réduit l'espacement interne des cellules d'en-tête */
+            text-align: center;
+        }
+    
+        .tr {
+            border-bottom: 1px solid #ccc;
+        }
+    
+        .td {
+            padding: 8px; /* Réduit l'espacement interne des cellules de données */
+            text-align: center;
+        }
+    
+        .card-text {
+            font-size: 14px; /* Réduit la taille de la police pour le texte des cartes */
+        }
+    </style>
+
+
+    {% endblock %}
+
 {% block content %}
-<style>
-    .bold-text {
-        font-weight: bold;
-    }
-
-    .card {
-        margin-bottom: 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        background-color: #fff;
-    }
-
-    .card-body {
-        padding: 10px; /* Réduit l'espacement interne des cartes */
-    }
-
-    .table {
-        width: 90%; /* Réduit la largeur du tableau à 90% */
-        margin-bottom: 20px; /* Réduit la marge inférieure du tableau */
-        border-collapse: collapse;
-    }
-
-    .th {
-        background-color: #f2f2f2;
-        border-bottom: 1px solid #ccc;
-        padding: 8px; /* Réduit l'espacement interne des cellules d'en-tête */
-        text-align: center;
-    }
-
-    .tr {
-        border-bottom: 1px solid #ccc;
-    }
-
-    .td {
-        padding: 8px; /* Réduit l'espacement interne des cellules de données */
-        text-align: center;
-    }
-
-    .card-text {
-        font-size: 14px; /* Réduit la taille de la police pour le texte des cartes */
-    }
-</style>
-
-
-
+<div class="container">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link {% if onglet == '1' %}active{% endif %}" id="periode-tab" data-toggle="tab" href="#periode" role="tab" aria-controls="periode" aria-selected="true">Recherche Période</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if onglet == '2' %}active{% endif %}" id="jour-tab" data-toggle="tab" href="#jour" role="tab" aria-controls="jour" aria-selected="false">Recherche Jour</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade {% if onglet == '1' %}show active{% endif %}" id="periode" role="tabpanel" aria-labelledby="periode-tab">
+            <!-- Contenu de l'onglet "Recherche Période" -->
+            
 <div class="container mt-5">
 
     <form method="post" action="{% url 'get_statistics' %}">
         {% csrf_token %}
+        <input type="hidden" name="jour" value="jour">
         <div class="form-group">
             
-            <label for="selected_date">Sélectionner une date: {{ selected_date }} </label>
+            <label for="selected_date">Sélectionner une date </label>
             <input type="date" class="form-control" id="selected_date" name="selected_date" value="{{selected_date}}" required>
+            
         </div>
         
         <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
@@ -67,7 +87,7 @@
                 <tr class="tr">
                     <th class="th">-</th>
                     {% for seller_id, statistics in statistics_by_seller.items %}
-                        <th class="th">{{ statistics.vendeur.username }}</th>
+                        <th class="th">{{ statistics.vendeur.username |upper }}</th>
                     {% endfor %}
                 </tr>
                 <tr class="tr">
@@ -210,4 +230,118 @@
     </div>
 
 </div>
+        </div>
+        <div class="tab-pane fade {% if onglet == '2' %}show active{% endif %}" id="jour" role="tabpanel" aria-labelledby="jour-tab">
+            <!-- Contenu de l'onglet "Recherche Jour" -->
+            <div class="container">
+    
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="periode" value="periode">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="start_date">Date de début</label>
+                            <input type="date" class="form-control" id="start_date" value="{{ start_date }}" name="start_date" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="end_date">Date de fin</label>
+                            <input type="date" class="form-control" id="end_date" value="{{end_date}}" name="end_date" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="seller">Vendeur</label>
+                            <select class="form-control" id="seller" name="seller">
+                                <option value="">TOUS</option>
+                                {% for seller_item in sellers %}
+                                    {% if searching_seller and searching_seller.id == seller_item.id %}
+                                        <option value="{{ seller_item.id }}" selected>{{ seller_item }}</option>
+                                    {% else %}
+                                        <option value="{{ seller_item.id }}">{{ seller_item }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="stat_type">Type de statistique</label>
+                            <select class="form-control" id="stat_type" name="stat_type">
+                                <option value="Vente">VENTES</option>
+                                <option value="Anomalie">ANOMALIES</option>
+                                <!-- Ajoutez d'autres options si nécessaire -->
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
+                </form>
+            
+                <div class="results mt-4">
+                    {% for day in ventes_par_jour %}
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title">
+                                <span class="mr-2"><i class="fas fa-calendar-alt"></i> {{ day.date|date:"d-m-Y" }}</span>
+                                <span class="badge badge-light"><i class="fas fa-money-bill-wave"></i> CA: {{ day.total }}</span>
+                            </h5>
+                        </div>
+                        
+                        <div class="card-body">
+                            {% if day.total != 0 %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">NOM</th>
+                                        <th scope="col">PRENOM</th>
+                                        <th scope="col">PRIX ACHAT</th>
+                                        <th scope="col">PRIX VENTE</th>
+                                        <th scope="col">Vendeur</th>
+                                        <!-- Ajoutez d'autres en-têtes de colonnes si nécessaire -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for vente in day.ventes %}
+                                    <tr>
+                                        <td>{{ vente.nom }}</td>
+                                        <td>{{ vente.prenom }}</td>
+                                        <td>{{ vente.achat }}</td>
+                                        <td>{{ vente.vente }}</td>
+                                        <td>{{ vente.vendeur }}</td>
+                                        <!-- Ajoutez d'autres colonnes de détails si nécessaire -->
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-muted">{{"Aucune vente enregistrée pour cette date."|upper}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+    </div>
+    <input type="hidden" id="onglet" name="onglet" value="{{ onglet }}">
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Ajoutez ici le code JavaScript supplémentaire si nécessaire -->
+    <script>
+        $(document).ready(function(){
+            $('#myTab a').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+        });
+
+        // Sélectionnez l'onglet en fonction de la valeur de onglet
+        $(document).ready(function(){
+            var onglet = "{{ onglet }}";
+            if (onglet === '1') {
+                $('#periode-tab').tab('show');
+            } else if (onglet === '2') {
+                $('#jour-tab').tab('show');
+            }
+        });
+    </script>
 {% endblock %}

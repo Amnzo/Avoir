@@ -202,15 +202,17 @@
                 <!-- Add more links as needed -->
                
                 <li class="active">
-                    <a href="{% url 'ventes_journee' %}" title="Client">
+                    <a href="{% url 'get_statistics' %}" title="Client">
                         <i class="far fa-calendar-alt"></i> {{"Compte Rendu" |upper }}
                     </a>
                 </li>
+                
                 <li class="active">
-                    <a href="{% url 'vente_statistique' %}" title="Statistiques">
+                    <a href="{% url 'get_statistics' %}" title="Statistiques">
                         <i class="far fa-chart-bar"></i> {{"Statistiques" |upper }}
                     </a>
                 </li>
+               
 
                 <li>
                     <a href="{% url 'logout' %}" title="Logout">

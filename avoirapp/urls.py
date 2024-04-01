@@ -51,6 +51,7 @@ urlpatterns = [
     path('edit/<str:model_name>/<int:item_id>/', edit_item, name='edit_item'),
     path('vente_statistique/', vente_statistique, name='vente_statistique'),
     path('get_statistics/', get_statistics, name='get_statistics'),
+    #path('global_statistique/', global_statistique, name='global_statistique'),
     
     path('data/', fill_dummy_data, name='data'),
 

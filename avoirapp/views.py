@@ -1462,57 +1462,57 @@ def calculate_statistics(model, seller, start_date, end_date):
 def vente_statistique(request):
     ventes = Vente.objects.all()
     sellers=User.objects.all()
-    if request.method == 'GET':
+    searching_seller=""
+
+    if request.method == 'POST':
         # Récupérer les paramètres du formulaire
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        seller = request.GET.get('seller')
-        stat_type = request.GET.get('stat_type')
-        sales_per_day=""
-        seraching_seller=''
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        seller = request.POST.get('seller')
+        stat_type = request.POST.get('stat_type')
+        start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d').date()
+        end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d').date()
+        ventes_par_jour = []
         if stat_type == "Vente":
-            if seller:  # Si un vendeur spécifique est sélectionné
-                seraching_seller=User.objects.get(pk=seller)
-                print("serching user")
-                print(seraching_seller.id)
-                sales_data = Vente.objects.filter(vendeur=seraching_seller, date_vente__date__range=(start_date, end_date))
-                #sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date_vente').annotate(total_sales=Sum('prix_vente'))
-                sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date').annotate(total_sales=Sum('prix_vente'))
-                print(sales_per_day)
-            else:  # Si tous les vendeurs sont sélectionnés
-                #sales_data = Vente.objects.filter(date__range=(start_date, end_date))
-                sales_data = Vente.objects.filter(date_vente__date__range=(start_date, end_date))
-                sales_per_day = sales_data.annotate(date=TruncDate('date_vente')).values('date').annotate(total_sales=Sum('prix_vente'))
-        if stat_type == "Anomalie":
-            if seller:  # Si un vendeur spécifique est sélectionné
-                searching_seller = User.objects.get(pk=seller)
-                print(sales_data)
-                sales_data = Anomalie.objects.filter(vendeur=searching_seller, date__date__range=(start_date, end_date))
-                sales_per_day = sales_data.annotate(date_truncated=TruncDate('date')).values('date_truncated').annotate(total_sales=Count('subject'))
-                print(sales_per_day)
-            else:  # Si tous les vendeurs sont sélectionnés
-                sales_data = Anomalie.objects.filter(date__date__range=(start_date, end_date))
-                sales_per_day = sales_data.annotate(date_truncated=TruncDate('date')).values('date_truncated').annotate(total_sales=Count('subject'))
-                print(sales_per_day)
+            current_date = start_date
+            while current_date <= end_date:
+                if seller:
+                    searching_seller=User.objects.get(pk=seller)
+                    ventes_pour_ce_jour = Vente.objects.filter(vendeur=seller,date_vente__date=current_date)
+                else :
+                    ventes_pour_ce_jour = Vente.objects.filter(date_vente__date=current_date)
 
-        
-        # Passer les données calculées au template
-        return render(request, 'rendu/statistique.html', {
-            'sellers': sellers,
-            'seraching_seller':seraching_seller,
-            'stat_type': stat_type,
-            'statistics': sales_per_day , # ou total_sales_per_day en fonction du cas
-            'start_date':start_date,
-            'end_date':end_date
-
-        })
-
-    return render(request, 'rendu/statistique.html', {'sellers': sellers})
+                ventes_de_ce_jour = []
+                total=0
+                for vente in ventes_pour_ce_jour:
+                    total=total+vente.prix_vente
+                    vente_dict = {
+                        'id': vente.id,
+                        'nom':vente.nom_client,
+                        'prenom':vente.prenom_client,
+                        'achat':vente.prix_achat,
+                        'vente':vente.prix_vente,
+                        'vendeur': vente.vendeur,
+                        # Ajoutez d'autres attributs de vente selon vos besoins
+                    }
+                    ventes_de_ce_jour.append(vente_dict)
+                ventes_par_jour.append({'date': current_date,'total':total, 'ventes': ventes_de_ce_jour})
+                current_date += timedelta(days=1)
+        print(ventes_par_jour)
+        return render(request, 'rendu/statistique.html', {'sellers': sellers,
+                        'searching_seller':searching_seller,
+                        'ventes_par_jour': ventes_par_jour,
+                        'start_date':request.POST.get('start_date'),
+                        'end_date':request.POST.get('end_date')})
+    return render(request, 'rendu/statistique.html')
 
 #----------STATI-------------------------------
 @login_required
 def get_statistics(request):
-    if request.method == "POST":
+    sellers=User.objects.all()
+    searching_seller=""
+    onglet=0
+    if request.method == "POST" and request.POST.get('jour') :
         selected_date = request.POST.get('selected_date')
         sellers = User.objects.all()
         statistics_by_seller = {}
@@ -1532,7 +1532,57 @@ def get_statistics(request):
                
             }
         print(f"day {selected_date}")
-        return render(request, 'rendu/statistique.html', {'statistics_by_seller': statistics_by_seller, 'selected_date':selected_date})
+        onglet=1
+        return render(request, 'rendu/statistique.html',
+                       {'statistics_by_seller': statistics_by_seller,
+                         'selected_date':selected_date ,"onglet":onglet})
+    
+    if request.method == "POST" and request.POST.get('periode') :
+        # Récupérer les paramètres du formulaire
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        seller = request.POST.get('seller')
+        stat_type = request.POST.get('stat_type')
+        start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d').date()
+        end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d').date()
+        ventes_par_jour = []
+        if stat_type == "Vente":
+            current_date = start_date
+            while current_date <= end_date:
+                if seller:
+                    searching_seller=User.objects.get(pk=seller)
+                    ventes_pour_ce_jour = Vente.objects.filter(vendeur=seller,date_vente__date=current_date)
+                else :
+                    ventes_pour_ce_jour = Vente.objects.filter(date_vente__date=current_date)
+
+                ventes_de_ce_jour = []
+                total=0
+                for vente in ventes_pour_ce_jour:
+                    total=total+vente.prix_vente
+                    vente_dict = {
+                        'id': vente.id,
+                        'nom':vente.nom_client,
+                        'prenom':vente.prenom_client,
+                        'achat':vente.prix_achat,
+                        'vente':vente.prix_vente,
+                        'vendeur': vente.vendeur,
+                        # Ajoutez d'autres attributs de vente selon vos besoins
+                    }
+                    ventes_de_ce_jour.append(vente_dict)
+                ventes_par_jour.append({'date': current_date,'total':total, 'ventes': ventes_de_ce_jour})
+                current_date += timedelta(days=1)
+        print(ventes_par_jour)
+        onglet=2
+        return render(request, 'rendu/statistique.html', {'sellers': sellers,
+                        'searching_seller':searching_seller,
+                        'ventes_par_jour': ventes_par_jour,
+                        'start_date':request.POST.get('start_date'),
+                        'end_date':request.POST.get('end_date'),
+                        'onglet':onglet
+                        
+                        })
+    
+    
     else :
         return render(request, 'rendu/statistique.html')
 
