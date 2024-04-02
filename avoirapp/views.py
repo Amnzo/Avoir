@@ -1536,7 +1536,7 @@ def get_statistics(request):
         onglet=1
         return render(request, 'rendu/statistique.html',
                        {'statistics_by_seller': statistics_by_seller,
-                         'selected_date':selected_date ,"onglet":onglet})
+                         'selected_date':selected_date ,"onglet":onglet,'sellers':sellers})
     
     if request.method == "POST" and request.POST.get('periode') :
         # Récupérer les paramètres du formulaire
@@ -1614,7 +1614,7 @@ def get_statistics(request):
     
     
     else :
-        return render(request, 'rendu/statistique.html')
+        return render(request, 'rendu/statistique.html',{'sellers':sellers})
 
         
 
