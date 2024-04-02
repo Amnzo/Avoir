@@ -1191,7 +1191,7 @@ def ventes_journee(request):
             date=date_aujourdhui,
             vendeur=request.user,
         )
-    ventes = Vente.objects.filter(vendeur=vendeur, date_vente__date=timezone.now().date())
+    ventes = Vente.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
     teletransitions = Teletransmition.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
     stocks = Stock.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
     savs = Sav.objects.filter(vendeur=vendeur, date__date=timezone.now().date())
@@ -1244,7 +1244,7 @@ def valider_cloture(request):
     day = request.GET.get('day')
     print(day)
     date_filter = datetime.strptime(day, "%d-%m-%Y")
-    ventes = Vente.objects.filter(vendeur=request.user, date_vente__date=date_filter)
+    ventes = Vente.objects.filter(vendeur=request.user, date__date=date_filter)
     print(ventes)
     total_ventes = Decimal(0)
     #today_vente = JourneeVente.objects.filter(vendeur=request.user, date=day).order_by('-date').first()
@@ -1473,14 +1473,15 @@ def vente_statistique(request):
         start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d').date()
         ventes_par_jour = []
-        if stat_type == "Vente":
+        if stat_type in ["Vente", "Teletransmition","Stock","Sav","Anomalie","RemiseBanque","Livraison","Litige"]:
             current_date = start_date
             while current_date <= end_date:
                 if seller:
                     searching_seller=User.objects.get(pk=seller)
-                    ventes_pour_ce_jour = Vente.objects.filter(vendeur=seller,date_vente__date=current_date)
+                    ventes_pour_ce_jour = stat_type.objects.filter(vendeur=seller,date__date=current_date)
                 else :
-                    ventes_pour_ce_jour = Vente.objects.filter(date_vente__date=current_date)
+                    ventes_pour_ce_jour = stat_type.objects.filter(date__date=current_date)
+                print(ventes_pour_ce_jour)
 
                 ventes_de_ce_jour = []
                 total=0
@@ -1498,7 +1499,7 @@ def vente_statistique(request):
                     ventes_de_ce_jour.append(vente_dict)
                 ventes_par_jour.append({'date': current_date,'total':total, 'ventes': ventes_de_ce_jour})
                 current_date += timedelta(days=1)
-        print(ventes_par_jour)
+        #print(ventes_par_jour)
         return render(request, 'rendu/statistique.html', {'sellers': sellers,
                         'searching_seller':searching_seller,
                         'ventes_par_jour': ventes_par_jour,
@@ -1546,39 +1547,68 @@ def get_statistics(request):
         start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d').date()
         ventes_par_jour = []
-        if stat_type == "Vente":
+        model_dict = {
+                "Vente": Vente,
+                "Teletransmition": Teletransmition,
+                "Stock": Stock,
+                "Sav": Sav,
+                "Anomalie": Anomalie,
+                "RemiseBanque": RemiseBanque,
+                "Livraison": Livraison,
+                "Litige": Litige,
+            }
+        if stat_type in model_dict:
             current_date = start_date
+            model = model_dict[stat_type]
             while current_date <= end_date:
                 if seller:
                     searching_seller=User.objects.get(pk=seller)
-                    ventes_pour_ce_jour = Vente.objects.filter(vendeur=seller,date_vente__date=current_date)
+                    ventes_pour_ce_jour = model.objects.filter(vendeur=seller,date__date=current_date)
                 else :
-                    ventes_pour_ce_jour = Vente.objects.filter(date_vente__date=current_date)
+                    ventes_pour_ce_jour = model.objects.filter(date__date=current_date)
+                print(ventes_pour_ce_jour)
 
                 ventes_de_ce_jour = []
                 total=0
+                amo=0
+                amc=0
+                montant=0
+                qtt=0
+                vente_dict={}
                 for vente in ventes_pour_ce_jour:
-                    total=total+vente.prix_vente
-                    vente_dict = {
-                        'id': vente.id,
-                        'nom':vente.nom_client,
-                        'prenom':vente.prenom_client,
-                        'achat':vente.prix_achat,
-                        'vente':vente.prix_vente,
-                        'vendeur': vente.vendeur,
-                        # Ajoutez d'autres attributs de vente selon vos besoins
-                    }
+                    if stat_type=="Vente":
+                        total=total+vente.prix_vente
+                    if stat_type=="Teletransmition":
+                        amo=amo+vente.amo
+                        amc=amc+vente.amc
+                    if stat_type=="RemiseBanque":
+                        montant=montant+vente.montant
+                    if stat_type=="Stock":
+                        qtt=qtt+vente.qtt
+
+
+                    vente_dict = vars(vente)
+                    vente_dict['vendeur_username'] = vente.vendeur  # Convert vente object to dictionary      
                     ventes_de_ce_jour.append(vente_dict)
-                ventes_par_jour.append({'date': current_date,'total':total, 'ventes': ventes_de_ce_jour})
+                #vente_dict['total']=total
+                ventes_par_jour.append({'date': current_date,'total':total,
+                                        'amo':amo,
+                                        'amc':amc,
+                                        'montant':montant,
+                                        'qtt':qtt,
+
+                                         'ventes': ventes_de_ce_jour})
                 current_date += timedelta(days=1)
-        print(ventes_par_jour)
+        
         onglet=2
         return render(request, 'rendu/statistique.html', {'sellers': sellers,
                         'searching_seller':searching_seller,
                         'ventes_par_jour': ventes_par_jour,
                         'start_date':request.POST.get('start_date'),
                         'end_date':request.POST.get('end_date'),
-                        'onglet':onglet
+                        'onglet':onglet,
+                        'stat_type':stat_type
+
                         
                         })
     
@@ -1591,7 +1621,7 @@ def get_statistics(request):
 # Fonctions pour récupérer les statistiques
 # Fonctions pour récupérer les statistiques pour chaque modèle par vendeur
 def get_total_sales(selected_date, seller_id=None):
-    sales_data = Vente.objects.filter(vendeur_id=seller_id, date_vente__date=selected_date)
+    sales_data = Vente.objects.filter(vendeur_id=seller_id, date__date=selected_date)
     total_sales = sales_data.aggregate(total_sales=Sum('prix_vente')).get('total_sales') or 0
     return total_sales
 
@@ -1602,7 +1632,7 @@ def get_total_remises_banque(selected_date, seller_id=None):
 
 
 def get_total_ventes(selected_date, seller_id=None):
-    ventes_data = Vente.objects.filter(vendeur_id=seller_id,date_vente__date=selected_date)
+    ventes_data = Vente.objects.filter(vendeur_id=seller_id,date__date=selected_date)
     return ventes_data.count()
 
 def get_total_teletransmitions(selected_date, seller_id=None):

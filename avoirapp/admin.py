@@ -72,7 +72,7 @@ class JourneeVenteAdmin(admin.ModelAdmin):
 admin.site.register(JourneeVente,JourneeVenteAdmin)
 
 class VenteAdmin(admin.ModelAdmin):
-    list_display = ('nom_client','prenom_client', 'prix_achat','prix_vente','vendeur','date_vente')
+    list_display = ('nom_client','prenom_client', 'prix_achat','prix_vente','vendeur','date')
 
 admin.site.register(Vente,VenteAdmin)
 

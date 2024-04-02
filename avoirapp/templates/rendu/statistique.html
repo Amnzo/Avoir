@@ -14,7 +14,13 @@
             margin-bottom: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            background-color: #fff;
+            background-color: #dbf7bc;
+        }
+        .card_zeo {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #f3bbbb;
         }
     
         .card-body {
@@ -55,10 +61,10 @@
 <div class="container">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
-            <a class="nav-link {% if onglet == '1' %}active{% endif %}" id="periode-tab" data-toggle="tab" href="#periode" role="tab" aria-controls="periode" aria-selected="true">Recherche Période</a>
+            <a class="nav-link {% if onglet == '1' %}active{% endif %}" id="periode-tab" data-toggle="tab" href="#periode" role="tab" aria-controls="periode" aria-selected="true">RECHERCHE PAR JOUR </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if onglet == '2' %}active{% endif %}" id="jour-tab" data-toggle="tab" href="#jour" role="tab" aria-controls="jour" aria-selected="false">Recherche Jour</a>
+            <a class="nav-link {% if onglet == '2' %}active{% endif %}" id="jour-tab" data-toggle="tab" href="#jour" role="tab" aria-controls="jour" aria-selected="false">RECHERCHE PAR PERIODE </a>
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
@@ -72,12 +78,12 @@
         <input type="hidden" name="jour" value="jour">
         <div class="form-group">
             
-            <label for="selected_date">Sélectionner une date </label>
+            <label for="selected_date">{{"Sélectionner une date" |upper}} </label>
             <input type="date" class="form-control" id="selected_date" name="selected_date" value="{{selected_date}}" required>
             
         </div>
         
-        <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
+        <button type="submit" class="btn btn-primary">{{"Afficher les statistiques"|upper}}</button>
     </form>
 
     <div class="row mt-3">
@@ -94,7 +100,7 @@
                     <td class="th bold-text">{{"Chiffre d'affaires "|upper}}</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        <div  class="{% if statistics.total_sales == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.total_sales |floatformat:"2" }}</p>
                             </div>
@@ -109,7 +115,8 @@
                     {% for seller_id, statistics in statistics_by_seller.items %}
                         
                         <td class="td">
-                            <div class="card">
+                            <div  class="{% if statistics.total_ventes == 0 %}card_zeo{% else %}card{% endif %}">
+                                
                                 <div class="card-body">  
                                     <p class="card-text">{{ statistics.total_ventes }}</p>
                                 </div>
@@ -121,7 +128,8 @@
                     <td class="th bold-text">{{ "Panier Moyenne" | upper }}</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        
+                            <div class="{% if statistics.average_cart == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.average_cart | floatformat:"2" }}</p>
                             </div>
@@ -136,7 +144,7 @@
                         
 
                     <td class="td">
-                        <div class="card">
+                        <div class="{% if statistics.total_teletransmitions.0 == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">AMO :{{ statistics.total_teletransmitions.0 | floatformat:"2" }} <br>
                                     AMC :{{ statistics.total_teletransmitions.1| floatformat:"2"}}
@@ -154,7 +162,7 @@
                     {% for seller_id, statistics in statistics_by_seller.items %}
                         
                         <td class="td">
-                            <div class="card">
+                            <div  class="{% if statistics.total_insertions_stock == 0 %}card_zeo{% else %}card{% endif %}">
                                 <div class="card-body">  
                                     <p class="card-text">{{ statistics.total_insertions_stock  }}</p>
                                 </div>
@@ -166,7 +174,7 @@
                     <td class="th bold-text">S.A.V</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        <div  class="{% if statistics.total_sav == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.total_sav }}</p>
                             </div>
@@ -179,7 +187,7 @@
                     <td class="th bold-text">REMISE EN BANQUE</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        <div  class="{% if statistics.total_remises_banque == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.total_remises_banque| floatformat:"2" }}</p>
                             </div>
@@ -191,7 +199,7 @@
                     <td class="th bold-text">ANOMALIE</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        <div  class="{% if statistics.total_anomalies == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.total_anomalies }}</p>
                             </div>
@@ -203,7 +211,7 @@
                     <td class="th bold-text">LIVRAISON</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        <div  class="{% if statistics.total_livraisons == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.total_livraisons }}</p>
                             </div>
@@ -215,7 +223,7 @@
                     <td class="th bold-text">LITIGE</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
                     <td class="td">
-                        <div class="card">
+                        <div  class="{% if statistics.total_litiges == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
                                 <p class="card-text">{{ statistics.total_litiges }}</p>
                             </div>
@@ -262,12 +270,19 @@
                             
                         </div>
                         <div class="form-group col-md-3">
-                            <label for="stat_type">Type de statistique</label>
-                            <select class="form-control" id="stat_type" name="stat_type">
-                                <option value="Vente">VENTES</option>
-                                <option value="Anomalie">ANOMALIES</option>
-                                <!-- Ajoutez d'autres options si nécessaire -->
+                            <label for="stat_type">TYPE DE STATISTIQUE </label>
+                            <select class="form-control" name="stat_type" id="stat_type">
+                                <option value="Vente" {% if stat_type == "Vente" %}selected{% endif %}>VENTES</option>
+                                <option value="Anomalie" {% if stat_type == "Anomalie" %}selected{% endif %}>ANOMALIES</option>
+                                <option value="Teletransmition" {% if stat_type == "Teletransmition" %}selected{% endif %}>{{"Teletransmition"|upper}}</option>
+                                <option value="Stock" {% if stat_type == "Stock" %}selected{% endif %}>{{"Stock"|upper}}</option>
+                                <option value="Sav" {% if stat_type == "Sav" %}selected{% endif %}>{{"Sav"|upper}}</option>
+                                <option value="RemiseBanque" {% if stat_type == "RemiseBanque" %}selected{% endif %}>{{"RemiseBanque"|upper}}</option>
+                                <option value="Livraison" {% if stat_type == "Livraison" %}selected{% endif %}>{{"Livraison"|upper}}</option>
+                                <option value="Litige" {% if stat_type == "Litige" %}selected{% endif %}>{{"Litige"|upper}}</option>
                             </select>
+                            
+                            
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
@@ -279,44 +294,102 @@
                         <div class="card-header bg-primary text-white">
                             <h5 class="card-title">
                                 <span class="mr-2"><i class="fas fa-calendar-alt"></i> {{ day.date|date:"d-m-Y" }}</span>
+                                {% if stat_type == "Vente" %}
                                 <span class="badge badge-light"><i class="fas fa-money-bill-wave"></i> CA: {{ day.total }}</span>
+                                {% endif %}
+                                {% if stat_type == "Teletransmition" %}
+                                <span class="badge badge-light">                         
+                                        <i class="fas fa-hospital"></i> AMO: {{ day.amo }}
+                                        <i class="fas fa-shield-alt"></i> AMC: {{ day.amc }}
+                                    
+                                </span>
+                                {% endif %}
+                                {% if stat_type == "RemiseBanque" %}
+                                <span class="badge badge-light"><i class="fas fa-money-bill-wave"></i> MONTANT REMISE A LA BANQUE : {{ day.montant }}</span>
+                                {% endif %}
+                                {% if stat_type == "Stock" %}
+                                <span class="badge badge-light"><i class="fas fa-cubes"></i> NOMBRE DE  MONTURE EN STOCKE : {{ day.qtt }}</span>
+                                {% endif %}
+
+                                
+                                
                             </h5>
                         </div>
                         
                         <div class="card-body">
-                            {% if day.total != 0 %}
+                            {% if day.ventes %}
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th scope="col">NOM</th>
-                                        <th scope="col">PRENOM</th>
-                                        <th scope="col">PRIX ACHAT</th>
-                                        <th scope="col">PRIX VENTE</th>
-                                        <th scope="col">Vendeur</th>
-                                        <!-- Ajoutez d'autres en-têtes de colonnes si nécessaire -->
+                                       
+                                        {% if stat_type == "Vente" %}
+                                        <th>NOM</th>
+                                        <th>PRENOM</th>
+                                        <th>DESIGNATION</th>
+                                        <th>CODE BARRE</th>
+                                        <th>PRIX  VENTE</th>
+                                        <th>PRIX ACHAT</th> 
+                                        {% endif %}
+                                        {% if stat_type == "Anomalie" %}
+                                        <th>SUJET</th>
+                                        {% endif %}
+                                        {% if stat_type == "Livraison" %}
+                                        <th>NOM</th>
+                                        <th>PRENOM</th>
+                                        {% endif %}
+
+                                        {% if stat_type == "Litige" %}
+                                        <th>SUJET</th>
+                                        {% endif %}
+
+                                        {% if stat_type == "RemiseBanque" %}
+                                        <th>MONTANT</th>
+                                        <th>piece</th>
+                                        {% endif %}
+                                        {% if stat_type == "Sav" %}
+                                        <th>NOM</th>
+                                        <th>PRENOM</th>
+                                        <th>FOURNISSEUR</th>
+                                        <th>REFERENCE</th>
+                                        {% endif %}
+
+                                        {% if stat_type == "Stock" %}
+                                        <th>MARQUE</th>
+                                        <th>QUANTITE</th>
+                                        {% endif %}
+
+                                        {% if stat_type == "Teletransmition" %}
+                                        <th>AMO</th>
+                                        <th>AMC</th>
+                                        {% endif %}
+                                    <th>VENDEUR</th>
+
+
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for vente in day.ventes %}
-                                    <tr>
-                                        <td>{{ vente.nom }}</td>
-                                        <td>{{ vente.prenom }}</td>
-                                        <td>{{ vente.achat }}</td>
-                                        <td>{{ vente.vente }}</td>
-                                        <td>{{ vente.vendeur }}</td>
-                                        <!-- Ajoutez d'autres colonnes de détails si nécessaire -->
-                                    </tr>
+                                <tr>
+                                    {% for field, value in vente.items %}
+                                        {% if not forloop.first and forloop.counter > 3 and field != 'date' %}
+                                            <td>{{ value }}</td>
+                                        {% endif %}
                                     {% endfor %}
+                                </tr>
+                                {% endfor %}
+
+
                                 </tbody>
                             </table>
                             {% else %}
-                            <p class="text-muted">{{"Aucune vente enregistrée pour cette date."|upper}}</p>
-                            {% endif %}
+                            <p class="text-muted">{{"Aucune" |upper}} {{ stat_type|upper}} {{" enregistrée pour cette date."|upper}}</p>
+                             {% endif %}
+                            
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-            </div>
+                
     </div>
     <input type="hidden" id="onglet" name="onglet" value="{{ onglet }}">
 
