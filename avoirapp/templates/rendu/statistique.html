@@ -66,6 +66,11 @@
         <li class="nav-item">
             <a class="nav-link {% if onglet == '2' %}active{% endif %}" id="jour-tab" data-toggle="tab" href="#jour" role="tab" aria-controls="jour" aria-selected="false">RECHERCHE PAR PERIODE </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link {% if onglet == '3' %}active{% endif %}" id="facture-tab" data-toggle="tab" href="#facture" role="tab" aria-controls="facture" aria-selected="false">FACTURE </a>
+        </li>
+        
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade {% if onglet == '1' %}show active{% endif %}" id="periode" role="tabpanel" aria-labelledby="periode-tab">
@@ -288,9 +293,59 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
                 </form>
-            
+               
+                <div class="card border-primary mb-3" style="max-width: 100rem; margin-top: 10px; background-color: #f8f9fa; border-color: #007bff;">
+                    
+                        {% if stat_type == "Vente" %} 
+                        <div class="card-body d-flex justify-content-center align-items-center flex-wrap">
+                            <div class="text-center mr-3">
+                                <h6 class="card-title text-primary mb-0"> <i class="fas fa-coins"></i>  {{"Chiffre d'affaires de la période :"|upper }} {{total_periode}} </h6>
+                            </div>   
+                        </div>
+                        {% endif %} 
+
+                        {% if stat_type == "Teletransmition" %} 
+                        <div class="card-body d-flex justify-content-center align-items-center flex-wrap">
+                            <div class="text-center mr-3">
+                                <h6 class="card-title text-primary mb-0"> <i class="fas fa-hospital"></i>  {{"TOTAL A.M.O de la période :"|upper }} {{amo_periode}} </h6>
+                            </div>
+                            <div class="text-center">
+                                <h6 class="card-title text-primary mb-0"><i class="fas fa-shield"></i> {{"TOTAL A.M.C de la période :"|upper }} {{amc_periode}}  </h6>
+                            </div>
+                        </div>
+                        {% endif %} 
+
+                        {% if stat_type == "RemiseBanque" %} 
+                        <div class="card-body d-flex justify-content-center align-items-center flex-wrap">
+                            <div class="text-center mr-3">
+                                <h6 class="card-title text-primary mb-0"> <i class="fas fa-coins"></i>  {{"LE MONATNT REMISE EN BANQUE DURANT LA PERIODE EST :"|upper }} {{montant_periode}} </h6>
+                            </div>   
+                        </div>
+                        {% endif %} 
+
+                        {% if stat_type == "Stock" %} 
+                        <div class="card-body d-flex justify-content-center align-items-center flex-wrap">
+                            <div class="text-center mr-3">
+                                <h6 class="card-title text-primary mb-0"> <i class="fas fa-coins"></i>  {{"LE NOMBRE DE  MONTURE EN STOCKE  DURANT LA PERIODE EST :"|upper }} {{qtt_periode}} </h6>
+                            </div>   
+                        </div>
+                        {% endif %} 
+
+
+                        {% if stat_type in "Litige, Livraison, Anomalie,Sav" %}
+                        <div class="card-body d-flex justify-content-center align-items-center flex-wrap">
+                            <div class="text-center mr-3">
+                                <h6 class="card-title text-primary mb-0"> <i class="fas fa-coins"></i>  LE NOMBRE DE {{stat_type | upper }}    DURANT LA PERIODE EST :  {{nombre_periode}} </h6>
+                            </div>   
+                        </div>
+                        {% endif %} 
+
+                </div>
+                
+                
                 <div class="results mt-4">
                     {% for day in ventes_par_jour %}
+                    
                     <div class="card mb-3">
                         <div class="card-header bg-primary text-white">
                             <h5 class="card-title">
@@ -392,8 +447,44 @@
                 </div>
                 
     </div>
-    <input type="hidden" id="onglet" name="onglet" value="{{ onglet }}">
+    <input type="text" id="onglet" name="onglet" value="{{ onglet }}">
+    hhhhhhh
 
+</div>
+<div class="tab-pane fade {% if onglet == '3' %}show active{% endif %}" id="facture" role="tabpanel" aria-labelledby="facture">
+    <!-- Contenu de l'onglet "Recherche Jour" -->
+    <div class="container">
+
+        <table id="myTable" class="table table-striped">
+            <thead>
+                <tr>
+
+                    
+                    <th>MOIS CONCERNE</th>
+                   
+                 <th>ACTION</th>
+
+
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for facture in ventes_par_mois_facture %}
+                <tr>
+                    <td>{{ facture.1 }}-{{ facture.0 }}</td>
+                    <td><a href="{% url 'get_statistics' %}?date_facture={{ facture.1}}-{{facture.0}}&onglet=100" class="text-primary"><i class="bi bi-download"></i></a></td>
+
+                   
+                    
+                </tr>
+                {% endfor %}
+
+
+
+
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}
@@ -413,8 +504,12 @@
             var onglet = "{{ onglet }}";
             if (onglet === '1') {
                 $('#periode-tab').tab('show');
-            } else if (onglet === '2') {
+            }
+             else if (onglet === '2') {
                 $('#jour-tab').tab('show');
+            }
+            else if (onglet === '3') {
+                $('#facture-tab').tab('show');
             }
         });
     </script>

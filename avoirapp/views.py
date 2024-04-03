@@ -369,12 +369,8 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 
 def generate_pdf_consommation(consommations,title):
-    # Rendre le modèle HTML avec les données de consommation
     html_string = render_to_string('pdf/consommation_par_famille.html', {'consommations': consommations,'title':title})
-    
-    # Convertir le HTML en objet PDF
     pdf = HTML(string=html_string).write_pdf()
-
     return pdf
 
 def generate_pdf_credit(avoirs,title):
@@ -383,7 +379,6 @@ def generate_pdf_credit(avoirs,title):
     
     # Convertir le HTML en objet PDF
     pdf = HTML(string=html_string).write_pdf()
-
     return pdf
 
 def consommation_par_famille_par_mois(request):
@@ -1510,6 +1505,14 @@ def vente_statistique(request):
 #----------STATI-------------------------------
 @login_required
 def get_statistics(request):
+  
+    journees_vente = JourneeVente.objects.all().order_by('-date')
+    #journees_vente = JourneeVente.objects.all()
+    ventes_par_mois_facture= defaultdict(list)
+    for journee in journees_vente:
+        year = journee.date.year
+        month = journee.date.month
+        ventes_par_mois_facture[(year, month)].append(journee)
     sellers=User.objects.all()
     searching_seller=""
     onglet=0
@@ -1536,7 +1539,9 @@ def get_statistics(request):
         onglet=1
         return render(request, 'rendu/statistique.html',
                        {'statistics_by_seller': statistics_by_seller,
-                         'selected_date':selected_date ,"onglet":onglet,'sellers':sellers})
+                         'selected_date':selected_date ,
+                         "onglet":onglet,'sellers':sellers
+                         ,'ventes_par_mois_facture':ventes_par_mois_facture})
     
     if request.method == "POST" and request.POST.get('periode') :
         # Récupérer les paramètres du formulaire
@@ -1560,6 +1565,13 @@ def get_statistics(request):
         if stat_type in model_dict:
             current_date = start_date
             model = model_dict[stat_type]
+            total_periode=0
+            amo_periode=0
+            amc_periode=0
+            montant_periode=0
+            qtt_periode=0
+            nombre_periode=0
+            
             while current_date <= end_date:
                 if seller:
                     searching_seller=User.objects.get(pk=seller)
@@ -1568,7 +1580,7 @@ def get_statistics(request):
                     ventes_pour_ce_jour = model.objects.filter(date__date=current_date)
                 print(ventes_pour_ce_jour)
 
-                ventes_de_ce_jour = []
+                ventes_de_ce_jour = []     
                 total=0
                 amo=0
                 amc=0
@@ -1578,15 +1590,26 @@ def get_statistics(request):
                 for vente in ventes_pour_ce_jour:
                     if stat_type=="Vente":
                         total=total+vente.prix_vente
+                        total_periode=total_periode+vente.prix_vente
                     if stat_type=="Teletransmition":
                         amo=amo+vente.amo
                         amc=amc+vente.amc
+                        amo_periode=amo_periode+vente.amo
+                        amc_periode=amc_periode+vente.amc
                     if stat_type=="RemiseBanque":
                         montant=montant+vente.montant
+                        montant_periode=montant_periode+vente.montant
                     if stat_type=="Stock":
                         qtt=qtt+vente.qtt
-
-
+                        qtt_periode=qtt_periode+vente.qtt
+                    if stat_type=="Litige":
+                        nombre_periode += 1
+                    if stat_type=="Livraison":
+                       nombre_periode += 1
+                    if stat_type=="Anomalie":
+                        nombre_periode += 1
+                    if stat_type=="Sav":
+                        nombre_periode += 1
                     vente_dict = vars(vente)
                     vente_dict['vendeur_username'] = vente.vendeur  # Convert vente object to dictionary      
                     ventes_de_ce_jour.append(vente_dict)
@@ -1596,25 +1619,80 @@ def get_statistics(request):
                                         'amc':amc,
                                         'montant':montant,
                                         'qtt':qtt,
-
                                          'ventes': ventes_de_ce_jour})
                 current_date += timedelta(days=1)
         
         onglet=2
+        print(f"total periode :  {total_periode}")
         return render(request, 'rendu/statistique.html', {'sellers': sellers,
                         'searching_seller':searching_seller,
                         'ventes_par_jour': ventes_par_jour,
                         'start_date':request.POST.get('start_date'),
                         'end_date':request.POST.get('end_date'),
                         'onglet':onglet,
-                        'stat_type':stat_type
-
-                        
+                        'stat_type':stat_type,
+                        'total_periode':total_periode,
+                         'amo_periode':amo_periode,
+                          'amc_periode':amc_periode,
+                          'montant_periode':montant_periode,
+                          'qtt_periode':qtt_periode,
+                          'nombre_periode':nombre_periode,
+                          'ventes_par_mois_facture':ventes_par_mois_facture
                         })
+
     
     
     else :
-        return render(request, 'rendu/statistique.html',{'sellers':sellers})
+        
+        onglet = request.GET.get('onglet')
+        if onglet=="100" and request.GET.get('date_facture') :
+            month, year = map(int, request.GET.get('date_facture').split('-'))
+            print(f"month={month}")
+            print(f"year={year}")
+            vente_objects = Vente.objects.filter(date__month=month, date__year=year)
+            teletransmition_objects = Teletransmition.objects.filter(date__month=month, date__year=year)
+            stock_objects = Stock.objects.filter(date__month=month, date__year=year)
+            sav_objects = Sav.objects.filter(date__month=month, date__year=year)
+            anomalie_objects = Anomalie.objects.filter(date__month=month, date__year=year)
+            remise_banque_objects = RemiseBanque.objects.filter(date__month=month, date__year=year)
+            livraison_objects = Livraison.objects.filter(date__month=month, date__year=year)
+            litige_objects = Litige.objects.filter(date__month=month, date__year=year)
+
+            context = {
+        'vente_objects': vente_objects,
+        'teletransmition_objects': teletransmition_objects,
+        'stock_objects': stock_objects,
+        'sav_objects': sav_objects,
+        'anomalie_objects': anomalie_objects,
+        'remise_banque_objects': remise_banque_objects,
+        'livraison_objects': livraison_objects,
+        'litige_objects': litige_objects,
+        'year':year,
+        'month':month
+    }
+            print(stock_objects)
+            html_string = render_to_string('rendu/pdf.html', context)
+            pdf = HTML(string=html_string).write_pdf()
+            #print(pdf) 
+            filename = f"Facture{month}_{year}.pdf"
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        onglet=3
+        
+        return render(request, 'rendu/statistique.html',{'sellers':sellers,'ventes_par_mois_facture':ventes_par_mois_facture,'onglet':3,})
+    
+
+
+
+
+
+
+
+
+
+
 
         
 

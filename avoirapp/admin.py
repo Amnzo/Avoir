@@ -77,11 +77,33 @@ class VenteAdmin(admin.ModelAdmin):
 admin.site.register(Vente,VenteAdmin)
 
 
-#admin.site.register(Vente)
-admin.site.register(Teletransmition)
-admin.site.register(Stock)
-admin.site.register(Sav)
-admin.site.register(Anomalie)
-admin.site.register(RemiseBanque)
-admin.site.register(Livraison)
-admin.site.register(Litige)
+# Définition des classes ModelAdmin personnalisées
+class TeletransmitionAdmin(admin.ModelAdmin):
+    list_display = ('date', 'amo', 'amc', 'vendeur')
+
+class StockAdmin(admin.ModelAdmin):
+    list_display = ('date', 'marque', 'qtt', 'vendeur')
+
+class SavAdmin(admin.ModelAdmin):
+    list_display = ('date', 'nom', 'prenom', 'fournisseur', 'reference', 'vendeur')
+
+class AnomalieAdmin(admin.ModelAdmin):
+    list_display = ('date', 'subject', 'vendeur')
+
+class RemiseBanqueAdmin(admin.ModelAdmin):
+    list_display = ('date', 'montant', 'piece', 'vendeur')
+
+class LivraisonAdmin(admin.ModelAdmin):
+    list_display = ('date', 'nom', 'prenom', 'vendeur')
+
+class LitigeAdmin(admin.ModelAdmin):
+    list_display = ('date', 'subject', 'vendeur')
+
+# Enregistrement des classes ModelAdmin personnalisées dans l'interface d'administration
+admin.site.register(Teletransmition, TeletransmitionAdmin)
+admin.site.register(Stock, StockAdmin)
+admin.site.register(Sav, SavAdmin)
+admin.site.register(Anomalie, AnomalieAdmin)
+admin.site.register(RemiseBanque, RemiseBanqueAdmin)
+admin.site.register(Livraison, LivraisonAdmin)
+admin.site.register(Litige, LitigeAdmin)
