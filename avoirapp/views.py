@@ -1534,6 +1534,16 @@ def vente_statistique(request):
 #----------STATI-------------------------------
 @login_required
 def get_statistics(request):
+    model_dict = {
+                "Vente": Vente,
+                "Teletransmition": Teletransmition,
+                "Stock": Stock,
+                "Sav": Sav,
+                "Anomalie": Anomalie,
+                "RemiseBanque": RemiseBanque,
+                "Livraison": Livraison,
+                "Litige": Litige,
+            }
   
     journees_vente = JourneeVente.objects.all().order_by('-date')
     #journees_vente = JourneeVente.objects.all()
@@ -1543,6 +1553,7 @@ def get_statistics(request):
         month = journee.date.month
         ventes_par_mois_facture[(year, month)].append(journee)
     sellers=User.objects.all()
+    categories=Famille.objects.all()
     searching_seller=""
     onglet=0
     if request.method == "POST" and request.POST.get('jour') :
@@ -1607,6 +1618,7 @@ def get_statistics(request):
                          'total_all_livraison':total_all_livraison,
                          'total_all_litige':total_all_litige,
                          'total_all_banque':total_all_banque,
+                         'model_dict':model_dict,
 
 
                          'division_result':division_result
@@ -1621,16 +1633,7 @@ def get_statistics(request):
         start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d').date()
         end_date = datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d').date()
         ventes_par_jour = []
-        model_dict = {
-                "Vente": Vente,
-                "Teletransmition": Teletransmition,
-                "Stock": Stock,
-                "Sav": Sav,
-                "Anomalie": Anomalie,
-                "RemiseBanque": RemiseBanque,
-                "Livraison": Livraison,
-                "Litige": Litige,
-            }
+
         if stat_type in model_dict:
             current_date = start_date
             model = model_dict[stat_type]
@@ -1706,15 +1709,19 @@ def get_statistics(request):
                           'montant_periode':montant_periode,
                           'qtt_periode':qtt_periode,
                           'nombre_periode':nombre_periode,
+                          'model_dict':model_dict,
                           'ventes_par_mois_facture':ventes_par_mois_facture
                         })
 
     
     
     else :
+
+        
         
         onglet = request.GET.get('onglet')
         if onglet=="100" and request.GET.get('date_facture') :
+           
             month, year = map(int, request.GET.get('date_facture').split('-'))
             print(f"month={month}")
             print(f"year={year}")
@@ -1763,6 +1770,7 @@ def get_statistics(request):
         'litige_count':litige_count,
         'remise_mois':remise_mois,
         'anomalie_count':anomalie_count,
+        'model_dict':model_dict,
         'year':year,
         'month':month
     }
@@ -1777,7 +1785,7 @@ def get_statistics(request):
 
         onglet=3
         
-        return render(request, 'rendu/statistique.html',{'sellers':sellers,'ventes_par_mois_facture':ventes_par_mois_facture,'onglet':3,})
+        return render(request, 'rendu/statistique.html',{'sellers':sellers,'ventes_par_mois_facture':ventes_par_mois_facture,'onglet':3,'model_dict':model_dict})
     
 
 

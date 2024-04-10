@@ -559,36 +559,38 @@
 <div class="tab-pane fade {% if onglet == '3' %}show active{% endif %}" id="facture" role="tabpanel" aria-labelledby="facture">
     <!-- Contenu de l'onglet "Recherche Jour" -->
     <div class="container">
+        
+        {{ model_dict }}
 
         <table id="myTable" class="table table-striped">
             <thead>
                 <tr>
-
-                    
-                    <th>MOIS CONCERNE</th>
-                   
-                 <th>ACTION</th>
-
-
+                    <th>MOIS CONCERNE</th>                  
+                    {% for model_name, model_class in model_dict.items %}
+                        <th>{{ model_name |upper }}</th>
+                    {% endfor %}
+                    <th>ACTION</th>
                 </tr>
             </thead>
             <tbody>
-
                 {% for facture in ventes_par_mois_facture %}
-                <tr>
-                    <td>{{ facture.1 }}-{{ facture.0 }}</td>
-                    <td><a href="{% url 'get_statistics' %}?date_facture={{ facture.1}}-{{facture.0}}&onglet=100" class="text-primary"><i class="bi bi-download"></i></a></td>
-
-                   
-                    
-                </tr>
+                    <tr>
+                        <td>{{ facture.1 }}-{{ facture.0 }}</td>
+                        {% for model_name, model_class in model_dict.items %}
+                        <td><a href="{% url 'get_statistics' %}?date_facture={{ facture.1 }}-{{ facture.0 }}&onglet=100" class="text-primary"><i class="bi bi-download"></i></a></td>
+                          {% endfor %}
+                       
+                        
+                        
+                        <td><a href="{% url 'get_statistics' %}?date_facture={{ facture.1 }}-{{ facture.0 }}&onglet=100" class="text-primary"><i class="bi bi-download"></i></a></td>
+                        {% for model_name, model_class in models_dict.items %}
+                            <td><!-- Add data based on the model --></td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-
-
-
-
             </tbody>
         </table>
+        
     </div>
 </div>
 
