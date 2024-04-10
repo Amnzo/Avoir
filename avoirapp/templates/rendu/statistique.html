@@ -100,7 +100,9 @@
                     {% for seller_id, statistics in statistics_by_seller.items %}
                         <th class="th">{{ statistics.vendeur.username |upper }}</th>
                     {% endfor %}
+                    <th class="th">TOTAL</th>
                 </tr>
+                
                 <tr class="tr">
                     <td class="th bold-text">{{"Chiffre d'affaires "|upper}}</td>
                     {% for seller_id, statistics in statistics_by_seller.items %}
@@ -113,6 +115,13 @@
                     </td>
                     
                     {% endfor %}
+                    <td class="td">
+                    <div  class="{% if total_all_sellers == 0 %}card_zeo{% else %}card{% endif %}">
+                        <div class="card-body">  
+                            <p class="card-text">{{ total_all_sellers |floatformat:"2" }}</p>
+                        </div>
+                    </div>
+                    </td>
                 </tr>
                 
                 <tr class="tr">
@@ -128,6 +137,14 @@
                             </div>
                         </td>
                     {% endfor %}
+                   
+                    <td class="td">
+                        <div  class="{% if total_all_ventes == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_ventes  }}</p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr class="tr">
                     <td class="th bold-text">{{ "Panier Moyenne" | upper }}</td>
@@ -141,6 +158,15 @@
                         </div>
                     </td>
                     {% endfor %}
+                    
+                    <td class="td">
+                        <div  class="{% if division_result == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ division_result | floatformat:"2"  }}</p>
+                            </div>
+                        </div>
+                    </td>
+
                 </tr>
                 
                 <tr class="tr">
@@ -151,8 +177,8 @@
                     <td class="td">
                         <div class="{% if statistics.total_teletransmitions.0 == 0 %}card_zeo{% else %}card{% endif %}">
                             <div class="card-body">  
-                                <p class="card-text">AMO :{{ statistics.total_teletransmitions.0 | floatformat:"2" }} <br>
-                                    AMC :{{ statistics.total_teletransmitions.1| floatformat:"2"}}
+                                <p class="card-text">AMO: {{ statistics.total_teletransmitions.0 | floatformat:"2" }} <br>
+                                    AMC: {{ statistics.total_teletransmitions.1| floatformat:"2"}}
 
                                 </p>
                             </div>
@@ -161,6 +187,16 @@
 
                              
                     {% endfor %}
+                    
+                    <td class="td">
+                        <div  class="{% if total_all_teletransmitions_amo == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">AMO: {{total_all_teletransmitions_amo | floatformat:"2" }} <br> AMC: {{total_all_teletransmitions_amc | floatformat:"2" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                
+                
                 </tr>
                 <tr class="tr">
                     <td class="th bold-text">NB MONTURE EN STOCK</td>
@@ -174,6 +210,15 @@
                             </div>
                         </td>
                     {% endfor %}
+                    
+                    <td class="td">
+                        <div  class="{% if total_all_stock == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_stock  }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    
                 </tr>
                 <tr class="tr">
                     <td class="th bold-text">S.A.V</td>
@@ -186,6 +231,14 @@
                         </div>
                     </td>
                     {% endfor %}
+                   
+                    <td class="td">
+                        <div  class="{% if total_all_sav == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_sav  }}</p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
 
                 <tr class="tr">
@@ -199,6 +252,14 @@
                         </div>
                     </td>
                     {% endfor %}
+                   
+                    <td class="td">
+                        <div  class="{% if total_all_banque == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_banque | floatformat:"2" }}</p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr class="tr">
                     <td class="th bold-text">ANOMALIE</td>
@@ -211,6 +272,14 @@
                         </div>
                     </td>
                     {% endfor %}
+                    
+                    <td class="td">
+                        <div  class="{% if total_all_anomalie == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_anomalie  }}</p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr class="tr">
                     <td class="th bold-text">LIVRAISON</td>
@@ -223,6 +292,14 @@
                         </div>
                     </td>
                     {% endfor %}
+                   
+                    <td class="td">
+                        <div  class="{% if total_all_livraison == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_livraison  }}</p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr class="tr">
                     <td class="th bold-text">LITIGE</td>
@@ -235,6 +312,14 @@
                         </div>
                     </td>
                     {% endfor %}
+                    
+                    <td class="td">
+                        <div  class="{% if total_all_litige == 0 %}card_zeo{% else %}card{% endif %}">
+                            <div class="card-body">  
+                                <p class="card-text">{{ total_all_litige  }}</p>
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <!-- Ajoutez d'autres lignes de données ici -->
             </table>
@@ -400,7 +485,7 @@
 
                                         {% if stat_type == "RemiseBanque" %}
                                         <th>MONTANT</th>
-                                        <th>piece</th>
+                                        <th>FACTURE</th>
                                         {% endif %}
                                         {% if stat_type == "Sav" %}
                                         <th>NOM</th>
@@ -424,18 +509,38 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% if not stat_type == "RemiseBanque" %}
+                                   
                                     {% for vente in day.ventes %}
-                                <tr>
-                                    {% for field, value in vente.items %}
-                                        {% if not forloop.first and forloop.counter > 3 and field != 'date' %}
-                                            <td>{{ value }}</td>
-                                        {% endif %}
+                                        <tr>
+                                            {% for field, value in vente.items %}
+                                                {% if not forloop.first and forloop.counter > 3 and field != 'date' %}
+                                                    <td>{{ value }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
                                     {% endfor %}
-                                </tr>
-                                {% endfor %}
+                                    {% endif %}
+                                
+                                    {% if stat_type == "RemiseBanque" %}
+                                   
+                                    {% for b in day.ventes %}
+                                    <tr>
+                                        <td>{{ b.montant }} </td>
+                                        <td>
+                                           
+                                            <a href="{{ b.piece.url }}" target="_blank">{{ b.piece }}</a>
+                                        </td>
+                                        
+                                        <td>{{ b.vendeur_username }}</td>
 
+                                    </tr>
 
+                                    {% endfor %}
+                                        
+                                    {% endif %}
                                 </tbody>
+                                
                             </table>
                             {% else %}
                             <p class="text-muted">{{"Aucune" |upper}} {{ stat_type|upper}} {{" enregistrée pour cette date."|upper}}</p>
@@ -447,8 +552,8 @@
                 </div>
                 
     </div>
-    <input type="text" id="onglet" name="onglet" value="{{ onglet }}">
-    hhhhhhh
+    <input type="hidden" id="onglet" name="onglet" value="{{ onglet }}">
+   
 
 </div>
 <div class="tab-pane fade {% if onglet == '3' %}show active{% endif %}" id="facture" role="tabpanel" aria-labelledby="facture">

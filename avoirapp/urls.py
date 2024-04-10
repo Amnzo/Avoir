@@ -6,6 +6,9 @@ urlpatterns = [
     path('', login_required(statistique), name='statistique'),
     path('dashboard/', login_required(dashboard), name='dashboard'),
     path('client/', login_required(client), name='client'),
+    path('client_expired/', login_required(client_expired), name='client_expired'),
+
+    
     path('avoir/', login_required(avoir), name='avoir'),
     path('consommation_periode/', login_required(consommation_periode), name='consommation_periode'),
     path('display_facture/', login_required(display_facture), name='display_facture'),

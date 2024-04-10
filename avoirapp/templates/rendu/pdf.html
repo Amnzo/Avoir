@@ -40,7 +40,7 @@
     </style>
 </head>
 <body>
-    <h3>LES VENTES : <i class="fas fa-coins"></i>  {{"CA :"|upper }} {{total_vente}} </h3>
+    <h3> <i class="fas fa-coins"></i>  LES VENTES :  {{"CA :"|upper }} {{chiffre_mois |floatformat:"2"}} </h3>
 
     <table>
         <thead>
@@ -73,8 +73,8 @@
     </table>
 
     <h3></h3>
-    <h3>TELETRANSMISSION : <i class="fas fa-hospital"></i>  {{"AMO :"|upper }} {{total_amo}}
-        <i class="fas fa-shield"></i>  {{"AMC :"|upper }} {{total_amc}}
+    <h3>TELETRANSMISSION : <i class="fas fa-hospital"></i>  {{"AMO :"|upper }} {{amo_mois |floatformat:"2"}} <br>
+        <i class="fas fa-shield"></i>  {{"AMC :"|upper }} {{amc_mois |floatformat:"2"}}
      </h3>
 <table>
     <thead>
@@ -98,7 +98,8 @@
     </tbody>
 </table>
 
-<h3>STOCK</h3>
+
+<h3><i class="fas fa-boxes"></i> LES MONTURE EN STOCKE : {{qtt_mois}} </h3>
 <table>
     <thead>
         <tr>
@@ -120,7 +121,8 @@
     </tbody>
 </table>
 
-<h3>SAV</h3>
+<h3><i class="fas fa-wrench"></i> S.A.V : {{sav_count}} </h3>
+
 <table>
     <thead>
         <tr>
@@ -146,7 +148,8 @@
     </tbody>
 </table>
 
-<h3>ANOMALIE</h3>
+
+<h3><i class="fas fa-exclamation-triangle"></i> ANOMALIE : {{anomalie_count}} </h3>
 <table>
     <thead>
         <tr>
@@ -166,7 +169,9 @@
     </tbody>
 </table>
 
-<h3>REMISE BANQUE</h3>
+
+<h3><i class="fas fa-university"></i>REMISE BANQUE : {{ remise_mois |floatformat:"2"}}</h3>
+
 <table>
     <thead>
         <tr>
@@ -188,7 +193,8 @@
     </tbody>
 </table>
 
-<h3>LIVRAISON</h3>
+
+<h3><i class="fas fa-truck"></i> LIVRAISON : {{livraison_count}} </h3>
 <table>
     <thead>
         <tr>
@@ -210,7 +216,8 @@
     </tbody>
 </table>
 
-<h3>LITIGE</h3>
+
+<h3><i class="fas fa-gavel"></i> LITIGE : {{litige_count}} </h3>
 <table>
     <thead>
         <tr>

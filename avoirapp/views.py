@@ -41,6 +41,13 @@ def custom_login(request):
 @login_required(login_url='login')
 def client(request):
     clients = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id').all()
+    search = request.GET.get('search', '')
+
+    if search:
+        clients = clients.filter(Q(nom__icontains=search) | Q(prenom__icontains=search))
+    print(clients)
+
+    print(search)
     items_per_page = 8
     paginator = Paginator(clients, items_per_page)
     page = request.GET.get('page')
@@ -50,7 +57,29 @@ def client(request):
         clients = paginator.page(1)
     except EmptyPage:
         clients = paginator.page(paginator.num_pages)
-    return render(request, 'clients/client.html', {'clients': clients})
+    return render(request, 'clients/client.html', {'clients': clients,'search':search})
+
+
+@login_required(login_url='login')
+def client_expired(request):
+    #clients_queryset = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id')
+    clients_queryset = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id')
+    clients = [client for client in clients_queryset if client.dernier_avoir_plus_de_24_mois()]
+    search = request.GET.get('search', '')
+
+    if search:
+        clients = [client for client in clients if search.lower() in client.nom.lower() or search.lower() in client.prenom.lower()]
+    print(clients)
+    items_per_page = 8
+    paginator = Paginator(clients, items_per_page)
+    page = request.GET.get('page')
+    try:
+        clients = paginator.page(page)
+    except PageNotAnInteger:
+        clients = paginator.page(1)
+    except EmptyPage:
+        clients = paginator.page(paginator.num_pages)
+    return render(request, 'clients/client_expire.html', {'clients': clients,'search':search})
 
 
 @login_required(login_url='login')
@@ -1520,7 +1549,32 @@ def get_statistics(request):
         selected_date = request.POST.get('selected_date')
         sellers = User.objects.all()
         statistics_by_seller = {}
+        total_all_sellers = 0  # Initialize total sales for all sellers
+        total_all_ventes=0
+        total_all_teletransmitions_amo=0
+        total_all_teletransmitions_amc=0
+        total_all_stock=0
+        total_all_sav=0
+        total_all_banque=0
+        total_all_anomalie=0
+        total_all_livraison=0
+        total_all_litige=0
+        division_result = 0
         for seller in sellers:
+            seller_id = seller.id
+            total_sales = get_total_sales(selected_date, seller_id)
+            total_all_sellers += total_sales  # Add seller's sales to total for all sellers
+            #total_ventes=get_total_ventes(selected_date, seller.id)
+            total_all_ventes +=get_total_ventes(selected_date, seller.id)
+            total_teletransmitions_amo, total_teletransmitions_amc = get_total_teletransmitions(selected_date, seller.id)
+            total_all_teletransmitions_amo += total_teletransmitions_amo
+            total_all_teletransmitions_amc += total_teletransmitions_amc
+            total_all_stock +=get_total_insertions_stock(selected_date, seller.id)
+            total_all_sav +=get_total_sav(selected_date, seller.id)
+            total_all_banque +=get_total_remises_banque(selected_date, seller.id)
+            total_all_anomalie +=get_total_anomalies(selected_date, seller.id)
+            total_all_livraison +=get_total_livraisons(selected_date, seller.id)
+            total_all_litige +=get_total_litiges(selected_date, seller.id)
             statistics_by_seller[seller.id] = {
                 'vendeur': seller,
                 'total_sales': get_total_sales(selected_date, seller.id),
@@ -1535,12 +1589,27 @@ def get_statistics(request):
                 'average_cart': get_average_cart(selected_date, seller.id),
                
             }
+        if total_all_ventes != 0:
+            division_result = total_all_sellers / total_all_ventes
         print(f"day {selected_date}")
         onglet=1
         return render(request, 'rendu/statistique.html',
                        {'statistics_by_seller': statistics_by_seller,
                          'selected_date':selected_date ,
-                         "onglet":onglet,'sellers':sellers
+                         "onglet":onglet,'sellers':sellers,
+                         'total_all_sellers': total_all_sellers,
+                         'total_all_ventes':total_all_ventes,
+                         'total_all_teletransmitions_amo':total_all_teletransmitions_amo,
+                         'total_all_teletransmitions_amc':total_all_teletransmitions_amc,
+                         'total_all_stock' : total_all_stock,
+                         'total_all_sav':total_all_sav,
+                         'total_all_anomalie':total_all_anomalie,
+                         'total_all_livraison':total_all_livraison,
+                         'total_all_litige':total_all_litige,
+                         'total_all_banque':total_all_banque,
+
+
+                         'division_result':division_result
                          ,'ventes_par_mois_facture':ventes_par_mois_facture})
     
     if request.method == "POST" and request.POST.get('periode') :
@@ -1650,23 +1719,50 @@ def get_statistics(request):
             print(f"month={month}")
             print(f"year={year}")
             vente_objects = Vente.objects.filter(date__month=month, date__year=year)
+            chiffre_mois_result = vente_objects.aggregate(total_prix_vente=Sum('prix_vente'))
+            chiffre_mois = chiffre_mois_result.get('total_prix_vente', 0)
             teletransmition_objects = Teletransmition.objects.filter(date__month=month, date__year=year)
+            amo_mois_result = teletransmition_objects.aggregate(total_amo=Sum('amo'))
+            amc_mois_result = teletransmition_objects.aggregate(total_amc=Sum('amc'))
+            amo_mois = amo_mois_result.get('total_amo', 0)
+            amc_mois = amc_mois_result.get('total_amc', 0)
             stock_objects = Stock.objects.filter(date__month=month, date__year=year)
+            total_qtt_result = stock_objects.aggregate(total_qtt=Sum('qtt'))
+            qtt_mois = total_qtt_result.get('total_qtt', 0)
             sav_objects = Sav.objects.filter(date__month=month, date__year=year)
             anomalie_objects = Anomalie.objects.filter(date__month=month, date__year=year)
-            remise_banque_objects = RemiseBanque.objects.filter(date__month=month, date__year=year)
             livraison_objects = Livraison.objects.filter(date__month=month, date__year=year)
             litige_objects = Litige.objects.filter(date__month=month, date__year=year)
+            # Count the number of objects for each queryset
+            sav_count = sav_objects.count()
+            anomalie_count = anomalie_objects.count()
+            livraison_count = livraison_objects.count()
+            litige_count = litige_objects.count()
+            remise_banque_objects = RemiseBanque.objects.filter(date__month=month, date__year=year)
+            # Calculate the sum of montant
+            total_montant_result = remise_banque_objects.aggregate(total_montant=Sum('montant'))
+            # Retrieve the aggregated value
+            remise_mois= total_montant_result.get('total_montant', 0)
+           
 
             context = {
         'vente_objects': vente_objects,
+        'chiffre_mois':chiffre_mois,
         'teletransmition_objects': teletransmition_objects,
+        'amo_mois':amo_mois,
+        'amc_mois':amc_mois,
         'stock_objects': stock_objects,
+        'qtt_mois':qtt_mois,
         'sav_objects': sav_objects,
         'anomalie_objects': anomalie_objects,
         'remise_banque_objects': remise_banque_objects,
         'livraison_objects': livraison_objects,
         'litige_objects': litige_objects,
+        'sav_count':sav_count,
+        'livraison_count':livraison_count,
+        'litige_count':litige_count,
+        'remise_mois':remise_mois,
+        'anomalie_count':anomalie_count,
         'year':year,
         'month':month
     }
@@ -1674,7 +1770,7 @@ def get_statistics(request):
             html_string = render_to_string('rendu/pdf.html', context)
             pdf = HTML(string=html_string).write_pdf()
             #print(pdf) 
-            filename = f"Facture{month}_{year}.pdf"
+            filename = f"RAPPORT_{month}_{year}.pdf"
             response = HttpResponse(pdf, content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
@@ -1701,6 +1797,10 @@ def get_statistics(request):
 def get_total_sales(selected_date, seller_id=None):
     sales_data = Vente.objects.filter(vendeur_id=seller_id, date__date=selected_date)
     total_sales = sales_data.aggregate(total_sales=Sum('prix_vente')).get('total_sales') or 0
+    return total_sales
+
+def total_sales_all_sellers(selected_date):
+    total_sales = Vente.objects.filter(date__date=selected_date).aggregate(total_sales=Sum('prix_vente')).get('total_sales') or 0
     return total_sales
 
 def get_total_remises_banque(selected_date, seller_id=None):

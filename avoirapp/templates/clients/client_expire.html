@@ -42,19 +42,14 @@
                 {% endfor %}
             </ul>
          {% endif %}
-        <h1 class="text-center mb-4">LISTE DES CLIENTS </h1>
+        <h1 class="text-center mb-4">LISTE DES CLIENTS AVEC SOLDE EXPIRE </h1>
         <div class="row">
+            
             <div class="col-md-5">
-                <a href="{% url 'add_client' %}" class="btn btn-primary mb-4">
-                    <i class="fas fa-plus"></i> AJOUTER CLIENT
-                </a>
-            </div>
-            <div class="col-md-5">
-                <a href="{% url 'client_expired' %}" class="btn btn-danger mb-4">
-                    <i class="fas fa-hourglass-end"></i> LES CLIENTS AVEC SOLDE EXPIRE
-                </a>
+                <a href="javascript:history.back()" class="btn btn-secondary">RETOUR</a>
             </div>
         </div>
+        <br>
         
 
 
@@ -99,7 +94,7 @@
             </thead>
             <tbody>
                 {% for client in clients %}
-                {% if not client.dernier_avoir_plus_de_24_mois %} 
+                {% if  client.dernier_avoir_plus_de_24_mois %} 
                 <tr {% if client.dernier_avoir_plus_de_24_mois %} style="background-color: orange;" data-color="orange" {% endif %}>
 
                         <td>{{ client.nom|upper }}</td>
@@ -147,7 +142,7 @@
         {% endif %}
     </div>
 
-
+        
 
     </div>
 {% endblock %}
