@@ -1707,19 +1707,11 @@ def get_statistics(request):
                           'nombre_periode':nombre_periode,
                           'model_dict':model_dict,
                           'ventes_par_mois_facture':ventes_par_mois_facture
-                        })
-
-    
-    
-    else :
-
-        
-        
+                        })  
+    else :   
         onglet = request.GET.get('onglet')
-        if onglet=="100" and request.GET.get('date_facture') and not request.GET.get('model') :   
+        if onglet=="100" and request.GET.get('date_facture') :   
             month, year = map(int, request.GET.get('date_facture').split('-'))
-            print(f"month={month}")
-            print(f"year={year}")
             vente_objects = Vente.objects.filter(date__month=month, date__year=year)
             chiffre_mois_result = vente_objects.aggregate(total_prix_vente=Sum('prix_vente'))
             chiffre_mois = chiffre_mois_result.get('total_prix_vente', 0)
@@ -1746,58 +1738,48 @@ def get_statistics(request):
             # Retrieve the aggregated value
             remise_mois= total_montant_result.get('total_montant', 0)
             context = {
-        'vente_objects': vente_objects,
-        'chiffre_mois':chiffre_mois,
-        'teletransmition_objects': teletransmition_objects,
-        'amo_mois':amo_mois,
-        'amc_mois':amc_mois,
-        'stock_objects': stock_objects,
-        'qtt_mois':qtt_mois,
-        'sav_objects': sav_objects,
-        'anomalie_objects': anomalie_objects,
-        'remise_banque_objects': remise_banque_objects,
-        'livraison_objects': livraison_objects,
-        'litige_objects': litige_objects,
-        'sav_count':sav_count,
-        'livraison_count':livraison_count,
-        'litige_count':litige_count,
-        'remise_mois':remise_mois,
-        'anomalie_count':anomalie_count,
-        'model_dict':model_dict,
-        'year':year,
-        'month':month
-    }
-            print(stock_objects)
-            html_string = render_to_string('rendu/pdf.html', context)
+            'vente_objects': vente_objects,
+            'chiffre_mois':chiffre_mois,
+            'teletransmition_objects': teletransmition_objects,
+            'amo_mois':amo_mois,
+            'amc_mois':amc_mois,
+            'stock_objects': stock_objects,
+            'qtt_mois':qtt_mois,
+            'sav_objects': sav_objects,
+            'anomalie_objects': anomalie_objects,
+            'remise_banque_objects': remise_banque_objects,
+            'livraison_objects': livraison_objects,
+            'litige_objects': litige_objects,
+            'sav_count':sav_count,
+            'livraison_count':livraison_count,
+            'litige_count':litige_count,
+            'remise_mois':remise_mois,
+            'anomalie_count':anomalie_count,
+            'model_dict':model_dict,
+            'year':year,
+            'month':month}                                
+            if request.GET.get('model'):
+                model = model_dict[request.GET.get('model')]
+                data = model.objects.filter(date__month=month, date__year=year)
+                context.update({
+                    'data': data,
+                    'model': request.GET.get('model')
+                })
+                html_string = render_to_string('rendu/pdf_model.html', context)       
+                filename = f"RAPPORT_{request.GET.get('model')}_{month}_{year}.pdf"
+
+            else:
+                html_string = render_to_string('rendu/pdf.html', context)
+                filename = f"RAPPORT_{month}_{year}.pdf"
             pdf = HTML(string=html_string).write_pdf()
-            #print(pdf) 
-            filename = f"RAPPORT_{month}_{year}.pdf"
             response = HttpResponse(pdf, content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
-        if onglet=="100" and request.GET.get('date_facture') and  request.GET.get('model') : 
-            model = model_dict[request.GET.get('model')]
-            month, year = map(int, request.GET.get('date_facture').split('-'))
-            data = model.objects.filter(date__month=month, date__year=year)
-            context = {
-                'data':data,
-                'model':request.GET.get('model'),  
-                'year':year,
-                'month':month
-
-                }
-            html_string = render_to_string('rendu/pdf_model.html', context)
-            pdf = HTML(string=html_string).write_pdf()
-            filename = f"RAPPORT_{request.GET.get('model')}_{month}_{year}.pdf"
-            response = HttpResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            #print(model)
-
-            return response
-
-        onglet=3
         
-        return render(request, 'rendu/statistique.html',{'sellers':sellers,'ventes_par_mois_facture':ventes_par_mois_facture,'onglet':3,'model_dict':model_dict})
+
+            
+        
+    return render(request, 'rendu/statistique.html',{'sellers':sellers,'ventes_par_mois_facture':ventes_par_mois_facture,'onglet':3,'model_dict':model_dict})
     
 
 
