@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAPPORT DU {{month}}-{{year}}</title>
+    <!-- Include FontAwesome CDN in your HTML file -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        h3 {
+            margin-top: 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #000;
+            text-align: center; /* Center the text within table cells */
+            font-size: 12px;
+            word-wrap: break-word;
+            max-width: 200px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    {% if model == 'Vente' %}
+    <h3> <i class="fas fa-coins"></i>  LES VENTES :  {{"CA :"|upper }} {{chiffre_mois |floatformat:"2"}} </h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>NOM</th>
+                <th>PRENOM</th>
+                <th>DESIGNATION</th>
+                <th>CODE BARRE</th>
+                <th>PRIX  VENTE</th>
+                <th>PRIX ACHAT</th> 
+                <th>DATE</th>
+                <th>VENDEUR</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vente in data %}
+                <tr>
+                    <td>{{ vente.nom_client }}</td>
+                    <td>{{ vente.prenom_client}}</td>
+                    <td>{{ vente.designation_produit }}</td>
+                    <td>{{vente.code_barre}}</td>
+                    <td>{{ vente.prix_vente }}</td>
+                    <td>{{ vente.prix_achat }}</td>
+                    <td>{{ vente.date |date:"d-m-Y" }}</td>
+                    <td>{{ vente.vendeur }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if model == 'Teletransmition' %}
+    <h3>TELETRANSMISSION : <i class="fas fa-hospital"></i>  {{"AMO :"|upper }} {{amo_mois |floatformat:"2"}} <br>
+        <i class="fas fa-shield"></i>  {{"AMC :"|upper }} {{amc_mois |floatformat:"2"}}
+     </h3>
+    <table>
+        <thead>
+            <tr>
+                <th>AMO</th>
+                <th>AMC</th>
+                <th>DATE</th>
+                <th>VENDEUR</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teletransmition in data %}
+                <tr>
+                    <td>{{ teletransmition.date |date:"d-m-Y"  }}</td>
+                    <td>{{ teletransmition.amo }}</td>
+                    <td>{{ teletransmition.amc }}</td>
+                    <td>{{ teletransmition.vendeur }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+<!-- Continue similarly for other models -->
+
+{% if model == 'Stock' %}
+<h3><i class="fas fa-boxes"></i> LES MONTURE EN STOCKE : {{qtt_mois}} </h3>
+<table>
+    <thead>
+        <tr>
+            <th>MARQUE</th>
+            <th>QUANTITE</th>
+            <th>DATE</th>
+            <th>VENDEUR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in data %}
+            <tr>
+                <td>{{ stock.marque }}</td>
+                <td>{{ stock.qtt }}</td>
+                <td>{{ stock.date|date:"d-m-Y" }}</td>
+                <td>{{ stock.vendeur }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if model == 'Sav' %}
+<h3><i class="fas fa-wrench"></i> S.A.V : {{sav_count}} </h3>
+<table>
+    <thead>
+        <tr>
+            <th>NOM</th>
+            <th>PRENOM</th>
+            <th>FOURNISSEUR</th>
+            <th>REFERENCE</th>
+            <th>DATE</th>
+            <th>VENDEUR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sav in data %}
+            <tr>
+                <td>{{ sav.nom }}</td>
+                <td>{{ sav.prenom }}</td>
+                <td>{{ sav.fournisseur }}</td>
+                <td>{{ sav.reference }}</td>
+                <td>{{ sav.date|date:"d-m-Y" }}</td>
+                <td>{{ sav.vendeur }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if model == 'Anomalie' %}
+<h3><i class="fas fa-exclamation-triangle"></i> ANOMALIE : {{anomalie_count}} </h3>
+<table>
+    <thead>
+        <tr>
+            <th>SUJET</th>
+            <th>DATE</th>
+            <th>Vendeur</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for anomalie in data %}
+            <tr>
+                <td>{{ anomalie.subject }}</td>
+                <td>{{ anomalie.date|date:"d-m-Y" }}</td>
+                <td>{{ anomalie.vendeur }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if model == 'RemiseBanque' %}
+<h3><i class="fas fa-university"></i>REMISE BANQUE : {{ remise_mois |floatformat:"2"}}</h3>
+<table>
+    <thead>
+        <tr>
+            <th>MONTANT</th>
+            <th>DATE</th>
+            <th>VENDEUR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for remise_banque in data %}
+            <tr>
+                <td>{{ remise_banque.montant }}</td>
+                <td>{{ remise_banque.date|date:"d-m-Y" }}</td>
+                <td>{{ remise_banque.vendeur }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if model == 'Livraison' %}
+<h3><i class="fas fa-truck"></i> LIVRAISON : {{livraison_count}} </h3>
+<table>
+    <thead>
+        <tr>
+            <th>NOM</th>
+            <th>PRENOM</th>
+            <th>DATE</th>
+            <th>Vendeur</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for livraison in data %}
+            <tr>
+                <td>{{ livraison.nom }}</td>
+                <td>{{ livraison.prenom }}</td>
+                <td>{{ livraison.date|date:"d-m-Y" }}</td>
+                <td>{{ livraison.vendeur }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if model == 'Litige' %}
+<h3><i class="fas fa-gavel"></i> LITIGE : {{litige_count}} </h3>
+<table>
+    <thead>
+        <tr>
+            <th>Sujet</th>
+            <th>DATE</th>
+            <th>VENDEUR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for litige in data %}
+            <tr>
+                <td>{{ litige.subject }}</td>
+                <td>{{ litige.date|date:"d-m-Y" }}</td>
+                <td>{{ litige.vendeur }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<!-- Continue similarly for other models -->
+</body>
+</html>
+

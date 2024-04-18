@@ -80,11 +80,7 @@ def client_expired(request):
     except EmptyPage:
         clients = paginator.page(paginator.num_pages)
     return render(request, 'clients/client_expire.html', {'clients': clients,'search':search})
-
-
 @login_required(login_url='login')
-
-
 def statistique(request):
   # Fetching data from the database
     families = Famille.objects.filter(is_active=True)
@@ -1553,7 +1549,7 @@ def get_statistics(request):
         month = journee.date.month
         ventes_par_mois_facture[(year, month)].append(journee)
     sellers=User.objects.all()
-    categories=Famille.objects.all()
+
     searching_seller=""
     onglet=0
     if request.method == "POST" and request.POST.get('jour') :
@@ -1720,8 +1716,7 @@ def get_statistics(request):
         
         
         onglet = request.GET.get('onglet')
-        if onglet=="100" and request.GET.get('date_facture') :
-           
+        if onglet=="100" and request.GET.get('date_facture') and not request.GET.get('model') :   
             month, year = map(int, request.GET.get('date_facture').split('-'))
             print(f"month={month}")
             print(f"year={year}")
@@ -1750,8 +1745,6 @@ def get_statistics(request):
             total_montant_result = remise_banque_objects.aggregate(total_montant=Sum('montant'))
             # Retrieve the aggregated value
             remise_mois= total_montant_result.get('total_montant', 0)
-           
-
             context = {
         'vente_objects': vente_objects,
         'chiffre_mois':chiffre_mois,
@@ -1781,6 +1774,25 @@ def get_statistics(request):
             filename = f"RAPPORT_{month}_{year}.pdf"
             response = HttpResponse(pdf, content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        if onglet=="100" and request.GET.get('date_facture') and  request.GET.get('model') : 
+            model = model_dict[request.GET.get('model')]
+            month, year = map(int, request.GET.get('date_facture').split('-'))
+            data = model.objects.filter(date__month=month, date__year=year)
+            context = {
+                'data':data,
+                'model':request.GET.get('model'),  
+                'year':year,
+                'month':month
+
+                }
+            html_string = render_to_string('rendu/pdf_model.html', context)
+            pdf = HTML(string=html_string).write_pdf()
+            filename = f"RAPPORT_{request.GET.get('model')}_{month}_{year}.pdf"
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            #print(model)
+
             return response
 
         onglet=3

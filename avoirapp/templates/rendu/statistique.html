@@ -68,7 +68,7 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link {% if onglet == '3' %}active{% endif %}" id="facture-tab" data-toggle="tab" href="#facture" role="tab" aria-controls="facture" aria-selected="false">FACTURE </a>
+            <a class="nav-link {% if onglet == '3' %}active{% endif %}" id="facture-tab" data-toggle="tab" href="#facture" role="tab" aria-controls="facture" aria-selected="false">ETAT MENSUEL </a>
         </li>
         
     </ul>
@@ -569,7 +569,7 @@
                     {% for model_name, model_class in model_dict.items %}
                         <th>{{ model_name |upper }}</th>
                     {% endfor %}
-                    <th>ACTION</th>
+                    <th>TOUS</th>
                 </tr>
             </thead>
             <tbody>
@@ -577,7 +577,7 @@
                     <tr>
                         <td>{{ facture.1 }}-{{ facture.0 }}</td>
                         {% for model_name, model_class in model_dict.items %}
-                        <td><a href="{% url 'get_statistics' %}?date_facture={{ facture.1 }}-{{ facture.0 }}&onglet=100" class="text-primary"><i class="bi bi-download"></i></a></td>
+                        <td><a href="{% url 'get_statistics' %}?date_facture={{ facture.1 }}-{{ facture.0 }}&onglet=100&model={{model_name}}" class="text-primary"><i class="bi bi-download"></i></a></td>
                           {% endfor %}
                        
                         
