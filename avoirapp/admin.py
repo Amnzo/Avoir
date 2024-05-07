@@ -62,7 +62,7 @@ class RepertoireAdmin(admin.ModelAdmin):
 admin.site.register(Repertoire, RepertoireAdmin)
 
 class RetourAdmin(admin.ModelAdmin):
-    list_display = ('date','nom', 'prenom', 'fournisseur', 'designation', 'code', 'facture')
+    list_display = ('date','nom', 'prenom', 'fournisseur', 'designation', 'code','is_active', 'facture')
 # Register the Repertoire model with the custom admin class
 admin.site.register(Retour, RetourAdmin)
 #admin.site.register(Vente)

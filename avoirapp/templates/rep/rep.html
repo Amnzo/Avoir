@@ -63,10 +63,14 @@
                 <a href="{% url 'add_rep' %}" class="btn btn-primary mb-4">
                     <i class="fas fa-plus"></i> AJOUTER CONTACT
                 </a>
+                {% if user.is_superuser %}
+    
+
                 <a href="{% url 'valide_repertoire' %}" class="btn btn-success mb-4">
                     <i class="fas fa-check"></i> 
                     CONTACTS À VALIDER
                 </a>
+                {% endif %}
                
                
                 

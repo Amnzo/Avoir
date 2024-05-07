@@ -14,6 +14,25 @@
     <!-- Custom CSS -->
     <style>
 
+.sidebar-header {
+    /* Add styles for the sidebar header */
+    background-color: #f8f9fa; /* Change the background color to a visible color */
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6; /* Add a border to separate it from the rest of the sidebar */
+}
+
+.sidebar-header h4 a {
+    /* Add styles for the anchor tag within the header */
+    color: #343a40; /* Change the text color to a visible color */
+    text-decoration: none; /* Remove underline */
+}
+
+.sidebar-header h4 a:hover {
+    /* Add styles for the anchor tag on hover */
+    color: #007bff; /* Change the text color on hover */
+}
+
+
               body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
@@ -151,10 +170,11 @@
     <div class="wrapper">
         <!-- Sidebar -->
         <nav id="sidebar">
-
             <div class="sidebar-header">
-
+                <h4><a href=""><i class="fas fa-shopping-cart"></i> Comparateur </a> </h4>
+               
             </div>
+           
             <ul class="list-unstyled components">
                 {% if user.is_superuser %}
                 <li class="active">

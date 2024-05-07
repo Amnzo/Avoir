@@ -900,9 +900,6 @@ def consultation_list_retour(request):
             Q(marque=search_query) |
             Q(fournisseur__icontains=search_query)
         )
-
-  
-
     context = {
         'retours': retours,
         'search_query': search_query,

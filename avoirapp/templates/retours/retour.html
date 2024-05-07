@@ -131,6 +131,7 @@
         </thead>
         <tbody>
             {% for retour in retours %}
+           
             {% if retour.facture %}
             <tr class="success">
             {% elif retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
@@ -170,11 +171,11 @@
             <td>
                 <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
                 <span class="space"></span>
-                {% if retour.facture %}
-                                       
-                {% else %}
+                {% if user.is_superuser %}
+                {% if not retour.facture %}   
                 <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
                 {% endif %} 
+                {% endif %}
             </td>
             
             </tr>

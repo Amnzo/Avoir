@@ -29,21 +29,22 @@
                             <!-- Champ pour la première valeur décimale -->
                             <div class="form-group">
                                 <label for="decimal1">C.A JOUR :</label>
-                                <input type="number" class="form-control" id="ca_jour" name="ca_jour" value="{{ca_jour}}" required>
+                                <input type="text" class="form-control" id="ca_jour" name="ca_jour" value="{{ca_jour}}" pattern="\d+(\.\d+)?" title="Veuillez entrer un nombre décimal valide" required>
                             </div>
                             <!-- Champ pour la deuxième valeur décimale -->
                             <div class="form-group">
                                 <label for="decimal2">C.A JOUR N-1 :</label>
-                                <input type="number" class="form-control" id="ca_jour_1" name="ca_jour_1" required>
+                                <input type="text" class="form-control" id="ca_jour_1" name="ca_jour_1" pattern="\d+(\.\d+)?" title="Veuillez entrer un nombre décimal valide" required>
                             </div>
                             <div class="form-group">
                                 <label for="decimal1">C.A MOIS :</label>
-                                <input type="number" class="form-control" id="ca_mois" name="ca_mois"  required>
+
+                                <input type="text" class="form-control" id="ca_mois" name="ca_mois" pattern="\d+(\.\d+)?" title="Veuillez entrer un nombre décimal valide" required>
                             </div>
                             <!-- Champ pour la deuxième valeur décimale -->
                             <div class="form-group">
                                 <label for="decimal2">C.A MOIS N-1 :</label>
-                                <input type="number" class="form-control" id="ca_mois_1" name="ca_mois_1" required>
+                                <input type="text" class="form-control" id="ca_mois_1" name="ca_mois_1" pattern="\d+(\.\d+)?" title="Veuillez entrer un nombre décimal valide" required>
                             </div>
                             <!-- Bouton de confirmation -->
                             <div class="form-group d-flex justify-content-between">
