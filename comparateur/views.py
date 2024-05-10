@@ -238,7 +238,7 @@ def read_pdf(request):
             
             formatted_command = {
                 
-                "Commande": command ,#command.split("|")[0] , #.split("|")[0],
+                "Commande": command.split("|")[0] ,#command.split("|")[0] , #.split("|")[0],
                 "Référence": command.split("Référence")[1].split("Produit")[0].split("|")[0],
                 "Produit": produit,
                 "CorrectionD":extraire_D_correction(command.split("|")[2].split("ET")[0]),
