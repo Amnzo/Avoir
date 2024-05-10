@@ -2,16 +2,44 @@ import json
 import PyPDF2
 from django.http import JsonResponse,HttpResponse
 import re
-
 from django.shortcuts import render
-
 from .models import Classeur, ExcelData
-
 from django.db.models import Q
-
-
 # ExcelData.objects.create(reference=data["reference"], UC=data["UC"], HC=data["HC"], ISC=data["ISC"], SCC=data["SCC"], SRC=data["SRC"], SRB=data["SRB"], SRC_UV=data["SRC_UV"], SRBUV=data["SRBUV"], RCC=data["RCC"], price=data["price"])
 
+
+def extraire_D_correction(texte):
+    lines = texte.split('\n')
+    #print("**********************************")
+    correction_D = []  # List to store decimals
+    for line in lines:
+        if line.startswith("D"):  # Check if the line starts with "D"
+            #print(line)  # Print the line with "D"
+            index = lines.index(line) + 1  # Get the index of the next line
+            while index < len(lines) and not lines[index].startswith(("D", "CT")):
+                # Iterate through subsequent lines until you encounter the next string
+                correction_D.append(lines[index])
+                #print(lines[index])  # Print the line
+                index += 1
+    #print("**********************************")
+    return correction_D
+
+def extraire_G_correction(texte):
+    lines = texte.split('\n')
+    #print(lines)
+    #print("**********************************")
+    correction_G = []  # List to store decimals
+    for line in lines:
+        if line.startswith("G"):  # Check if the line starts with "D"
+            #print(line)  # Print the line with "D"
+            index = lines.index(line) + 1  # Get the index of the next line
+            while index < len(lines) and not lines[index].startswith(("G", "CT")):
+                # Iterate through subsequent lines until you encounter the next string
+                correction_G.append(lines[index])
+                #print(lines[index])  # Print the line
+                index += 1
+    #print("**********************************")
+    return correction_G
 import openpyxl
 def data(request):
     chemin_fichier_excel = 'C:/Users/Amnzo/Desktop/jonathan/rania.xlsx'
@@ -104,9 +132,26 @@ def extract_product_info(text):
     else:
         return None
 
+def extraire_second_decimal_apres_ET(texte):
+    lignes = texte.split('\n')
+    chiffres_apres_ET = []  # Initialiser la liste pour stocker les chiffres extraits
+    ajouter_ligne_suivante = False  # Variable pour suivre si la ligne suivante doit être ajoutée
 
+    for i, line in enumerate(lignes):
+        if line.startswith("ET"):
+            ajouter_ligne_suivante = True  # Activer l'ajout de la ligne suivante
+        elif ajouter_ligne_suivante:
+            chiffres_apres_ET.append(line)  # Ajouter la ligne suivante à la liste
+            ajouter_ligne_suivante = False  # Réinitialiser la variable après l'ajout de la ligne
 
+    print(chiffres_apres_ET)
+    return chiffres_apres_ET
+                 
+           
+
+    return chiffres_apres_ET
 def extract_value_after_CT_ET(text):
+    
     pattern = r'CT\s+ET\s+(\d+,\d+)'  # Expression régulière mise à jour pour capturer la valeur après "CT ET"
     match = re.search(pattern, text)
     if match:
@@ -115,12 +160,7 @@ def extract_value_after_CT_ET(text):
     else:
         return None
    
-def extract_produit_to_D(input_string):
-    # Recherche du motif entre "Produit" et "D" avec des espaces entre eux
-    match = re.search(r'Produit(.*?)D', input_string, re.DOTALL)
-    if match:
-        # Retourner le texte capturé, en supprimant les espaces en début et fin de chaîne
-        return match.group(1).strip()
+
     
 from PyPDF2 import PdfReader
 from io import BytesIO
@@ -139,62 +179,41 @@ def read_pdf(request):
                 #print(page_num)
             page = pdf_reader.pages[page_num]
             text = page.extract_text()
-                # Encode the text using UTF-8
             encoded_text = text.encode('utf-8', 'ignore')  # Ignore characters that cannot be encoded
             decoded_text = encoded_text.decode('utf-8')
             content += decoded_text
-
-        # Extract command information from the content
         commands = extract_commands(content)
-        #print(commands)
-
-        # Formatting extracted commands
         formatted_commands = []
         for command in commands[1:]:
-            champs_excel_data = [field.name for field in ExcelData._meta.get_fields()]
-            
+           
+            champs_excel_data = [field.name for field in ExcelData._meta.get_fields()]            
             champs_decimal = [field for field in champs_excel_data if isinstance(ExcelData._meta.get_field(field), DecimalField)]
-            #print(f" {command[2].upper().strip()}")
             valuer=[""]
-            #if 
             for champ in champs_decimal:
                 if is_word_in_string(champ.upper(), command.split("|")[2].upper()):
                     valuer.append(champ)
-                    #print(f"                                   Le champ {champ} correspond à un mot de la référence.")
                 else:
                     pass
             produit = extract_product_info(command.split("|")[2])
-            
-            #print(f"finded is asimo  {extract_produit_to_D(command.split("|")[2])}")
             prix_facture=0.0
             if produit is None:
-                print("NONE TYPEEEE")
+                #print("NONE TYPEEEE")
                 c=command.split("|")[2]
-                produit=c.split("Produit")[1]
-                
-                #produit=extract_product_info_again(command.split("|")[2]) 
+                produit=f" makdach :{c.split("Produit")[1]}"
             if produit :
                 produit_similaire = trouver_produit_similaire(produit)
                 prix_facture = extract_value_after_CT_ET(command.split("|")[2])
-            # Recherchez les produits similaires pour chaque partie du nom du produit
+              
             product= ExcelData.objects.filter(reference=produit_similaire).first()
-            
-
-
-
             prix_commande = None
             if product:
                 for champ in reversed(valuer):
                     if hasattr(product, champ):
                         prix_commande = getattr(product, champ)
                         break  
-            #prix_facture=re.findall(r'\d+,\d+', command[3].strip())[-1]
-        
             if  product and product.classeur.nom=='SEIKO Classe A':
                 valuer.append("HSC")
-                prix_commande=Decimal(product.HSC).quantize(Decimal('0.01'))
-                
-                
+                prix_commande=Decimal(product.HSC).quantize(Decimal('0.01'))      
             if  product and product.classeur.nom=='SEIKO Gamme ECO':
                 valuer.append("PRIX ")
                 prix_commande=product.prix
@@ -203,21 +222,33 @@ def read_pdf(request):
                 Diff = Decimal(prix_facture) - Decimal(prix_commande)
                 #result = str(Diff)  # Convert Diff back to string for return
             except TypeError:
-                Diff = 0   
+                Diff = 0
+
+            prix_factures=extraire_second_decimal_apres_ET(command.split("|")[2])
+            prix_facture_d=prix_factures[0]
+            prix_facture_g=prix_factures[0]
+            if len(prix_factures)==2:
+                prix_facture_g=prix_factures[1]
 
 
-            
+         
+            print(command)
+            if command.startswith("S00126538"):
+                print(command)
             
             formatted_command = {
                 
-                "Commande": command.split("|")[0],
-                "Référence": command.split("|")[2],
+                "Commande": command ,#command.split("|")[0] , #.split("|")[0],
+                "Référence": command.split("Référence")[1].split("Produit")[0].split("|")[0],
                 "Produit": produit,
+                "CorrectionD":extraire_D_correction(command.split("|")[2].split("ET")[0]),
+                "CorrectionG":extraire_G_correction(command.split("|")[2]),
                 "Similaire": produit_similaire, 
                 "Valeur" : valuer[-1],
                 "Prix" :prix_commande,
                 "Product":product,
-                "Prix_Facture": prix_facture,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
+                "Prix_Facture_D": prix_facture_d,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
+                "Prix_Facture_G": prix_facture_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Diff": Diff
             
                 
@@ -279,6 +310,40 @@ def delete(request):
     # Delete the products
     products_to_delete.delete()
     return HttpResponse("products_to_delete")
+
+
+
+
+from django.http import HttpResponse
+from openpyxl import Workbook
+
+from bs4 import BeautifulSoup
+import io
+
+def export_to_excel(request):
+    # Récupérer les données du tableau HTML depuis la requête POST
+    table_data = request.POST.get('table_data', '')
+
+    # Analyser le HTML pour extraire les données de la table
+    soup = BeautifulSoup(table_data, 'html.parser')
+    table = soup.find('table')
+
+    # Créer un classeur Excel et ajouter les données de la table
+    wb = Workbook()
+    ws = wb.active
+    for row_idx, row in enumerate(table.find_all('tr')):
+        for col_idx, cell in enumerate(row.find_all(['td', 'th'])):
+            ws.cell(row=row_idx + 1, column=col_idx + 1, value=cell.text)
+
+    # Créer une réponse HTTP pour le fichier Excel
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="table_data.xlsx"'
+
+    # Enregistrer le classeur Excel dans la réponse HTTP
+    wb.save(response)
+
+    return response
+
 
 
 

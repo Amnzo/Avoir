@@ -8,6 +8,7 @@ urlpatterns = [
     path('', read_pdf, name='comparateur_home'),
     path('data/', data, name='data'),
     path('delete/', delete, name='delete'),
+    path('export_to_excel/', export_to_excel, name='export_to_excel'),
     
     path('generate_random_values/', generate_random_values, name='generate_random_values'),
     
