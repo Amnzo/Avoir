@@ -199,7 +199,7 @@ def read_pdf(request):
             if produit is None:
                 #print("NONE TYPEEEE")
                 c=command.split("|")[2]
-                produit=f" makdach :{c.split("Produit")[1]}"
+                produit=c.split("Produit")[1]
             if produit :
                 produit_similaire = trouver_produit_similaire(produit)
                 prix_facture = extract_value_after_CT_ET(command.split("|")[2])
