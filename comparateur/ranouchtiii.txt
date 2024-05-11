@@ -1,4 +1,3 @@
-from decimal import Decimal
 import json
 import PyPDF2
 from django.http import JsonResponse,HttpResponse
@@ -7,97 +6,70 @@ from django.shortcuts import render
 from .models import Classeur, ExcelData
 from django.db.models import Q
 # ExcelData.objects.create(reference=data["reference"], UC=data["UC"], HC=data["HC"], ISC=data["ISC"], SCC=data["SCC"], SRC=data["SRC"], SRB=data["SRB"], SRC_UV=data["SRC_UV"], SRBUV=data["SRBUV"], RCC=data["RCC"], price=data["price"])
-def extraire_informations_D(texte):
-    # Diviser le texte en lignes
-    lignes = texte.split('\n')
-    # Initialiser les variables pour stocker les informations
-    informations_D = []
-    # Indicateur pour détecter la ligne contenant uniquement "D" et "G"
-    d_found = False
-    # Parcourir les lignes du texte
-    for ligne in lignes:
-        # Vérifier si la ligne contient uniquement "D"
-        if ligne.strip() == "D":
-            d_found = True
-            continue
-        # Si "D" est trouvé, ajouter les lignes suivantes jusqu'à trouver "CT"
-        if d_found:
-            if ligne.strip() != "CT":
-                informations_D.append(ligne)
-            else:
-                break
-    return informations_D
-
-
-
-def extraire_informations_G(texte):
-    # Diviser le texte en lignes
-    lignes = texte.split('\n')
-    # Initialiser les variables pour stocker les informations
-    informations_G = []
-    # Indicateur pour détecter la ligne contenant uniquement "D" et "G"
-    d_found = False
-    # Parcourir les lignes du texte
-    for ligne in lignes:
-        # Vérifier si la ligne contient uniquement "D"
-        if ligne.strip() == "G":
-            d_found = True
-            continue
-        # Si "D" est trouvé, ajouter les lignes suivantes jusqu'à trouver "CT"
-        if d_found:
-            if ligne.strip() != "CT":
-                informations_G.append(ligne)
-            else:
-                break
-
-   
-    return informations_G
-
-def extraire_prix(texte):
-    #print(texte)
-   
-    lines=texte.split("\n")
-    dernieres_decimales = []
-    # Diviser chaque ligne en parties distinctes et récupérer la dernière valeur décimale avant chaque "ET"
-    ligne_precedente_ET = False
-    for ligne in lines:
-        if ligne.startswith("ET"):
-            ligne_precedente_ET = True
-        elif ligne_precedente_ET:
-            parties = ligne.split()
-            #print("Parties:", parties)
-            for partie in reversed(parties):
-                if partie.replace(',', '').replace('.', '').isdigit():
-                    derniere_valeur = partie
-                    #print("Dernière valeur décimale trouvée:", derniere_valeur)
-                    dernieres_decimales.append(derniere_valeur)
-                    break
-            ligne_precedente_ET = False
-    #print("Dernières décimales extraites:", dernieres_decimales)
-    return dernieres_decimales
-
-
-    
-    
 
 def decortiquer_commande(texte):
     lines = texte.split('\n')
-    print(texte)
-    # Initialiser les variables à None
-
-    commande = reference = produit1 = None
-    commande = lines[1]  # La deuxième ligne est la commande
-    
+    reference = produit = d = d2 = d3 = g = g2 =g3 = None
+    #print(texte)
     for i, line in enumerate(lines):
+        
+        
+
         if line.startswith("Référence"):
             reference = lines[i + 1].strip()
         elif line.startswith("Produit"):
-            produit1 = lines[i + 1].strip()
-           
-    return commande, reference, produit1
+            produit = lines[i + 1].strip()
+        elif line.startswith("D"):
+            d = lines[i + 1].strip()
+            if "." in lines[i + 2]:  # Vérifier si la ligne contient une décimale
+                d2 = lines[i + 2]
+            if "." in lines[i + 3]:
+                d3 = lines[i + 3]
+        elif line.startswith("G"):
+            g = lines[i + 1].strip()
+            if "." in lines[i + 2]:
+                g2 = lines[i + 2]
+            if "." in lines[i + 3]:
+                d3 = lines[i + 3]
+    print(reference)
+    print(produit)
+    print(f"D {d},{d2},{d3}")
+    print(f"G :{g},{g2},{g3}")
+    return reference, produit, d,d2,d3, g,g2,g3
 
 
+def extraire_D_correction(texte):
+    lines = texte.split('\n')
+    #print("**********************************")
+    correction_D = []  # List to store decimals
+    for line in lines:
+        if line.startswith("D"):  # Check if the line starts with "D"
+            #print(line)  # Print the line with "D"
+            index = lines.index(line) + 1  # Get the index of the next line
+            while index < len(lines) and not lines[index].startswith(("D", "CT")):
+                # Iterate through subsequent lines until you encounter the next string
+                correction_D.append(lines[index])
+                #print(lines[index])  # Print the line
+                index += 1
+    #print("**********************************")
+    return correction_D
 
+def extraire_G_correction(texte):
+    lines = texte.split('\n')
+    #print(lines)
+    #print("**********************************")
+    correction_G = []  # List to store decimals
+    for line in lines:
+        if line.startswith("G"):  # Check if the line starts with "D"
+            #print(line)  # Print the line with "D"
+            index = lines.index(line) + 1  # Get the index of the next line
+            while index < len(lines) and not lines[index].startswith(("G", "CT")):
+                # Iterate through subsequent lines until you encounter the next string
+                correction_G.append(lines[index])
+                #print(lines[index])  # Print the line
+                index += 1
+    #print("**********************************")
+    return correction_G
 import openpyxl
 def data(request):
     chemin_fichier_excel = 'C:/Users/Amnzo/Desktop/jonathan/rania.xlsx'
@@ -176,7 +148,50 @@ def is_word_in_string(word, string):
 def extract_commands(content): 
     commands=content.split("Commande")
     return commands
-from django.db.models import DecimalField  
+from django.db.models import DecimalField
+
+#def extract_product_info(text):
+def extract_product_info(text):
+    pattern = r'Produit\s(.*?)\sD'  # Capture the part after "Produit" and before "D"
+    match = re.search(pattern, text)
+    if match:
+        product_name = match.group(1)
+        if "#" in product_name:
+            product_name = product_name.replace("#", "")  # Supprimer le caractère "#"
+        return product_name
+    else:
+        return None
+
+def extraire_second_decimal_apres_ET(texte):
+    lignes = texte.split('\n')
+    chiffres_apres_ET = []  # Initialiser la liste pour stocker les chiffres extraits
+    ajouter_ligne_suivante = False  # Variable pour suivre si la ligne suivante doit être ajoutée
+
+    for i, line in enumerate(lignes):
+        if line.startswith("ET"):
+            ajouter_ligne_suivante = True  # Activer l'ajout de la ligne suivante
+        elif ajouter_ligne_suivante:
+            chiffres_apres_ET.append(line)  # Ajouter la ligne suivante à la liste
+            ajouter_ligne_suivante = False  # Réinitialiser la variable après l'ajout de la ligne
+
+    #print(chiffres_apres_ET)
+    return chiffres_apres_ET
+                 
+           
+
+    return chiffres_apres_ET
+def extract_value_after_CT_ET(text):
+    
+    pattern = r'CT\s+ET\s+(\d+,\d+)'  # Expression régulière mise à jour pour capturer la valeur après "CT ET"
+    match = re.search(pattern, text)
+    if match:
+        value = match.group(1)
+        return value.replace(',', '.')  # Remplace les virgules par des points pour les nombres décimaux
+    else:
+        return None
+   
+
+    
 from PyPDF2 import PdfReader
 from io import BytesIO
 def read_pdf(request):
@@ -200,111 +215,73 @@ def read_pdf(request):
         commands = extract_commands(content)
         formatted_commands = []
         for command in commands[1:]:
-          
-            commande_decortiquer,reference_decortiquer, produit_1_decortiquer=decortiquer_commande(command)
-            
-
-           
-            D_decortiquer=extraire_informations_D(command)
-            G_decortiquer=extraire_informations_G(command)
-            
-            prix_d=0
-            prix_g=0
-            for cmd in command.split('\n'):
-                # Vérifier si la ligne contient uniquement "D"
-                if cmd.strip() == "D":
-                    prix_d=extraire_prix(command)[0]
-                if cmd.strip() == "G":
-                    prix_g=extraire_prix(command)[1]
-
+            print("oooooooooooooooooooooooooooooooooooooooo")
+            decortiquer_commande(command)
+            print("oooooooooooooooooooooooooooooooooooooooo")
            
             champs_excel_data = [field.name for field in ExcelData._meta.get_fields()]            
             champs_decimal = [field for field in champs_excel_data if isinstance(ExcelData._meta.get_field(field), DecimalField)]
             valuer=[""]
-            valuer_2=[""]
             for champ in champs_decimal:
-                if is_word_in_string(champ.upper(), produit_1_decortiquer.upper()):
+                if is_word_in_string(champ.upper(), command.split("|")[2].upper()):
                     valuer.append(champ)
                 else:
                     pass
-
-            for champ in champs_decimal:
-                if is_word_in_string(champ.upper(), produit_1_decortiquer.upper()):
-                    valuer_2.append(champ)
-                else:
-                    pass
-
-            produit_similaire_1 = trouver_produit_similaire(produit_1_decortiquer.replace('#', ''))
-            produit_similaire_2 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '')) 
-            product_1= ExcelData.objects.filter(reference=produit_similaire_1).first()
-            product_2= ExcelData.objects.filter(reference=produit_similaire_2).first()
+            produit = extract_product_info(command.split("|")[2])
+            prix_facture=0.0
+            if produit is None:
+                #print("NONE TYPEEEE")
+                c=command.split("|")[2]
+                produit=c.split("Produit")[1]
+            if produit :
+                produit_similaire = trouver_produit_similaire(produit)
+                prix_facture = extract_value_after_CT_ET(command.split("|")[2])
+              
+            product= ExcelData.objects.filter(reference=produit_similaire).first()
             prix_commande = None
-            prix_commande_2 = None
-            if product_1:
+            if product:
                 for champ in reversed(valuer):
-                    if hasattr(product_1, champ):
-                        prix_commande = getattr(product_1, champ)
+                    if hasattr(product, champ):
+                        prix_commande = getattr(product, champ)
                         break  
-            if  product_1 and product_1.classeur.nom=='SEIKO Classe A':
+            if  product and product.classeur.nom=='SEIKO Classe A':
                 valuer.append("HSC")
-                prix_commande=Decimal(product_1.HSC).quantize(Decimal('0.01'))      
-            if  product_1 and product_1.classeur.nom=='SEIKO Gamme ECO':
+                prix_commande=Decimal(product.HSC).quantize(Decimal('0.01'))      
+            if  product and product.classeur.nom=='SEIKO Gamme ECO':
                 valuer.append("PRIX ")
-                prix_commande=product_1.prix
-
-
-            #-------------------------
-
-            if product_2:
-                for champ in reversed(valuer):
-                    if hasattr(product_2, champ):
-                        prix_commande = getattr(product_2, champ)
-                        break  
-            if  product_2 and product_2.classeur.nom=='SEIKO Classe A':
-                valuer.append("HSC")
-                prix_commande_2=Decimal(product_2.HSC).quantize(Decimal('0.01'))      
-            if  product_2 and product_2.classeur.nom=='SEIKO Gamme ECO':
-                valuer.append("PRIX ")
-                prix_commande_2=product_2.prix
+                prix_commande=product.prix
             Diff = 0        
             try:
-                Diff = 22
+                Diff = Decimal(prix_facture) - Decimal(prix_commande)
                 #result = str(Diff)  # Convert Diff back to string for return
             except TypeError:
                 Diff = 0
 
-           
-          
-          
-            remise_entier_1=remise_produit_1=product_1.remise
-            remise_entier_2=remise_produit_2=product_2.remise
-            parties = str(remise_produit_1).split(".")
-            if len(parties) > 1 and int(parties[1]) == 0:
-                remise_entier = int(parties[0])
-            else:
-                remise_entier = remise_produit_1
-            taux_remise_decimal = Decimal(remise_entier) / Decimal(100)
-            prix_d = prix_d.replace(',', '.')
-            nouveau_montant=Decimal(prix_d)-Decimal(prix_d)*taux_remise_decimal
-           
+            prix_factures=extraire_second_decimal_apres_ET(command.split("|")[2])
+            prix_facture_d=prix_factures[0]
+            prix_facture_g=prix_factures[0]
+            if len(prix_factures)==2:
+                prix_facture_g=prix_factures[1]
+
+
+         
+            #print(command)
+            #if command.startswith("S00126538"):
+                #print(command)
+            
             formatted_command = {
                 
-                "Commande": commande_decortiquer ,#command.split("|")[0] , #.split("|")[0],
-                "Référence": reference_decortiquer.split("|")[0],
-                "Produit_1": produit_1_decortiquer,
-                "Produit_2_": produit_1_decortiquer,
-                "CorrectionD":D_decortiquer,
-                "CorrectionG":G_decortiquer, 
-                "Similaire_1": produit_similaire_1,
-                "Similaire_1": produit_similaire_2,
-                "Remise" : remise_entier,
-                "Apres_Remise" : nouveau_montant,
+                "Commande": command.split("|")[0] ,#command.split("|")[0] , #.split("|")[0],
+                "Référence": command.split("Référence")[1].split("Produit")[0].split("|")[0],
+                "Produit": produit,
+                "CorrectionD":extraire_D_correction(command.split("|")[2].split("ET")[0]),
+                "CorrectionG":extraire_G_correction(command.split("|")[2]),
+                "Similaire": produit_similaire, 
                 "Valeur" : valuer[-1],
                 "Prix" :prix_commande,
-                "Product_1":product_1,
-                "Product_2":product_2,
-                "Prix_Facture_D": prix_d,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
-                "Prix_Facture_G": prix_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
+                "Product":product,
+                "Prix_Facture_D": prix_facture_d,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
+                "Prix_Facture_G": prix_facture_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Diff": Diff
             
                 

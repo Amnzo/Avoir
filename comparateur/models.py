@@ -13,6 +13,7 @@ class Classeur(models.Model):
 class ExcelData(models.Model):
     classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE,default='')
     reference = models.CharField(max_length=100)
+    remise = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,default=0.0)
     UC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     HC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     ISC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -35,5 +36,5 @@ class ExcelData(models.Model):
 	
 
     def __str__(self):
-        return f"id: {self.id} reference : {self.reference}"
+        return f"id: {self.id} reference : {self.reference} remise : {self.remise}"
 

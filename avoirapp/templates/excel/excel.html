@@ -61,25 +61,34 @@
         <table id="table-data" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th scope="col">Commande</th>
-                    <th scope="col">Référence</th>
-                    <th scope="col">Produit</th>
-                    <th scope="col">Similaire</th>
+                    <th scope="col">Nº Commande</th>
+                    <th scope="col">Réf Client</th>
+                    <th scope="col">Réf Produit Facture</th>
+                    <th scope="col">Réf Produit Catalogue</th>
                     <th scope="col">Correction</th>
                     <th scope="col">Prix Catalogue</th>
                     <th scope="col">Prix Facture</th>
+                    <th scope="col">REMISE</th>
+                    <th scope="col">Prix Apres Remise</th>
                     <th scope="col">Difference</th>
                    
                 </tr>
             </thead>
             <tbody>
                 {% for c in formatted_commands %}
+                {%if c.CorrectionD %}
                 <tr>
-                    <td rowspan="2">{{ c.Commande }}</td>
-                    <td rowspan="2">{{ c.Référence }}</td>
-                    <td rowspan="2">{{ c.Produit }}</td>
-                    <td rowspan="2">{{ c.Similaire }}</td>
-                    <td>Droite: {{c.CorrectionD}} </td>
+                    <td >{{ c.Commande }}</td>
+                    <td >{{ c.Référence }}</td>
+                    <td >{{ c.Produit_1 }}</td>
+                    <td>{{ c.Similaire_1 }}</td>
+                <td>D : {{c.CorrectionD.0}} | {{c.CorrectionD.1}} 
+                            {% if c.CorrectionD.2 != "CT" %}
+                            |{{c.CorrectionD.2}} 
+                            {% endif %}
+                        
+                        
+                         </td>
                     <td class="{% if not c.Prix %}warning{% endif %}">
                         {% if c.Prix %}
                             {{ c.Prix }}
@@ -94,28 +103,49 @@
                             Non traiter
                         {% endif %}
                     </td>
+                    <td>{{c.Remise}}%</td>
+                    <td>{{c.Apres_Remise}}</td>
                     <td class="{% if c.Diff != 0 %}orange{% endif %}">{{ c.Diff }}</td>
                     
+                    
                 </tr>
+                {% endif %}
+                {%if c.CorrectionG%}
+
                 <tr>
-                    <td>Gauche: {{c.CorrectionD}}</td>
+
+                    <td >{{ c.Commande }}</td>
+                    <td >{{ c.Référence }}</td>
+                    <td >{{ c.Produit_1 }}</td>
+                    <td>{{ c.Similaire_1 }}</td>
+                    <td> G: {{c.CorrectionG.0}} | {{c.CorrectionG.1}} 
+                        {% if c.CorrectionG.2 != "CT" %}
+                        |{{c.CorrectionG.2}} 
+                        {% endif %}
+                    </td>
                     <td class="{% if not c.Prix %}warning{% endif %}">
                         {% if c.Prix %}
                             {{ c.Prix }}
                         {% else %}
-                            Non traiter
+                           -
                         {% endif %}
                     </td>
                     <td class="{% if not c.Prix_Facture_G %}warning{% endif %}">
                         {% if c.Prix_Facture_G %}
                             {{ c.Prix_Facture_G }}
                         {% else %}
-                            Non traiter
+                           -
                         {% endif %}
                     </td>
+                    <td>{{c.Remise}}%
+                        
+                    </td>
+                    <td>{{c.Apres_Remise}}</td>
                     <td class="{% if c.Diff != 0 %}orange{% endif %}">{{ c.Diff }}</td>
                     
                 </tr>
+                {% endif %}
+               
                 {% endfor %}
             </tbody>
         </table>
