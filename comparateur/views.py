@@ -53,12 +53,10 @@ def extraire_informations_G(texte):
    
     return informations_G
 
-def extraire_prix(texte):
-    #print(texte)
-   
+def extraire_prix2(texte):
     lines=texte.split("\n")
+    #print(texte)
     dernieres_decimales = []
-    # Diviser chaque ligne en parties distinctes et récupérer la dernière valeur décimale avant chaque "ET"
     ligne_precedente_ET = False
     for ligne in lines:
         if ligne.startswith("ET"):
@@ -73,7 +71,7 @@ def extraire_prix(texte):
                     dernieres_decimales.append(derniere_valeur)
                     break
             ligne_precedente_ET = False
-    #print("Dernières décimales extraites:", dernieres_decimales)
+    print("Dernières décimales extraites:", dernieres_decimales)
     return dernieres_decimales
 
 
@@ -82,10 +80,10 @@ def extraire_prix(texte):
 
 def decortiquer_commande(texte):
     lines = texte.split('\n')
-    print(texte)
+    #print(texte)
     # Initialiser les variables à None
 
-    commande = reference = produit1 = None
+    commande = reference = produit1 = option=None
     commande = lines[1]  # La deuxième ligne est la commande
     
     for i, line in enumerate(lines):
@@ -93,8 +91,11 @@ def decortiquer_commande(texte):
             reference = lines[i + 1].strip()
         elif line.startswith("Produit"):
             produit1 = lines[i + 1].strip()
+        elif line.startswith("Options"):
+            option=f"{lines[i + 1].strip()} - {lines[i + 2].strip()}"
+            
            
-    return commande, reference, produit1
+    return commande, reference, produit1,option
 
 
 
@@ -172,6 +173,54 @@ import re
 def is_word_in_string(word, string):
     pattern = re.compile(r'\b{}\b'.format(re.escape(word)), re.IGNORECASE)
     return re.search(pattern, string) is not None
+def extraire_prix(texte):
+    lines = texte.split("\n")
+    dernieres_decimales = []
+    ligne_precedente_ET = False
+    for ligne in lines:
+        if ligne.startswith("ET"):
+            ligne_precedente_ET = True
+        elif ligne_precedente_ET:
+            parties = ligne.split()
+            for partie in reversed(parties):
+                if partie.replace(',', '').replace('.', '').isdigit():
+                    derniere_valeur = partie
+                    dernieres_decimales.append(derniere_valeur)
+                    break
+            ligne_precedente_ET = False
+    return dernieres_decimales
+
+def analyser_commande(commande):
+    prices = extraire_prix(commande)
+    is_d = is_g = False
+
+    for cmd in commande.split('\n'):
+        # Vérifier si la ligne contient uniquement "D" ou "G"
+        if cmd.strip() == "D":
+            is_d = True
+        if cmd.strip() == "G":
+            is_g = True
+
+    prix_d = prix_g = 0
+
+    if len(prices) == 2:
+        prix_d = prices[0]
+        prix_g = prices[1]
+        #print(f" both {is_d} - {is_g} {prices}")
+
+    elif len(prices) == 1:
+        if is_d:
+            prix_d = prices[0]
+            #print(f" D {is_d} - {is_g} {prices}")
+        elif is_g:
+            prix_g = prices[0]
+            #print(f" G {is_d} - {is_g} {prices}")
+
+    print(f"Prix pour D: {prix_d}, Prix pour G: {prix_g}")
+    return prix_d,prix_g
+
+
+
 
 def extract_commands(content): 
     commands=content.split("Commande")
@@ -201,22 +250,16 @@ def read_pdf(request):
         formatted_commands = []
         for command in commands[1:]:
           
-            commande_decortiquer,reference_decortiquer, produit_1_decortiquer=decortiquer_commande(command)
+            commande_decortiquer,reference_decortiquer, produit_1_decortiquer,option=decortiquer_commande(command)
+            #print("Option")
+            #print(option)
             
 
            
             D_decortiquer=extraire_informations_D(command)
             G_decortiquer=extraire_informations_G(command)
+            prix_d,prix_g=analyser_commande(command)
             
-            prix_d=0
-            prix_g=0
-            for cmd in command.split('\n'):
-                # Vérifier si la ligne contient uniquement "D"
-                if cmd.strip() == "D":
-                    prix_d=extraire_prix(command)[0]
-                if cmd.strip() == "G":
-                    prix_g=extraire_prix(command)[1]
-
            
             champs_excel_data = [field.name for field in ExcelData._meta.get_fields()]            
             champs_decimal = [field for field in champs_excel_data if isinstance(ExcelData._meta.get_field(field), DecimalField)]
@@ -238,19 +281,20 @@ def read_pdf(request):
             produit_similaire_2 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '')) 
             product_1= ExcelData.objects.filter(reference=produit_similaire_1).first()
             product_2= ExcelData.objects.filter(reference=produit_similaire_2).first()
-            prix_commande = None
-            prix_commande_2 = None
+            prix_catalogue_1 = None
+            prix_catalogue_2 = None
             if product_1:
                 for champ in reversed(valuer):
                     if hasattr(product_1, champ):
-                        prix_commande = getattr(product_1, champ)
+                        prix_catalogue_1 = getattr(product_1, champ)
                         break  
             if  product_1 and product_1.classeur.nom=='SEIKO Classe A':
                 valuer.append("HSC")
-                prix_commande=Decimal(product_1.HSC).quantize(Decimal('0.01'))      
+                prix_catalogue_1=Decimal(product_1.HSC).quantize(Decimal('0.01'))      
             if  product_1 and product_1.classeur.nom=='SEIKO Gamme ECO':
                 valuer.append("PRIX ")
-                prix_commande=product_1.prix
+                prix_catalogue_1=Decimal(product_1.prix).quantize(Decimal('0.01'))  
+            #print(f"prix_catalogue_1 {prix_catalogue_1}")
 
 
             #-------------------------
@@ -258,34 +302,47 @@ def read_pdf(request):
             if product_2:
                 for champ in reversed(valuer):
                     if hasattr(product_2, champ):
-                        prix_commande = getattr(product_2, champ)
+                        prix_catalogue_2 = getattr(product_2, champ)
                         break  
             if  product_2 and product_2.classeur.nom=='SEIKO Classe A':
                 valuer.append("HSC")
-                prix_commande_2=Decimal(product_2.HSC).quantize(Decimal('0.01'))      
+                prix_catalogue_2=Decimal(product_2.HSC).quantize(Decimal('0.01'))      
             if  product_2 and product_2.classeur.nom=='SEIKO Gamme ECO':
                 valuer.append("PRIX ")
-                prix_commande_2=product_2.prix
-            Diff = 0        
-            try:
-                Diff = 22
-                #result = str(Diff)  # Convert Diff back to string for return
-            except TypeError:
-                Diff = 0
+                prix_catalogue_2=Decimal(product_2.prix).quantize(Decimal('0.01'))  
+                #print(f"prix_catalogue_2 {prix_catalogue_2}")
+            
 
            
           
-          
-            remise_entier_1=remise_produit_1=product_1.remise
-            remise_entier_2=remise_produit_2=product_2.remise
+            if product_1:
+                remise_entier_1=remise_produit_1=product_1.remise
+            if product_1:
+                remise_entier_2=remise_produit_2=product_2.remise
+            
+            
             parties = str(remise_produit_1).split(".")
             if len(parties) > 1 and int(parties[1]) == 0:
                 remise_entier = int(parties[0])
             else:
                 remise_entier = remise_produit_1
-            taux_remise_decimal = Decimal(remise_entier) / Decimal(100)
-            prix_d = prix_d.replace(',', '.')
-            nouveau_montant=Decimal(prix_d)-Decimal(prix_d)*taux_remise_decimal
+            taux_remise_decimal_d =Decimal(str(prix_d).replace(',', '.'))-((Decimal(remise_entier) / Decimal(100))*Decimal(str(prix_d).replace(',', '.')))
+            taux_remise_decimal_g =Decimal(str(prix_g).replace(',', '.'))-((Decimal(remise_entier) / Decimal(100))*Decimal(str(prix_g).replace(',', '.')))
+            #taux_remise_decimal = Decimal(remise_entier) / Decimal(100)  # Calcul du taux de remise en décimal
+            #montant_remise = Decimal(str(prix_d).replace(',', '.')) - taux_remise_decimal
+
+            Diff_d=Diff_g = 0        
+            try:
+                Diff_d = (prix_catalogue_1-taux_remise_decimal_d ).quantize(Decimal('0.01'))
+                #result = str(Diff)  # Convert Diff back to string for return
+            except TypeError:
+                Diff_d = 0
+            try:
+                Diff_g = (prix_catalogue_2-taux_remise_decimal_g).quantize(Decimal('0.01'))
+                #result = str(Diff)  # Convert Diff back to string for return
+            except TypeError:
+                Diff_g = 0
+            
            
             formatted_command = {
                 
@@ -298,14 +355,18 @@ def read_pdf(request):
                 "Similaire_1": produit_similaire_1,
                 "Similaire_1": produit_similaire_2,
                 "Remise" : remise_entier,
-                "Apres_Remise" : nouveau_montant,
+                "Apres_Remise_d" : taux_remise_decimal_d.quantize(Decimal('0.01')),
+                "Apres_Remise_g" : taux_remise_decimal_g.quantize(Decimal('0.01')),
                 "Valeur" : valuer[-1],
-                "Prix" :prix_commande,
+                "Prix_catalogue_1" :prix_catalogue_1,
+                "Prix_catalogue_2" :prix_catalogue_2,
                 "Product_1":product_1,
                 "Product_2":product_2,
                 "Prix_Facture_D": prix_d,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Prix_Facture_G": prix_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
-                "Diff": Diff
+                "Diff_d":Diff_d,
+                "Diff_g":Diff_g,
+                "Option":option
             
                 
                 
@@ -376,28 +437,86 @@ from openpyxl import Workbook
 from bs4 import BeautifulSoup
 import io
 
-def export_to_excel(request):
-    # Récupérer les données du tableau HTML depuis la requête POST
-    table_data = request.POST.get('table_data', '')
+from openpyxl import Workbook
+from django.http import HttpResponse
 
-    # Analyser le HTML pour extraire les données de la table
-    soup = BeautifulSoup(table_data, 'html.parser')
+# Fonction pour exporter les données vers Excel
+from openpyxl import Workbook
+from django.http import HttpResponse
+from bs4 import BeautifulSoup
+
+# Fonction pour extraire les données du tableau HTML
+# Fonction pour extraire les données du tableau HTML
+def extract_table_data(html_data):
+    # Initialiser une liste pour stocker les données du tableau
+    table_data = []
+
+    # Utiliser BeautifulSoup pour parser le HTML
+    soup = BeautifulSoup(html_data, 'html.parser')
+
+    # Trouver le premier tableau dans le HTML
     table = soup.find('table')
 
-    # Créer un classeur Excel et ajouter les données de la table
+    # Si un tableau est trouvé
+    if table:
+        # Trouver toutes les lignes dans le tableau
+        rows = table.find_all('tr')
+
+        # Pour chaque ligne dans le tableau
+        for row in rows:
+            # Trouver toutes les cellules dans la ligne
+            cells = row.find_all(['td', 'th'])
+
+            # Extraire le texte de chaque cellule et ajouter à la liste des données du tableau
+            row_data = [cell.get_text(strip=True) for cell in cells]
+
+            # Vérifier si la colonne "Correction" est présente et la nettoyer
+            if "Correction" in row_data:
+                correction_index = row_data.index("Correction") + 1
+                row_data[correction_index] = row_data[correction_index].strip()
+
+            table_data.append(row_data)
+
+    return table_data
+
+
+# Fonction pour exporter les données vers Excel
+def export_to_excel(request):
+    # Récupérer les données du formulaire POST
+    table_data = request.POST.get('table_data')
+
+    # Extraire les données du tableau HTML
+    data = extract_table_data(table_data)
+
+    # Créer un nouveau classeur Excel
     wb = Workbook()
     ws = wb.active
-    for row_idx, row in enumerate(table.find_all('tr')):
-        for col_idx, cell in enumerate(row.find_all(['td', 'th'])):
-            ws.cell(row=row_idx + 1, column=col_idx + 1, value=cell.text)
 
-    # Créer une réponse HTTP pour le fichier Excel
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="table_data.xlsx"'
+    # Ajouter les données au classeur Excel
+    for row in data:
+        ws.append(row)
 
-    # Enregistrer le classeur Excel dans la réponse HTTP
-    wb.save(response)
+    # Définir la largeur de colonne pour chaque colonne
+    for col in ws.columns:
+        max_length = 0
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws.column_dimensions[col[0].column_letter].width = adjusted_width
 
+    # Enregistrer le classeur Excel dans un objet BytesIO
+    from io import BytesIO
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    # Retourner une réponse de téléchargement du fichier Excel
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="commandes.xlsx"'
     return response
 
 

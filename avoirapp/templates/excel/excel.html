@@ -65,6 +65,7 @@
                     <th scope="col">Réf Client</th>
                     <th scope="col">Réf Produit Facture</th>
                     <th scope="col">Réf Produit Catalogue</th>
+                    <th scope="col">Options</th>
                     <th scope="col">Correction</th>
                     <th scope="col">Prix Catalogue</th>
                     <th scope="col">Prix Facture</th>
@@ -82,30 +83,28 @@
                     <td >{{ c.Référence }}</td>
                     <td >{{ c.Produit_1 }}</td>
                     <td>{{ c.Similaire_1 }}</td>
-                <td>D : {{c.CorrectionD.0}} | {{c.CorrectionD.1}} 
-                            {% if c.CorrectionD.2 != "CT" %}
-                            |{{c.CorrectionD.2}} 
-                            {% endif %}
+                    <td>{{ c.Option }}</td>
+                <td>D : {{c.CorrectionD.0}}|{{c.CorrectionD.1}}{% if c.CorrectionD.2 != "CT" %}|{{c.CorrectionD.2}} {% endif %}
                         
                         
                          </td>
-                    <td class="{% if not c.Prix %}warning{% endif %}">
-                        {% if c.Prix %}
-                            {{ c.Prix }}
+                    <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
+                        {% if c.Prix_catalogue_1 %}
+                            {{ c.Prix_catalogue_1 }}
                         {% else %}
-                            Non traiter
+                           -
                         {% endif %}
                     </td>
                     <td class="{% if not c.Prix_Facture_D %}warning{% endif %}">
                         {% if c.Prix_Facture_D %}
                             {{ c.Prix_Facture_D }}
                         {% else %}
-                            Non traiter
+                           -
                         {% endif %}
                     </td>
                     <td>{{c.Remise}}%</td>
-                    <td>{{c.Apres_Remise}}</td>
-                    <td class="{% if c.Diff != 0 %}orange{% endif %}">{{ c.Diff }}</td>
+                    <td>{{c.Apres_Remise_d}}</td>
+                    <td class="{% if c.Diff_d != 0 %}orange{% endif %}">{{ c.Diff_d }}</td>
                     
                     
                 </tr>
@@ -118,14 +117,12 @@
                     <td >{{ c.Référence }}</td>
                     <td >{{ c.Produit_1 }}</td>
                     <td>{{ c.Similaire_1 }}</td>
-                    <td> G: {{c.CorrectionG.0}} | {{c.CorrectionG.1}} 
-                        {% if c.CorrectionG.2 != "CT" %}
-                        |{{c.CorrectionG.2}} 
-                        {% endif %}
+                    <td>{{ c.Option }}</td>
+                    <td> G: {{c.CorrectionG.0}}|{{c.CorrectionG.1}}{% if c.CorrectionG.2 != "CT" %}|{{c.CorrectionG.2}}{% endif %}
                     </td>
-                    <td class="{% if not c.Prix %}warning{% endif %}">
-                        {% if c.Prix %}
-                            {{ c.Prix }}
+                    <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
+                        {% if c.Prix_catalogue_2 %}
+                            {{ c.Prix_catalogue_2 }}
                         {% else %}
                            -
                         {% endif %}
@@ -140,8 +137,8 @@
                     <td>{{c.Remise}}%
                         
                     </td>
-                    <td>{{c.Apres_Remise}}</td>
-                    <td class="{% if c.Diff != 0 %}orange{% endif %}">{{ c.Diff }}</td>
+                    <td>{{c.Apres_Remise_g}}</td>
+                    <td class="{% if c.Diff_g != 0 %}orange{% endif %}">{{ c.Diff_g }}</td>
                     
                 </tr>
                 {% endif %}
