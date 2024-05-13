@@ -62,7 +62,7 @@
             <thead>
                 <tr>
                     <th scope="col">Nº Commande</th>
-                    <th scope="col">Réf Client</th>
+                    <th scope="col" onclick="sortTableByRefClient()">Réf Client</th>
                     <th scope="col">Réf Produit Facture</th>
                     <th scope="col">Réf Produit Catalogue</th>
                     <th scope="col">Options</th>
@@ -176,6 +176,30 @@
             document.body.appendChild(form);
             form.submit();
         }
+
+        function sortTableByRefClient() {
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("table-data");
+    switching = true;
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("td")[1]; // Index 1 correspond à la colonne "Réf Client"
+            y = rows[i + 1].getElementsByTagName("td")[1];
+            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                shouldSwitch = true;
+                break;
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
+    }
+}
+
     </script>
 
 </body>

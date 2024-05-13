@@ -71,7 +71,7 @@ def extraire_prix2(texte):
                     dernieres_decimales.append(derniere_valeur)
                     break
             ligne_precedente_ET = False
-    print("Dernières décimales extraites:", dernieres_decimales)
+    #print("Dernières décimales extraites:", dernieres_decimales)
     return dernieres_decimales
 
 
@@ -92,7 +92,52 @@ def decortiquer_commande(texte):
         elif line.startswith("Produit"):
             produit1 = lines[i + 1].strip()
         elif line.startswith("Options"):
-            option=f"{lines[i + 1].strip()} - {lines[i + 2].strip()}"
+            option = f"{lines[i + 1].strip()}-{lines[i + 2].strip()}-{lines[i + 3].strip()}"
+            
+            # Vérifier si les lignes 4, 5, 6, 7 existent et les ajouter à l'option si elles existent
+            if i + 4 < len(lines) and not lines[i + 4].startswith("Page") and not "Numéro" in lines[i + 4]:
+                option += f"-{lines[i + 4].strip()}"
+                if lines[i + 4].startswith("Page"):
+                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
+                if "Numéro" in lines[i + 4]:
+                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
+                    
+            if i + 5 < len(lines) and not lines[i + 5].startswith("Page") and not "Numéro" in lines[i + 5]:
+                option += f"-{lines[i + 5].strip()}"
+                if lines[i + 5].startswith("Page"):
+                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
+                if "Numéro" in lines[i + 5]:
+                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
+                    
+            if i + 6 < len(lines) and not lines[i + 6].startswith("Page") and not "Numéro" in lines[i + 6]:
+                option += f"-{lines[i + 6].strip()}"
+                if lines[i + 6].startswith("Page"):
+                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
+                if "Numéro" in lines[i + 6]:
+                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
+                    
+            if i + 7 < len(lines) and not lines[i + 7].startswith("Page") and  not "Numéro" in lines[i + 7]:
+                option += f"-{lines[i + 7].strip()}"
+                if "Numéro" in lines[i + 7]:
+                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
+                if lines[i + 7].startswith("Numéro"):
+                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
+                    
+            if i + 8 < len(lines) and not lines[i + 8].startswith("Page") and not "Numéro" in lines[i + 8]:
+                option += f"-{lines[i + 8].strip()}"
+                if lines[i + 8].startswith("Page"):
+                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
+                if "Numéro" in lines[i + 8]:
+                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
+                    
+            if i + 9 < len(lines) and not lines[i + 9].startswith("Page") and not "Numéro" in  lines[i + 9]:
+                option += f"-{lines[i + 9].strip()}"
+                if lines[i + 9].startswith("Page"):
+                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
+                if "Numéro" in lines[i + 9]:
+                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
+
+
             
            
     return commande, reference, produit1,option
@@ -163,12 +208,23 @@ def trouver_produit_similaire(reference):
             if mot in mots_produit:
                 mots_communs += 1
         
+        # Vérifier si le produit contient "kids" et la référence donnée ne contient pas "kids"
+        if "KIDS" in produit.reference.upper() and "KIDS" not in reference.upper():
+            continue  # Passer au produit suivant
+        
         # Mettre à jour la référence du produit similaire si le nombre de mots communs est le plus grand
         if mots_communs > max_mots_communs:
             max_mots_communs = mots_communs
+           
             produit_similaire = produit.reference
 
     return produit_similaire
+
+
+
+
+
+
 import re
 def is_word_in_string(word, string):
     pattern = re.compile(r'\b{}\b'.format(re.escape(word)), re.IGNORECASE)
@@ -216,7 +272,7 @@ def analyser_commande(commande):
             prix_g = prices[0]
             #print(f" G {is_d} - {is_g} {prices}")
 
-    print(f"Prix pour D: {prix_d}, Prix pour G: {prix_g}")
+    #print(f"Prix pour D: {prix_d}, Prix pour G: {prix_g}")
     return prix_d,prix_g
 
 
@@ -277,8 +333,8 @@ def read_pdf(request):
                 else:
                     pass
 
-            produit_similaire_1 = trouver_produit_similaire(produit_1_decortiquer.replace('#', ''))
-            produit_similaire_2 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '')) 
+            produit_similaire_1 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '').replace('GRIS 85%',''))
+            produit_similaire_2 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '').replace('GRIS 85%','')) 
             product_1= ExcelData.objects.filter(reference=produit_similaire_1).first()
             product_2= ExcelData.objects.filter(reference=produit_similaire_2).first()
             prix_catalogue_1 = None
@@ -347,7 +403,7 @@ def read_pdf(request):
             formatted_command = {
                 
                 "Commande": commande_decortiquer ,#command.split("|")[0] , #.split("|")[0],
-                "Référence": reference_decortiquer.split("|")[0],
+                "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
                 "Produit_2_": produit_1_decortiquer,
                 "CorrectionD":D_decortiquer,
