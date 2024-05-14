@@ -65,7 +65,7 @@
                     <th scope="col" onclick="sortTableByRefClient()">Réf Client</th>
                     <th scope="col">Réf Produit Facture</th>
                     <th scope="col">Réf Produit Catalogue</th>
-                    <th scope="col">Options</th>
+                    <!-- <th scope="col">Options</th> -->
                     <th scope="col">Correction</th>
                     <th scope="col">Prix Catalogue</th>
                     <th scope="col">Prix Facture</th>
@@ -83,7 +83,7 @@
                     <td >{{ c.Référence }}</td>
                     <td >{{ c.Produit_1 }}</td>
                     <td>{{ c.Similaire_1 }}</td>
-                    <td>{{ c.Option }}</td>
+                    <!-- <td>{{ c.Option }}</td> -->
                 <td>D : {{c.CorrectionD.0}}|{{c.CorrectionD.1}}{% if c.CorrectionD.2 != "CT" %}|{{c.CorrectionD.2}} {% endif %}
                         
                         
@@ -117,7 +117,7 @@
                     <td >{{ c.Référence }}</td>
                     <td >{{ c.Produit_1 }}</td>
                     <td>{{ c.Similaire_1 }}</td>
-                    <td>{{ c.Option }}</td>
+                    <!-- <td>{{ c.Option }}</td> -->
                     <td> G: {{c.CorrectionG.0}}|{{c.CorrectionG.1}}{% if c.CorrectionG.2 != "CT" %}|{{c.CorrectionG.2}}{% endif %}
                     </td>
                     <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
@@ -142,7 +142,40 @@
                     
                 </tr>
                 {% endif %}
-               
+                {% if  c.Option %}
+                <tr>
+                    <td >-</td>
+                    <td >-</td>
+                    <td >{{ c.Option.split|first }}</td>
+                    <td >{{ c.Option }}</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                   
+                    <td> {{ c.Option1 }}</td>
+                    <td> {{ c.Option2 }}</td>
+                    <td>{{ c.Some1 }}</td>
+                  
+                    {% if c.Option3 == "Détourage" %}
+
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>{{ c.Option3 }}</td>
+                        <td>{{ c.Option3 }}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>{{ c.Option4 }}</td>
+                        <td>{{ c.Option5 }}</td>
+                        <td>{{ c.Some2 }}</td>
+                        
+                    </tr>
+                    {% endif %}
+
+                   
+                </tr>
+                {% endif%}
                 {% endfor %}
             </tbody>
         </table>

@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
 import PyPDF2
 from django.http import JsonResponse,HttpResponse
@@ -85,62 +85,37 @@ def decortiquer_commande(texte):
 
     commande = reference = produit1 = option=None
     commande = lines[1]  # La deuxième ligne est la commande
-    
+    option=option1=option2=option3=option4=option5=some1=some2=None
     for i, line in enumerate(lines):
         if line.startswith("Référence"):
             reference = lines[i + 1].strip()
         elif line.startswith("Produit"):
             produit1 = lines[i + 1].strip()
         elif line.startswith("Options"):
-            option = f"{lines[i + 1].strip()}-{lines[i + 2].strip()}-{lines[i + 3].strip()}"
+            option=f"{lines[i + 1].strip()}"
+            option1 = f"{lines[i + 2].strip()}"
+            option2 = f"{lines[i + 3].strip()}"
+            option3=f"{lines[i + 4].strip()}"
+           
+            if i + 5 < len(lines):
+                option4 = lines[i + 5].strip()
+            if i + 6 < len(lines):
+                option5 = lines[i + 6].strip()
+           # Decimal(str(prix_d).replace(',', '.'))
+            some1 = Decimal(str(option1).replace(',', '.'))-Decimal(str(option2).replace(',', '.'))
+            if option4 is not None and option5 is not None:
+                try:
+                    option4_decimal = Decimal(option4.replace(',', '.'))
+                    option5_decimal = Decimal(option5.replace(',', '.'))
+                    some2 = option4_decimal - option5_decimal
+                except InvalidOperation:
+                    some2 = Decimal(0)
+            else:
+                some2 = Decimal(0)
             
-            # Vérifier si les lignes 4, 5, 6, 7 existent et les ajouter à l'option si elles existent
-            if i + 4 < len(lines) and not lines[i + 4].startswith("Page") and not "Numéro" in lines[i + 4]:
-                option += f"-{lines[i + 4].strip()}"
-                if lines[i + 4].startswith("Page"):
-                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
-                if "Numéro" in lines[i + 4]:
-                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
-                    
-            if i + 5 < len(lines) and not lines[i + 5].startswith("Page") and not "Numéro" in lines[i + 5]:
-                option += f"-{lines[i + 5].strip()}"
-                if lines[i + 5].startswith("Page"):
-                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
-                if "Numéro" in lines[i + 5]:
-                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
-                    
-            if i + 6 < len(lines) and not lines[i + 6].startswith("Page") and not "Numéro" in lines[i + 6]:
-                option += f"-{lines[i + 6].strip()}"
-                if lines[i + 6].startswith("Page"):
-                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
-                if "Numéro" in lines[i + 6]:
-                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
-                    
-            if i + 7 < len(lines) and not lines[i + 7].startswith("Page") and  not "Numéro" in lines[i + 7]:
-                option += f"-{lines[i + 7].strip()}"
-                if "Numéro" in lines[i + 7]:
-                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
-                if lines[i + 7].startswith("Numéro"):
-                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
-                    
-            if i + 8 < len(lines) and not lines[i + 8].startswith("Page") and not "Numéro" in lines[i + 8]:
-                option += f"-{lines[i + 8].strip()}"
-                if lines[i + 8].startswith("Page"):
-                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
-                if "Numéro" in lines[i + 8]:
-                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
-                    
-            if i + 9 < len(lines) and not lines[i + 9].startswith("Page") and not "Numéro" in  lines[i + 9]:
-                option += f"-{lines[i + 9].strip()}"
-                if lines[i + 9].startswith("Page"):
-                    break  # Si la ligne suivante commence par "Page", sortir de la boucle
-                if "Numéro" in lines[i + 9]:
-                    break  # Si la ligne suivante commence par "Numéro", sortir de la boucle
-
-
             
            
-    return commande, reference, produit1,option
+    return commande, reference, produit1,option,option1,option2,option3,option4,option5,some1,some2
 
 
 
@@ -306,7 +281,7 @@ def read_pdf(request):
         formatted_commands = []
         for command in commands[1:]:
           
-            commande_decortiquer,reference_decortiquer, produit_1_decortiquer,option=decortiquer_commande(command)
+            commande_decortiquer,reference_decortiquer, produit_1_decortiquer,option,option1,option2,option3,option4,option5,some1,some2=decortiquer_commande(command)
             #print("Option")
             #print(option)
             
@@ -422,7 +397,15 @@ def read_pdf(request):
                 "Prix_Facture_G": prix_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Diff_d":Diff_d,
                 "Diff_g":Diff_g,
-                "Option":option
+                "Option":option,
+                "Option1":option1,
+                "Option2":option2,
+                "Option3":option3,
+                "Option4":option4,
+                "Option5":option5,
+                "Some1":some1,
+                "Some2":some2
+
             
                 
                 
