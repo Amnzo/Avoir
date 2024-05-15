@@ -70,7 +70,7 @@
                     <th scope="col">Prix Catalogue</th>
                     <th scope="col">Prix Facture</th>
                     <th scope="col">REMISE</th>
-                    <th scope="col">Prix Apres Remise</th>
+                    <!-- <th scope="col">Prix Apres Remise</th> -->
                     <th scope="col">Difference</th>
                    
                 </tr>
@@ -103,7 +103,7 @@
                         {% endif %}
                     </td>
                     <td>{{c.Remise}}%</td>
-                    <td>{{c.Apres_Remise_d}}</td>
+                    <!-- <td>{{c.Apres_Remise_d}}</td> -->
                     <td class="{% if c.Diff_d != 0 %}orange{% endif %}">{{ c.Diff_d }}</td>
                     
                     
@@ -137,7 +137,7 @@
                     <td>{{c.Remise}}%
                         
                     </td>
-                    <td>{{c.Apres_Remise_g}}</td>
+                    <!-- <td>{{c.Apres_Remise_g}}</td> -->
                     <td class="{% if c.Diff_g != 0 %}orange{% endif %}">{{ c.Diff_g }}</td>
                     
                 </tr>
@@ -148,14 +148,16 @@
                     <td >-</td>
                     <td >{{ c.Option.split|first }}</td>
                     <td >{{ c.Option }}</td>
-                    <td>-</td>
+                    <!-- <td>-</td> -->
                     <td>-</td>
                   
                    
                     <td> {{ c.Option1 }}</td>
-                    <td>{{c.Remise}}%</td>
+                  
                     <td> {{ c.Option2 }}</td>
-                    <td>{{ c.Some1 }}</td>
+                    <td>-</td>
+                   
+                    <td class="{% if c.Some1 != 0 %}orange{% endif %}">{{ c.Some1 }}</td>
                   
                     {% if c.Option3 == "Détourage" %}
 
@@ -164,13 +166,15 @@
                         <td>-</td>
                         <td>{{ c.Option3 }}</td>
                         <td>{{ c.Option3 }}</td>
-                        <td>-</td>
+                        <!-- <td>-</td> -->
                         <td>-</td>
                         
                         <td>{{ c.Option4 }}</td>
-                        <td>{{c.Remise}}%</td>
+                       
                         <td>{{ c.Option5 }}</td>
-                        <td>{{ c.Some2 }}</td>
+                        <td>-</td>
+                      
+                        <td class="{% if c.Some2 != 0 %}orange{% endif %}">{{ c.Some2 }}</td>
                         
                     </tr>
                     {% endif %}

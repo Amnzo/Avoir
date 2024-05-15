@@ -53,26 +53,6 @@ def extraire_informations_G(texte):
    
     return informations_G
 
-def extraire_prix2(texte):
-    lines=texte.split("\n")
-    #print(texte)
-    dernieres_decimales = []
-    ligne_precedente_ET = False
-    for ligne in lines:
-        if ligne.startswith("ET"):
-            ligne_precedente_ET = True
-        elif ligne_precedente_ET:
-            parties = ligne.split()
-            #print("Parties:", parties)
-            for partie in reversed(parties):
-                if partie.replace(',', '').replace('.', '').isdigit():
-                    derniere_valeur = partie
-                    #print("Dernière valeur décimale trouvée:", derniere_valeur)
-                    dernieres_decimales.append(derniere_valeur)
-                    break
-            ligne_precedente_ET = False
-    #print("Dernières décimales extraites:", dernieres_decimales)
-    return dernieres_decimales
 
 
     
@@ -204,25 +184,66 @@ import re
 def is_word_in_string(word, string):
     pattern = re.compile(r'\b{}\b'.format(re.escape(word)), re.IGNORECASE)
     return re.search(pattern, string) is not None
-def extraire_prix(texte):
+
+
+def extraire_prix2(texte):
     lines = texte.split("\n")
-    dernieres_decimales = []
+    dernier_decimal_apres_ET = []
     ligne_precedente_ET = False
-    for ligne in lines:
+    
+    for i, ligne in enumerate(lines):
         if ligne.startswith("ET"):
-            ligne_precedente_ET = True
-        elif ligne_precedente_ET:
             parties = ligne.split()
-            for partie in reversed(parties):
-                if partie.replace(',', '').replace('.', '').isdigit():
-                    derniere_valeur = partie
-                    dernieres_decimales.append(derniere_valeur)
+            derniers_decimaux = []
+            for j in range(i + 1, len(lines)):
+                parties_suivantes = lines[j].split()
+                for partie in reversed(parties_suivantes):
+                    if partie.replace(',', '').replace('.', '').isdigit():
+                        dernier_dec = partie.replace(',', '.')  # Assurez-vous que la virgule est au format décimal
+                        derniers_decimaux.append(dernier_dec)
+                        break
+                else:
+                    # Si aucun nombre n'est trouvé dans cette ligne, arrêtez la boucle
                     break
-            ligne_precedente_ET = False
-    return dernieres_decimales
+            dernier_decimal_apres_ET.append(derniers_decimaux)
+    #print(dernier_decimal_apres_ET)
+              
+    return dernier_decimal_apres_ET
+
+# def extraire_prix(texte):
+#     lines = texte.split("\n")
+#     #print(lines)
+#     dernier_decimal_apres_ET = []
+#     ligne_precedente_ET = False
+    
+#     for i, ligne in enumerate(lines):
+#         if ligne.startswith("ET"):
+#             ligne_precedente_ET = True
+#         elif ligne_precedente_ET:
+#             parties = ligne.split()
+#             dernier_dec = None
+#             for j in range(i, len(lines)):
+#                 parties_suivantes = lines[j].split()
+#                 for partie in reversed(parties_suivantes):
+#                     if partie.replace(',', '').replace('.', '').isdigit():
+#                         dernier_dec = partie
+#                         break
+#                 if dernier_dec:
+#                     break
+#             if dernier_dec:
+#                 dernier_dec = dernier_dec.replace(',', '.')  # Assurez-vous que la virgule est au format décimal
+#                 dernier_decimal_apres_ET.append(dernier_dec)
+#             else:
+#                 dernier_decimal_apres_ET.append("Pas de décimal trouvé")
+#             ligne_precedente_ET = False
+              
+#     return dernier_decimal_apres_ET
+
 
 def analyser_commande(commande):
-    prices = extraire_prix(commande)
+    #prices = extraire_prix(commande)
+    prices_ = extraire_prix2(commande)
+    print(prices_)
     is_d = is_g = False
 
     for cmd in commande.split('\n'):
@@ -234,17 +255,17 @@ def analyser_commande(commande):
 
     prix_d = prix_g = 0
 
-    if len(prices) == 2:
-        prix_d = prices[0]
-        prix_g = prices[1]
+    if len(prices_) == 2:
+        prix_d = prices_[0][-1]
+        prix_g = prices_[1][-1]
         #print(f" both {is_d} - {is_g} {prices}")
 
-    elif len(prices) == 1:
+    elif len(prices_) == 1:
         if is_d:
-            prix_d = prices[0]
+            prix_d = prices_[0][-1]
             #print(f" D {is_d} - {is_g} {prices}")
         elif is_g:
-            prix_g = prices[0]
+            prix_g = prices_[0][-1]
             #print(f" G {is_d} - {is_g} {prices}")
 
     #print(f"Prix pour D: {prix_d}, Prix pour G: {prix_g}")
@@ -290,6 +311,7 @@ def read_pdf(request):
             D_decortiquer=extraire_informations_D(command)
             G_decortiquer=extraire_informations_G(command)
             prix_d,prix_g=analyser_commande(command)
+            extraire_prix2(command)
             
            
             champs_excel_data = [field.name for field in ExcelData._meta.get_fields()]            
@@ -489,7 +511,6 @@ from bs4 import BeautifulSoup
 def extract_table_data(html_data):
     # Initialiser une liste pour stocker les données du tableau
     table_data = []
-
     # Utiliser BeautifulSoup pour parser le HTML
     soup = BeautifulSoup(html_data, 'html.parser')
 
