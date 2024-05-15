@@ -10,28 +10,31 @@ class Classeur(models.Model):
     def __str__(self):
         return f"id: {self.id}-{self.nom}"
 
+
+
 class ExcelData(models.Model):
-    classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE,default='')
+    classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE, default='')
     reference = models.CharField(max_length=100)
-    remise = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,default=0.0)
-    UC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    HC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    ISC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SCC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SRC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SRB = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SRCUV = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SRBUV = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    RCC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    HSC = models.CharField(max_length=100, null=True, blank=True)
-    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SUNHC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SUNSCC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    POLA_UC=models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    POLA_ISC=models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)	
-    prix = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    remise = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    UC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    HC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    ISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SCC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SRC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SRB = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SRCUV = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SRBUV = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    RCC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    HSC = models.CharField(max_length=100, default='')
+    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SUNHC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SUNSCC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    POLA_UC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    POLA_ISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    prix = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
 
 	
 

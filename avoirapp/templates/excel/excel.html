@@ -81,7 +81,7 @@
                 <tr>
                     <td >{{ c.Commande }}</td>
                     <td >{{ c.Référence }}</td>
-                    <td >{{ c.Produit_1 }}</td>
+                    <td >{{ c.Produit_1 }} ---{{c.Valeur}}</td>
                     <td>{{ c.Similaire_1 }}</td>
                     <!-- <td>{{ c.Option }}</td> -->
                 <td>D : {{c.CorrectionD.0}}|{{c.CorrectionD.1}}{% if c.CorrectionD.2 != "CT" %}|{{c.CorrectionD.2}} {% endif %}
@@ -89,11 +89,7 @@
                         
                          </td>
                     <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
-                        {% if c.Prix_catalogue_1 %}
-                            {{ c.Prix_catalogue_1 }}
-                        {% else %}
-                           -
-                        {% endif %}
+                            {{ c.Prix_catalogue_1 }}     
                     </td>
                     <td class="{% if not c.Prix_Facture_D %}warning{% endif %}">
                         {% if c.Prix_Facture_D %}
@@ -115,17 +111,15 @@
 
                     <td >{{ c.Commande }}</td>
                     <td >{{ c.Référence }}</td>
-                    <td >{{ c.Produit_1 }}</td>
+                    <td >{{ c.Produit_1 }}---{{c.Valeur}}</td>
                     <td>{{ c.Similaire_1 }}</td>
                     <!-- <td>{{ c.Option }}</td> -->
                     <td> G: {{c.CorrectionG.0}}|{{c.CorrectionG.1}}{% if c.CorrectionG.2 != "CT" %}|{{c.CorrectionG.2}}{% endif %}
                     </td>
                     <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
-                        {% if c.Prix_catalogue_2 %}
-                            {{ c.Prix_catalogue_2 }}
-                        {% else %}
-                           -
-                        {% endif %}
+                       
+                            {{ c.Prix_catalogue_1 }}
+                        
                     </td>
                     <td class="{% if not c.Prix_Facture_G %}warning{% endif %}">
                         {% if c.Prix_Facture_G %}

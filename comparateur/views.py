@@ -102,8 +102,8 @@ def decortiquer_commande(texte):
 import openpyxl
 def data(request):
     chemin_fichier_excel = 'C:/Users/Amnzo/Desktop/jonathan/rania.xlsx'
-    nom_feuille = 'SEIKO Gamme ECO'
-    classeur_parent=Classeur.objects.get(pk=4)
+    nom_feuille = 'SEIKO Offre 2e paire'
+    classeur_parent=Classeur.objects.get(pk=3)
 
     classeur = openpyxl.load_workbook(chemin_fichier_excel)
     feuille = classeur[nom_feuille]
@@ -111,10 +111,9 @@ def data(request):
     i=0
     for ligne in feuille.iter_rows(values_only=True):
         i=i+1
-        #print("ligne:", ligne)  # Add this line for debugging
+        print("ligne:", ligne)  # Add this line for debugging
         p=ExcelData()
         p.classeur=classeur_parent
-        
         p.reference=ligne[0]
         #p.HSC=Decimal(ligne[4]) if ligne[4] is not None else Decimal(0)
         # p.UC=Decimal(ligne[1]) if ligne[1] is not None else Decimal(0)
@@ -125,22 +124,22 @@ def data(request):
         # p.SRB=Decimal(ligne[6]) if ligne[6] is not None else Decimal(0)
         # p.SRCUV=Decimal(ligne[7]) if ligne[7] is not None else Decimal(0)
         # p.SRBUV=Decimal(ligne[8]) if ligne[8] is not None else Decimal(0)
-        # p.RCC=Decimal(ligne[9]) if ligne[9] is not None else Decimal()
-        # seiko 2PAIRE
-        # p.UC=Decimal(ligne[1]) if ligne[1] is not None else Decimal(0)
-        # p.HC=Decimal(ligne[2]) if ligne[2] is not None else Decimal(0)
-        # p.SCC=Decimal(ligne[3]) if ligne[3] is not None else Decimal(0)
-        # p.SUNUC=Decimal(ligne[4]) if ligne[4] is not None else Decimal(0)
-        # p.SUNHC=Decimal(ligne[5]) if ligne[5] is not None else Decimal(0)
-        # p.SUNISC=Decimal(ligne[6]) if ligne[6] is not None else Decimal(0)
-        # p.POLA_UC=Decimal(ligne[7]) if ligne[7] is not None else Decimal(0)
-        # p.POLA_ISC=Decimal(ligne[8]) if ligne[8] is not None else Decimal(0)
+        # p.RCC=Decimal(ligne[9]) if ligne[9] is not None else Decimal(0)
+        #seiko 2PAIRE
+        p.UC=Decimal(ligne[1]) if ligne[1] is not None else Decimal(0)
+        p.HC=Decimal(ligne[2]) if ligne[2] is not None else Decimal(0)
+        p.SCC=Decimal(ligne[3]) if ligne[3] is not None else Decimal(0)
+        p.SUNUC=Decimal(ligne[4]) if ligne[4] is not None else Decimal(0)
+        p.SUNHC=Decimal(ligne[5]) if ligne[5] is not None else Decimal(0)
+        p.SUNISC=Decimal(ligne[6]) if ligne[6] is not None else Decimal(0)
+        p.POLA_UC=Decimal(ligne[7]) if ligne[7] is not None else Decimal(0)
+        p.POLA_ISC=Decimal(ligne[8]) if ligne[8] is not None else Decimal(0)
 
 
         #DERNIER CLASSEUR Game
         p.prix=Decimal(ligne[1]) if ligne[1] is not None else Decimal(0)
         p.save()
-        #print(f"{p}")
+        print(f"{p}")
     classeur.close()
     
     return HttpResponse("DATA BASE CREATED")
@@ -148,7 +147,21 @@ def data(request):
 from django.db.models import CharField, Value as V
 from django.db.models.functions import Length
 
+
+
+    #return produits_similaires
+from Levenshtein import distance
+def trouver_produit_similaire2(reference):
+    produits = ExcelData.objects.all()
+    distances = [(produit.reference, distance(reference, produit.reference)) for produit in produits]
+    distances.sort(key=lambda x: x[1])
+    print(distances[0][0])
+    return distances[0][0]
 def trouver_produit_similaire(reference):
+
+    if "JETSTAR" in reference:
+        reference=trouver_produit_similaire2(reference)
+
     mots_reference = reference.upper().split()  # Convertir la référence en majuscules et la diviser en mots
     #print(mots_reference)
     max_mots_communs = 0  # Initialisez le nombre maximum de mots communs
@@ -243,7 +256,7 @@ def extraire_prix2(texte):
 def analyser_commande(commande):
     #prices = extraire_prix(commande)
     prices_ = extraire_prix2(commande)
-    print(prices_)
+    #print(prices_)
     is_d = is_g = False
 
     for cmd in commande.split('\n'):
@@ -316,22 +329,23 @@ def read_pdf(request):
            
             champs_excel_data = [field.name for field in ExcelData._meta.get_fields()]            
             champs_decimal = [field for field in champs_excel_data if isinstance(ExcelData._meta.get_field(field), DecimalField)]
-            valuer=[""]
-            valuer_2=[""]
+            valuer=["UC"]
+            valuer_2=["UC"]
             for champ in champs_decimal:
                 if is_word_in_string(champ.upper(), produit_1_decortiquer.upper()):
-                    valuer.append(champ)
+                    valuer[0]=champ
                 else:
                     pass
 
             for champ in champs_decimal:
                 if is_word_in_string(champ.upper(), produit_1_decortiquer.upper()):
-                    valuer_2.append(champ)
+                    #valuer_2.append(champ)
+                    valuer_2[0]=champ
                 else:
                     pass
 
-            produit_similaire_1 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '').replace('GRIS 85%',''))
-            produit_similaire_2 = trouver_produit_similaire(produit_1_decortiquer.replace('#', '').replace('GRIS 85%','')) 
+            produit_similaire_1 = trouver_produit_similaire(produit_1_decortiquer.replace('JET STAR','JETSTAR').replace('85%','')) 
+            produit_similaire_2 = trouver_produit_similaire(produit_1_decortiquer.replace('JET STAR','JETSTAR').replace('85%','')) 
             product_1= ExcelData.objects.filter(reference=produit_similaire_1).first()
             product_2= ExcelData.objects.filter(reference=produit_similaire_2).first()
             prix_catalogue_1 = None
@@ -340,14 +354,39 @@ def read_pdf(request):
                 for champ in reversed(valuer):
                     if hasattr(product_1, champ):
                         prix_catalogue_1 = getattr(product_1, champ)
-                        break  
-            if  product_1 and product_1.classeur.nom=='SEIKO Classe A':
-                valuer.append("HSC")
-                prix_catalogue_1=Decimal(product_1.HSC).quantize(Decimal('0.01'))      
-            if  product_1 and product_1.classeur.nom=='SEIKO Gamme ECO':
-                valuer.append("PRIX ")
+                        break
+            if  product_1 and product_1.reference.startswith('CLASSE A'):
+                
+                valuer[0]="HSC"
+                print(valuer)
+                print(product_1)
+                print(product_1.HSC)
+                prix_catalogue_1=Decimal(product_1.HSC).quantize(Decimal('0.01'))
+            startvision=["STARVISION","JETSTAR","SENSO"]      
+            if  product_1 and any(product_1.reference.startswith(start) for start in startvision):
+                print("***************************************************")
+                valuer[0]="PRIX"
+                print(valuer)
+                print(product_1)
+                print(product_1.prix)
                 prix_catalogue_1=Decimal(product_1.prix).quantize(Decimal('0.01'))  
-            #print(f"prix_catalogue_1 {prix_catalogue_1}")
+            #if product_1 and "non traité" in produit_1_decortiquer and not  product_1.classeur.nom=='SEIKO Classe A':
+                #print("***************************************************")
+                #print("non triater trouver----------------------------------")
+                #print(produit_1_decortiquer)
+                #valuer.append("UC")
+                #print(valuer)
+                #print(product_2)
+                #print(product_2.UC)
+                #print("***************************************************")
+                #prix_catalogue_1=product_1.UC.quantize(Decimal('0.01'))
+                #print(prix_catalogue_1) 
+            if product_2 and "non traité" in produit_1_decortiquer and not product_2.classeur.nom=='SEIKO Classe A':
+                #print("non triater trouver----------------------------------")
+                #valuer.append("UC")
+                prix_catalogue_2=product_2.UC.quantize(Decimal('0.01'))
+                #print(prix_catalogue_2) 
+            
 
 
             #-------------------------

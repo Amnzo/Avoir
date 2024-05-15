@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib import admin
 from .models import ExcelData,Classeur
 class ExcelDataAdmin(admin.ModelAdmin):
-    list_display = ['reference']
+    list_display = ['reference','classeur']
     search_fields = ['reference']  # Liste des champs à rechercher
 
 # Enregistrez le modèle ExcelData avec la classe d'administration personnalisée
