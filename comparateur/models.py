@@ -36,6 +36,22 @@ class ExcelData(models.Model):
     prix = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
 
+
+    from django.db import models
+
+
+
+class Ophtal(models.Model):
+    designation = models.CharField(max_length=255)
+    prix_brut = models.DecimalField(max_digits=10, decimal_places=2)
+    remise = models.DecimalField(max_digits=5, decimal_places=2)
+    prix_net = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.designation
+
+
+
 	
 
     def __str__(self):

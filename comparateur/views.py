@@ -1,9 +1,11 @@
 from decimal import Decimal, InvalidOperation
 import json
 import PyPDF2
+from django.conf import settings
+import numpy as np
 from django.http import JsonResponse,HttpResponse
 import re
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from .models import Classeur, ExcelData
 from django.db.models import Q
 # ExcelData.objects.create(reference=data["reference"], UC=data["UC"], HC=data["HC"], ISC=data["ISC"], SCC=data["SCC"], SRC=data["SRC"], SRB=data["SRB"], SRC_UV=data["SRC_UV"], SRBUV=data["SRBUV"], RCC=data["RCC"], price=data["price"])
@@ -158,7 +160,6 @@ def trouver_produit_similaire2(reference):
     print(distances[0][0])
     return distances[0][0]
 def trouver_produit_similaire(reference):
-
     if "JETSTAR" in reference:
         reference=trouver_produit_similaire2(reference)
 
@@ -290,6 +291,7 @@ def analyser_commande(commande):
 def extract_commands(content): 
     commands=content.split("Commande")
     return commands
+
 from django.db.models import DecimalField  
 from PyPDF2 import PdfReader
 from io import BytesIO
@@ -318,9 +320,6 @@ def read_pdf(request):
             commande_decortiquer,reference_decortiquer, produit_1_decortiquer,option,option1,option2,option3,option4,option5,some1,some2=decortiquer_commande(command)
             #print("Option")
             #print(option)
-            
-
-           
             D_decortiquer=extraire_informations_D(command)
             G_decortiquer=extraire_informations_G(command)
             prix_d,prix_g=analyser_commande(command)
@@ -618,8 +617,331 @@ def export_to_excel(request):
     response['Content-Disposition'] = 'attachment; filename="commandes.xlsx"'
     return response
 
+import pandas as pd
+import os
+
+import pandas as pd
+import re
+
+import pandas as pd
+import re
+def database():
+    excel_file = "C:/Users/Amnzo/Desktop/ophtalmic/BL/DB.xlsx"
+    dfxl = pd.read_excel(excel_file, header=None)
+    lignes_valides = []
+    
+    for index, ligne in dfxl.iterrows():
+        if not ligne.isnull().all():
+            if isinstance(ligne[1], str) and re.match(r'^\d+,\d+ € \d+,\d+% \d+,\d+ €$', ligne[1]):
+                nom = ligne[0]
+                valeur = ligne[1]
+                nom_sans_premier_mot = ' '.join(nom.split(' ')[1:])
+                match = re.match(r'^(\d+,\d+) € (\d+,\d+)% (\d+,\d+) €$', valeur)
+                if match:
+                    prix_net = match.group(3).replace(',', '.')
+                    
+                    lignes_valides.append([nom_sans_premier_mot, prix_net])
+    
+    df_resultat = pd.DataFrame(lignes_valides, columns=['Nom','Prix_Net'])
+    df_resultat['Prix_Net'] = df_resultat['Prix_Net'].astype(float)
+    return df_resultat
+
+
+def database2():
+    excel_file = "C:/Users/Amnzo/Desktop/ophtalmic/BL/DB2.xlsx"
+    dfxl = pd.read_excel(excel_file, header=None)
+    print(dfxl)
+    
+
+
+def database2():
+    excel_file = "C:/Users/Amnzo/Desktop/ophtalmic/BL/DB2.xlsx"
+    dfxl = pd.read_excel(excel_file, header=None)
+    
+    # Filtrer et extraire les lignes valides
+    lignes_valides = []
+    for index, ligne in dfxl.iterrows():
+        if not ligne.isnull().all() and index > 2:  # Ignorer les 3 premières lignes
+            nom = ligne[0]
+            conditionnement = ligne[1]
+            prix = ligne[2]
+           
+            if isinstance(nom, str) and isinstance(conditionnement, str):
+                    if "Flacon" in conditionnement or "Boite de" in conditionnement:
+                        #prix_net = float(prix.replace(',', '.').replace(' €', ''))
+                        lignes_valides.append([nom, prix])
+    
+    # Créer le DataFrame final
+    df_resultat = pd.DataFrame(lignes_valides, columns=['Nom', 'Prix_Net'])
+    #print(df_resultat)
+    return df_resultat
+           
 
 
 
+def extract_commands_ophtal(content):
+    # Séparer les commandes à partir de la chaîne "B.L. No"
+    commands = content.split("du ")
+    return commands
 
+
+
+import pdfplumber
+import re
+from datetime import datetime
+
+import pdfplumber
+import re
+import json
+
+def extract_text_from_pdf(pdf_path):
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            text = ""
+            for page in pdf.pages[:-1]:
+                text += page.extract_text() + "\n"
+        return text
+    except Exception as e:
+        return ""
+
+def parse_invoice_text(raw_text):
+    invoices = []
+    current_invoice = {}
+    lines = raw_text.split('\n')
+    dfs = []
+    data_dir = os.path.join(settings.BASE_DIR, 'comparateur', 'data')
+    filenames = ['BL_2021.csv', 'BL_2022.csv', 'BL_2023.csv']
+    for filename in filenames:
+        file_path = os.path.join(data_dir, filename)
+        df = pd.read_csv(file_path, encoding='latin1', delimiter=';')
+        #df = pd.read_csv(os.path.join(path, filename), encoding='latin1', delimiter=';')
+        dfs.append(df)
+        df_combined = pd.concat(dfs, ignore_index=True)
+    print(df_combined)
+
+    excel_file = os.path.join(data_dir, 'AMNZO.xlsx')
+    dataframe = pd.read_excel(excel_file)
+
+    
+    for line in lines:
+        # Remove unwanted characters or whitespace
+        line = line.strip()
         
+        if re.match(r'B.L. No \d{2}-\d{8} du \d{2}/\d{2}/\d{4}', line):
+            if current_invoice:
+                invoices.append(current_invoice)
+            current_invoice = {'BLNo': line.strip(), 'Products': []}
+        elif '***** Port :' in line:
+            current_invoice['Port'] = line.split(':')[-1].strip()
+        elif re.search(r'\b\d+,\d+\b|\b\d+\.\d+\b', line):
+            parts = line.split()
+            if len(parts) >= 5:
+                description = ' '.join(parts[:-5]).strip()
+                
+                discount = parts[-1].strip()
+                # Keep the product only if the discount is "0,00" or a decimal value
+                if discount == "0,00" or re.match(r'^\d+\.\d+$', discount):
+                    #print(current_invoice['BLNo'].split()[2])
+                    resultat = df_combined[df_combined['No livraison'] == current_invoice['BLNo'].split()[2]]
+                    #print(resultat)
+                    if not resultat.empty: 
+                        for index, row in resultat.iterrows():       
+                            porteur = row.iloc[8]
+                            Date = row.iloc[10]
+                            qtt = int(row.iloc[12])
+                    if "___ ___" in description: 
+                        description = description.split("___ ___ ")[0]
+                    if"___"  in description:
+                         description = description.split("___ ___ ")[0]
+                    # Pré-calculer les scores de similarité pour chaque nom de produit et créer un dictionnaire
+                    product_name_scores = {product_name: fuzz.token_sort_ratio(description, product_name) for product_name in dataframe['Nom']}
+
+                    # Trouver la meilleure correspondance en utilisant le dictionnaire pré-calculé
+                    best_match_name, best_match_score = max(product_name_scores.items(), key=lambda x: x[1])
+
+                    # Rechercher le produit correspondant le mieux dans le DataFrame
+                    best_matching_row = dataframe[dataframe['Nom'] == best_match_name].iloc[0]
+
+                    # Extraire le nom et le prix net du produit correspondant le mieux
+                    best_matching_nom = best_matching_row['Nom']
+                    best_matching_prix_net = best_matching_row['Prix_Net']
+
+                    # Afficher la meilleure correspondance trouvée
+                    print("Meilleure correspondance:", best_matching_nom)
+                    print("Prix Net correspondant:", best_matching_prix_net)
+                    
+                    diff_ophtal= 0        
+                    try:
+                        #dicimal_catalogue = Decimal(best_matching_prix_net).quantize(Decimal('0.01'))
+                        if discount=="0,00":
+                            discount=discount.replace(",",".")
+                        discount = Decimal(discount).quantize(Decimal('0.01'))
+                        #best_matching_prix_net = np.float64(10.50)  # numpy.float64
+                        best_matching_prix_net_decimal = Decimal(str(best_matching_prix_net))
+                    except TypeError:
+                        diff_ophtal = 0
+
+                    product = {
+                        'Num': current_invoice['BLNo'].split()[2],
+                        'Description': description,
+                        'Discount': discount,
+                        'Porteur': porteur,
+                        'Date': Date,
+                        'Qtt': qtt,
+                        "Simulaire": best_matching_nom,
+                        "Prix_Net": best_matching_prix_net_decimal,
+                        "Diff":best_matching_prix_net_decimal-discount
+                    }
+                    print(product)
+                    current_invoice['Products'].append(product)
+        else:
+            if current_invoice.get('Products'):
+                current_invoice['Products'][-1]['Description'] += ' ' + line.strip()
+    
+    if current_invoice:
+        invoices.append(current_invoice)
+    
+    return invoices
+
+
+def decortiquer_ophtal_product(pdf_path):
+    raw_text = extract_text_from_pdf(pdf_path)
+    if not raw_text:
+        return []
+    structured_data = parse_invoice_text(raw_text)
+    #print(type(structured_data))
+    return structured_data
+
+
+from fuzzywuzzy import process,fuzz
+def ophtal(request):
+    if request.method == 'POST' and request.FILES['pdf_file']:
+        pdf_file = request.FILES['pdf_file']
+        temp_path = os.path.join(settings.MEDIA_ROOT, pdf_file.name)
+        temp_path = os.path.join(settings.MEDIA_ROOT, pdf_file.name)
+        with open(temp_path, 'wb+') as destination:
+            for chunk in pdf_file.chunks():
+                destination.write(chunk)
+        structured_data = decortiquer_ophtal_product(temp_path)
+        os.remove(temp_path)
+        return render(request, 'excel/ophtal.html', {'formatted_commands': structured_data})
+    return render(request, 'excel/ophtal.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def decortiquer_ophtal(texte):
+#     N_bl = None
+#     lines = texte.split('\n')
+#     for i, l in enumerate(lines):
+#         if "B.L. No" in l:   
+#             N_bl = l.split()[0]       
+#     return N_bl
+
+
+# def ophtal_old(request):
+#     if request.method == 'POST' and request.FILES['pdf_file']:
+#         excel_file = "C:/Users/Amnzo/Desktop/ophtalmic/BL/AMNZO.xlsx"
+#         dataframe = pd.read_excel(excel_file)
+#         # Example usage
+#         pdf_path = 'C:/Users/Amnzo/Desktop/ophtalmic/FC22009537.pdf'
+#         structured_data = decortiquer_ophtal_product(pdf_path)
+#         #print(json.dumps(structured_data, indent=4))
+  
+#         dfs = []
+#         path = "C:/Users/Amnzo/Desktop/ophtalmic/BL/"
+#         filenames = ['BL_2021.csv', 'BL_2022.csv', 'BL_2023.csv']
+#         for filename in filenames:
+#             df = pd.read_csv(os.path.join(path, filename), encoding='latin1', delimiter=';')
+#             dfs.append(df)
+
+#         df_combined = pd.concat(dfs, ignore_index=True)
+#         pdf_file = request.FILES['pdf_file']
+#         pdf_data = pdf_file.read()
+#         pdf_buffer = BytesIO(pdf_data)
+#         pdf_reader = PdfReader(pdf_buffer)
+#         content = ""
+#         for page_num in range(len(pdf_reader.pages) - 1):
+#             page = pdf_reader.pages[page_num]
+#             text = page.extract_text()
+#             encoded_text = text.encode('utf-8', 'ignore')  # Ignore characters that cannot be encoded
+#             decoded_text = encoded_text.decode('utf-8')
+#             content += decoded_text
+        
+#         commands = extract_commands_ophtal(content)
+#         liste_cmds = []
+#         for command in commands:
+#             porteur = None
+#             numero_bl = decortiquer_ophtal(command)
+#             resultat = df_combined[df_combined['No livraison'] == numero_bl] 
+#             if not resultat.empty: 
+#                 for index, row in resultat.iterrows():       
+#                     porteur = row.iloc[8]
+#                     Date = row.iloc[10]
+#                     designation = row.iloc[11]
+#                     param = row.iloc[9] if not pd.isna(row.iloc[9]) else ''
+#                     qtt = int(row.iloc[12])
+#                     montant = row.iloc[3]
+#                     best_match_name = None
+#                     montant2 = Decimal(montant.replace(',', '.'))
+#                     product_much=''
+#                     # Find the closest matching product in the DataFrame
+#                     best_match = process.extractOne(designation, dataframe['Nom'], scorer=fuzz.token_sort_ratio)
+#                     #print(best_match)
+#                     matching_row=None
+#                     matching_row_nom="-"
+#                     matching_row_price="-"
+#                     if best_match[1] >= 80:  # Adjust threshold as needed
+#                         product_much = best_match[0]
+#                         matching_row = dataframe[dataframe['Nom'] == product_much].iloc[0]
+#                         #print(f"-----{designation}-------")
+#                         #print(matching_row['Nom'])
+#                         matching_row_nom=matching_row['Nom']
+#                         matching_row_price=matching_row['Prix_Net']
+#                         #print(" ")
+#                         #print(" ")
+#                         #print(" ")
+
+#                     formatted_ligne = {
+#                         "numero_bl": f"{numero_bl}",
+#                         "Porteur": porteur,
+#                         "Date": Date,
+#                         "Designation": f"{designation} {param}",
+#                         'Qtt': qtt,
+#                         "Montant_Facture": ((montant2)/2)/qtt,
+#                         "search_term": designation,
+#                         "Similaire": matching_row_nom,
+#                         "Similaire_price": matching_row_price
+#                     }
+                    
+#                     liste_cmds.append(formatted_ligne)
+     
+#         return render(request, 'excel/ophtal.html', {'formatted_commands': structured_data})
+#     return render(request, 'excel/ophtal.html')
