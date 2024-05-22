@@ -282,7 +282,7 @@ def trouver_produit_similaire_Seiko(reference,champ):
     if produit_equals.exists():
         # Si des produits avec la référence exacte existent, les utiliser directement
         produit_similaire = produit_equals.first().reference
-        prix_produit_similaire = produit_equals.first().UC
+        prix_produit_similaire = getattr(produit_equals, champ, 00.00)
         remise_similaire = produit_equals.first().remise
     else:
         mots_reference = reference.upper().split()
@@ -308,9 +308,9 @@ def trouver_produit_similaire_Seiko(reference,champ):
                 if "CLASSE A" in produit.reference:
                     prix_produit_similaire = produit.SCC
                 else :
-                    print(champ)
+                    #print(champ)
                     prix_produit_similaire = produit.SRB
-                    prix_produit_similaire = getattr(produit, champ, 12.9)
+                    prix_produit_similaire = getattr(produit, champ, 00.00)
 
                  # Ceci semble être une valeur par défaut ; adaptez si nécessaire
                 remise_similaire = produit.remise
@@ -429,7 +429,7 @@ def read_pdf(request):
                 if finding_fiels:
                     pass
                 else :
-                    finding_fiels.append(champs_seiko_fiels_model[2])
+                    finding_fiels.append(champs_seiko_fiels_model[5])
 
                 produit_catalogue,prix_catalogue,remise_catalogue,mots_reference=trouver_produit_similaire_Seiko(new_description,finding_fiels[0])
                 print(numero_commande ) 
@@ -437,14 +437,21 @@ def read_pdf(request):
                 print(f" GETTING {produit_catalogue}")
                 print("")
                 print("")
-            Diff_d=Diff_g = 0
-            taux_remise_decimal_=19.8
+            #Diff_d=Diff_g = 0
+            taux_remise_decimal_ =Decimal(str(prix_catalogue).replace(',', '.'))-((Decimal(remise_catalogue) / Decimal(100))*Decimal(str(prix_catalogue).replace(',', '.')))
+            #try:
+            prix_catalogue=taux_remise_decimal_
+            Diff_d = (prix_catalogue-Decimal(prix_d)).quantize(Decimal('0.01'))
+            Diff_g = (prix_catalogue-Decimal(prix_g )).quantize(Decimal('0.01'))
+                #result = str(Diff)  # Convert Diff back to string for return
+            #except TypeError:
+            #   Diff_d = 0
             
             
 
             formatted_command = {
                 
-                "Commande": " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande":numero_commande,# " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
                 "Produit_2_": produit_1_decortiquer,
@@ -463,7 +470,7 @@ def read_pdf(request):
                 "Prix_Facture_D": prix_d,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Prix_Facture_G": prix_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Diff_d":Diff_d,
-                "Diff_g":Diff_g,
+                "Diff_g":Diff_d,
                 "Option":option,
                 "Option1":option1,
                 "Option2":option2,
