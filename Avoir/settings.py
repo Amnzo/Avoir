@@ -116,6 +116,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 
 
 # Static files (CSS, JavaScript, Images)

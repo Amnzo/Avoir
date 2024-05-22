@@ -12,8 +12,8 @@ class Classeur(models.Model):
 
 
 
-class ExcelData(models.Model):
-    classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE, default='')
+class Seiko(models.Model):
+    #classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE, default='')
     reference = models.CharField(max_length=100)
     remise = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     UC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -25,19 +25,29 @@ class ExcelData(models.Model):
     SRCUV = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     SRBUV = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     RCC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    HSC = models.CharField(max_length=100, default='')
     SUNUC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     SUNHC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    SUNSCC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    SUNUC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SUNISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     POLA_UC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     POLA_ISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+class StarVision(models.Model):
+    #classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE, default='')
+    reference = models.CharField(max_length=100)
+    remise = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     prix = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    actif = models.BooleanField(default=True)  # Nouveau champ
+
+    def __str__(self) -> str:
+        return f"{self.reference}- {self.prix}"
+    
+
+
+  
 
 
 
-    from django.db import models
+
 
 
 
