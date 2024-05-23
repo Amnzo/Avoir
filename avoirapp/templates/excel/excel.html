@@ -62,6 +62,7 @@
             <thead>
                 <tr>
                     <th scope="col">Nº Commande</th>
+                    <th scope="col">Date</th>
                     <th scope="col" onclick="sortTableByRefClient()">Réf Client</th>
                     <th scope="col">Réf Produit Facture</th>
                     <th scope="col">Réf Produit Catalogue</th>
@@ -80,6 +81,7 @@
                 {%if c.CorrectionD %}
                 <tr>
                     <td >{{ c.Commande }}</td>
+                    <td >{{ c.Date }}</td>
                     <td >{{ c.Référence }}</td>
                     <td >{{ c.Produit_1 }}</td>
                     <td>{{ c.Similaire_1 }}</td>
@@ -110,6 +112,7 @@
                 <tr>
 
                     <td >{{ c.Commande }}</td>
+                    <td >{{ c.Date }}</td>
                     <td >{{ c.Référence }}</td>
                     <td >{{ c.Produit_1 }}</td>
                     <td>{{ c.Similaire_1 }}</td>
@@ -138,6 +141,7 @@
                 {% endif %}
                 {% if  c.Option %}
                 <tr>
+                    <td >-</td>
                     <td >-</td>
                     <td >-</td>
                     <td >{{ c.Option.split|first }}</td>

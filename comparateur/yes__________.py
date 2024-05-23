@@ -243,51 +243,43 @@ def extraire_informations_G(texte):
    
     return informations_G
 def trouver_produit_similaire_StarVision(reference):
-    produit_equals = StarVision.objects.filter(reference=reference.upper())
-    
-    date_debut_remise = None  # Initialisez date_debut_remise
-    date_fin_remise = None  # Initialisez date_fin_remise
-    
+    produit_equals = StarVision.objects.filter(reference=reference.upper)
     if produit_equals.exists():
         # Si des produits avec la référence exacte existent, les utiliser directement
-        produit_similaire = produit_equals.first().reference
-        prix_produit_similaire = produit_equals.first().prix
-        remise_similaire = produit_equals.first().remise
+        produit_similaire=produit_equals.reference
+        prix_produit_similaire=produit_equals.prix
         date_debut_remise = produit_equals.first().date_debut_remise
         date_fin_remise = produit_equals.first().date_fin_remise
     else:
-        mots_reference = reference.upper().replace("-", "").split()  # Convertir la référence en majuscules et la diviser en mots
+   
+        mots_reference = reference.upper().replace("-","").split()  # Convertir la référence en majuscules et la diviser en mots
+        #print(mots_reference)
         max_mots_communs = 0  # Initialisez le nombre maximum de mots communs
         produit_similaire = None  # Initialisez la référence du produit similaire
-        prix_produit_similaire = None  # Initialisez le prix du produit similaire
-        remise_similaire = None  # Initialisez la remise du produit similaire
-
         # Parcourir tous les produits dans la base de données
         for produit in StarVision.objects.filter(actif=True).exclude(reference__icontains="STOCK"):
-            mots_produit = produit.reference.upper().replace("-", "")  # Convertir la référence du produit en majuscules et la diviser en mots
-            mots_communs = sum(1 for mot in mots_reference if mot in mots_produit)
-
+            mots_produit = produit.reference.upper()  # Convertir la référence du produit en majuscules et la diviser en mots
+            #print(mots_produit)
+            # Compter le nombre de mots communs entre la référen
+            # ce donnée et la référence du produit
+            mots_communs = 0
+            for mot in mots_reference:
+                if mot in mots_produit:
+                    mots_communs += 1 
             # Mettre à jour la référence du produit similaire si le nombre de mots communs est le plus grand
             if mots_communs > max_mots_communs:
                 max_mots_communs = mots_communs
                 produit_similaire = produit.reference
-                prix_produit_similaire = produit.prix
-                remise_similaire = produit.remise
+                prix_produit_similaire=produit.prix
+                remise_similaire=produit.remise
                 date_debut_remise = produit.date_debut_remise
                 date_fin_remise = produit.date_fin_remise
 
-    return produit_similaire, prix_produit_similaire, remise_similaire, mots_reference, date_debut_remise, date_fin_remise
-
+    return produit_similaire,prix_produit_similaire,remise_similaire,mots_reference,date_debut_remise,date_fin_remise
 
 def trouver_produit_similaire_Seiko(reference, champ):
-    print(reference)
-    print(champ)
-    #reference_to_search = reference.upper().strip()
-    #produit_equals = Seiko.objects.filter(reference__iexact=reference_to_search)
-    produit_equals = StarVision.objects.filter(reference=reference.upper)
-    
-    date_debut_remise = None  # Initialisez date_debut_remise
-    date_fin_remise = None  # Initialisez date_fin_remise
+    reference_to_search = reference.upper().strip()
+    produit_equals = Seiko.objects.filter(reference__iexact=reference_to_search)
     
     if produit_equals.exists():
         # Si des produits avec la référence exacte existent, les utiliser directement
@@ -324,7 +316,8 @@ def trouver_produit_similaire_Seiko(reference, champ):
                 date_debut_remise = produit.date_debut_remise
                 date_fin_remise = produit.date_fin_remise
 
-    return produit_similaire, prix_produit_similaire, remise_similaire, mots_reference, date_debut_remise, date_fin_remise
+    return produit_similaire, prix_produit_similaire, remise_similaire, mots_reference,date_debut_remise,date_fin_remise
+
 
 def decortiquer_commande(texte):
     lines = texte.split('\n')
@@ -361,9 +354,20 @@ def decortiquer_commande(texte):
             
            
     return commande, reference, produit1,option,option1,option2,option3,option4,option5,some1,some2
-
+def pandas_dataframe():
+    queryset_seiko = Seiko.objects.all()
+    data_seiko = list(queryset_seiko.values())
+    df_seiko = pd.DataFrame(data_seiko)
+    queryset_starvision = StarVision.objects.all()
+    data_starvision = list(queryset_starvision.values())
+    df_starvision = pd.DataFrame(data_starvision)
+    
+    return df_seiko,df_starvision
 def read_pdf(request):
     if request.method == 'POST' and request.FILES['pdf_file']:
+        seiko_data_frame,starvision_data_frame=pandas_dataframe()
+        #print(seiko_data_frame)
+        #print(starvision_data_frame)
         JETSTAR_LIST = ["JETSTAR", "STARVISION", "SENSO BASIC", "OFFICE"]
         pdf_file = request.FILES['pdf_file']
         pdf_data = pdf_file.read()
@@ -381,15 +385,16 @@ def read_pdf(request):
         formatted_commands = []
         #champs_seiko_data = [field.name for field in Seiko._meta.get_fields()]
         #champs_seiko_data.append("HSC")
-        champs_seiko_fiels_model=['SRC','HSC','UC', 'HC', 'ISC', 'SCC', 'SRB', 'SRCUV', 'SRBUV', 'RCC', 'SUNUC', 'SUNHC', 'SUNISC', 'POLA_UC', 'POLA_ISC']
-       
+        #champs_seiko_fiels_model=['SRC','HSC','UC', 'HC', 'ISC', 'SCC', 'SRB', 'SRCUV', 'SRBUV', 'RCC', 'SUNUC', 'SUNHC', 'SUNISC', 'POLA_UC', 'POLA_ISC']
+        champs_seiko_fiels_model = seiko_data_frame.columns.tolist()[5:]
+        #['UC', 'HC', 'ISC', 'SCC', 'SRC', 'SRB', 'SRCUV', 'SRBUV', 'RCC', 'SUNUC', 'SUNHC', 'SUNISC', 'POLA_UC', 'POLA_ISC']
+        #print(champs_seiko_fiels_model)
         #champs_decimal = [field for field in champs_seiko_data if isinstance(champs_seiko_data._meta.get_field(field), DecimalField)]
         for command in commands[1:]:
             numero_commande=command.split("|")[0].split("du")[0]
             date_commande=command.split("|")[0].split("du")[1].split("-")[0]
             produit = extract_product_info(command.split("|")[2])
             remise__=debut___remise=fin___remise=None
-
             commande_decortiquer,reference_decortiquer, produit_1_decortiquer,option,option1,option2,option3,option4,option5,some1,some2=decortiquer_commande(command)
             D_decortiquer=extraire_informations_D(command)
             G_decortiquer=extraire_informations_G(command)
@@ -398,9 +403,6 @@ def read_pdf(request):
             if new_description.startswith("JS"):
                     new_description=new_description.replace('JS',"JETSTAR")
             new_description=new_description.replace("JET STAR","JETSTAR").replace("#","").replace("STOCK","")
-            new_description=new_description.replace('2P STAR',"2paire Star")
-            
-
             new_description=new_description.split("(")[0]
             new_description=new_description.replace("00","")
             new_description=new_description.replace("-"," - ")
@@ -412,22 +414,39 @@ def read_pdf(request):
                 #break
                 new_description=new_description.replace("1.50","1,5")
                 new_description=new_description.replace("1.60","1,6")
-                new_description=new_description.replace("JETSTAR 150","JETSTAR 1,5")
-                #new_description=new_description.replace("HSC"," - HSC") 
                 #break
                 new_description = re.sub(r'\+ \d+', '', new_description)
+                matching_rows_equals = starvision_data_frame[starvision_data_frame['reference'] == new_description.strip()]
+                print(matching_rows_equals)
+                if not matching_rows_equals.empty:
+                           # print(f" {new_designation}---EQUALS")
+                            first_row = matching_rows_equals.iloc[0]
+                            #Prix_Net = first_row['Prix_Net']
+                            #Nom_produit = first_row['Nom']
+                            print(first_row)
+                            print("")
+                            print("")
+                else :
+                           # print(f" {new_designation}---MATCH")
+                            new_description=new_description.replace("-","")
+                            product_name_scores = {
+                            product_name: fuzz.token_sort_ratio(new_description.strip(), product_name)
+                            for product_name in starvision_data_frame['reference']
+                            }
+                            best_match_name, best_match_score = max(product_name_scores.items(), key=lambda x: x[1])
+                                # Récupération des informations du produit correspondant
+                            best_matching_row = starvision_data_frame[starvision_data_frame['reference'] == best_match_name].iloc[0]
+                            print(f"----{new_description}---")
+                            print(best_matching_row)
+                            print("")
+                            print("")
                 produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_StarVision(new_description)
-                     
+                    
             else :
                 finding_fiels=[]
                 if "2paire".upper() not in new_description:
                     new_description = new_description.replace("Prog", "PROGRESSIF")
                 new_description=new_description.replace("UNIF","UNIFOCAL")
-
-                  
-                
-                print("---------------------------")
-                print(new_description )  
                 for field in champs_seiko_fiels_model:
                     #print(champs_seiko_data)
                     pattern = r'\b' + re.escape(field) + r'\b'
@@ -436,21 +455,39 @@ def read_pdf(request):
                         new_description=new_description.replace(finding_fiels[0],"")
                 new_description = re.sub(r'\b\d+mm\b', '', new_description)
 
-                produit_catalogue="EMPTY"
-                #new_description = re.sub(r'\+[A-Za-z]+', '', new_description)
-                #new_description=new_description.split('IP+', maxsplit=1)[0]
                 if finding_fiels:
                     pass
                 else :
                     finding_fiels.append(champs_seiko_fiels_model[5])
 
                 produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_Seiko(new_description,finding_fiels[0])
-                print(numero_commande ) 
-                print(f"DATE DEBUT REMISE {debut___remise}")
-                print(f"DATE DEBUT REMISE {fin___remise}")
+                matching_rows_seiko = seiko_data_frame[seiko_data_frame['reference'] == new_description.strip()]
+                print(matching_rows_seiko)
+                if not matching_rows_seiko.empty:
+                           # print(f" {new_designation}---EQUALS")
+                            first_row = matching_rows_seiko.iloc[0]
+                            #Prix_Net = first_row['Prix_Net']
+                            #Nom_produit = first_row['Nom']
+                            print("MATCHING ROW FROM SEIKO")
+                            print(matching_rows_seiko)
+                            print("")
+                            print("")
+                else :
+                           # print(f" {new_designation}---MATCH")
+
+                            product_name_scores = {
+                            product_name: fuzz.token_sort_ratio(new_description.strip(), product_name)
+                            for product_name in seiko_data_frame['reference']
+                            }
+                            best_match_name, best_match_score = max(product_name_scores.items(), key=lambda x: x[1])
+                                # Récupération des informations du produit correspondant
+                            best_matching_row = seiko_data_frame[seiko_data_frame['reference'] == best_match_name].iloc[0]
+                            print("MATCHING ROW FROM SEIKO 22 ")
+                            print(f"----{new_description}---")
+                            print(best_matching_row)
+                            print("")
+                            print("")
                 
-                print("")
-                print("")
             taux_remise_decimal_=None
             
             if Decimal(remise__) > Decimal('0.00') and debut___remise is not None and fin___remise is not None:
@@ -472,7 +509,7 @@ def read_pdf(request):
 
             formatted_command = {
                 
-                "Commande":numero_commande,# " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande":" ".join(mots_reference),#numero_commande,# " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Date":date_commande,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
@@ -482,13 +519,13 @@ def read_pdf(request):
                 "Similaire_1": produit_catalogue,
                 "Similaire_1": produit_catalogue,
                 "Remise" : remise__,
-                #"Apres_Remise_d" : "taux_remise_decimal_d.quantize(Decimal('0.01'))",
-                #"Apres_Remise_g" :" taux_remise_decimal_g.quantize(Decimal('0.01'))",
-                #"Valeur" : "valuer[-1]",
+                "Apres_Remise_d" : "taux_remise_decimal_d.quantize(Decimal('0.01'))",
+                "Apres_Remise_g" :" taux_remise_decimal_g.quantize(Decimal('0.01'))",
+                "Valeur" : "valuer[-1]",
                 "Prix_catalogue_1" :prix_catalogue,
                 "Prix_catalogue_2" :prix_catalogue,
-                #"Product_1":"product_1",
-                #"Product_2":"product_2",
+                "Product_1":"product_1",
+                "Product_2":"product_2",
                 "Prix_Facture_D": prix_d,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Prix_Facture_G": prix_g,   #re.findall(r'\d+,\d+', command[3].strip())[-1]
                 "Diff_d":Diff_d,
