@@ -15,6 +15,8 @@ class Classeur(models.Model):
 class Seiko(models.Model):
     #classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE, default='')
     reference = models.CharField(max_length=100)
+    actif = models.BooleanField(default=True)  # Nouveau champ
+
     remise = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     date_debut_remise = models.DateField(null=True, blank=True)  # Date de début de la remise
     date_fin_remise = models.DateField(null=True, blank=True)  # Date de fin de la remise
@@ -32,6 +34,7 @@ class Seiko(models.Model):
     SUNISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     POLA_UC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     POLA_ISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
 
 class StarVision(models.Model):
     #classeur = models.ForeignKey(Classeur, on_delete=models.CASCADE, default='')

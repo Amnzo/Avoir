@@ -256,14 +256,14 @@ def trouver_produit_similaire_StarVision(reference):
         date_debut_remise = produit_equals.first().date_debut_remise
         date_fin_remise = produit_equals.first().date_fin_remise
     else:
-        mots_reference = reference.upper().replace("-", "").split()  # Convertir la référence en majuscules et la diviser en mots
+        mots_reference = reference.upper().split()  # Convertir la référence en majuscules et la diviser en mots
         max_mots_communs = 0  # Initialisez le nombre maximum de mots communs
         produit_similaire = None  # Initialisez la référence du produit similaire
         prix_produit_similaire = None  # Initialisez le prix du produit similaire
         remise_similaire = None  # Initialisez la remise du produit similaire
 
         # Parcourir tous les produits dans la base de données
-        for produit in StarVision.objects.filter(actif=True).exclude(reference__icontains="STOCK"):
+        for produit in StarVision.objects.filter(actif=True):
             mots_produit = produit.reference.upper().replace("-", "")  # Convertir la référence du produit en majuscules et la diviser en mots
             mots_communs = sum(1 for mot in mots_reference if mot in mots_produit)
 
@@ -280,11 +280,10 @@ def trouver_produit_similaire_StarVision(reference):
 
 
 def trouver_produit_similaire_Seiko(reference, champ):
-    print(reference)
-    print(champ)
+
     #reference_to_search = reference.upper().strip()
     #produit_equals = Seiko.objects.filter(reference__iexact=reference_to_search)
-    produit_equals = StarVision.objects.filter(reference=reference.upper)
+    produit_equals = StarVision.objects.filter(reference=reference.upper,actif=True)
     
     date_debut_remise = None  # Initialisez date_debut_remise
     date_fin_remise = None  # Initialisez date_fin_remise
@@ -307,7 +306,7 @@ def trouver_produit_similaire_Seiko(reference, champ):
         remise_similaire = 0.00  # Initialisez la remise du produit similaire
 
         # Parcourir tous les produits dans la base de données
-        for produit in Seiko.objects.exclude(reference__icontains="STOCK"):
+        for produit in Seiko.objects.exclude(actif=True):
             mots_produit = produit.reference.upper().split()  # Convertir la référence du produit en majuscules et la diviser en mots
             # Compter le nombre de mots communs entre la référence donnée et la référence du produit
             mots_communs = sum(1 for mot in mots_reference if mot in mots_produit)
@@ -397,7 +396,7 @@ def read_pdf(request):
             new_description=produit_1_decortiquer
             if new_description.startswith("JS"):
                     new_description=new_description.replace('JS',"JETSTAR")
-            new_description=new_description.replace("JET STAR","JETSTAR").replace("#","").replace("STOCK","")
+            new_description=new_description.replace("JET STAR","JETSTAR").replace("#","")
             new_description=new_description.replace('2P STAR',"2paire Star")
             
 
@@ -406,7 +405,7 @@ def read_pdf(request):
             new_description=new_description.replace("-"," - ")
             #new_description = re.sub(r'\+\d+', '', new_description)
             
-            
+            finding_fiels=[]
             #print("seraching starvision product")
             if any(jetstar in new_description for jetstar in JETSTAR_LIST):
                 #break
@@ -416,24 +415,41 @@ def read_pdf(request):
                 #new_description=new_description.replace("HSC"," - HSC") 
                 #break
                 new_description = re.sub(r'\+ \d+', '', new_description)
+                for field in champs_seiko_fiels_model:
+                    separateur=None
+                    if field in new_description :
+                        print( " i  founs i shoud change by -------------")
+                        print(new_description)
+                        new_description=new_description.replace(str(field),f"- {field}")
+                        separateur=field
+                        
+                        print(new_description)
+                        print("-------------------------------------")
+                    if separateur  :
+                        new_description=new_description.split(f"{separateur}")[0]
+                        new_description=f"{new_description} {separateur}"
+
+
+                
+                       
+
+                        #finding_fiels.append(field)
+                        #new_description=new_description.split(str(finding_fiels[0]))[0]
                 produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_StarVision(new_description)
                      
             else :
-                finding_fiels=[]
+               
                 if "2paire".upper() not in new_description:
                     new_description = new_description.replace("Prog", "PROGRESSIF")
                 new_description=new_description.replace("UNIF","UNIFOCAL")
 
-                  
-                
-                print("---------------------------")
-                print(new_description )  
                 for field in champs_seiko_fiels_model:
                     #print(champs_seiko_data)
                     pattern = r'\b' + re.escape(field) + r'\b'
                     if re.search(pattern, new_description, re.IGNORECASE):
                         finding_fiels.append(field)
-                        new_description=new_description.replace(finding_fiels[0],"")
+                        new_description=new_description.split(str(finding_fiels[0]))[0]
+                        #new_description=new_description.replace(finding_fiels[0],"")
                 new_description = re.sub(r'\b\d+mm\b', '', new_description)
 
                 produit_catalogue="EMPTY"
@@ -445,12 +461,9 @@ def read_pdf(request):
                     finding_fiels.append(champs_seiko_fiels_model[5])
 
                 produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_Seiko(new_description,finding_fiels[0])
-                print(numero_commande ) 
-                print(f"DATE DEBUT REMISE {debut___remise}")
-                print(f"DATE DEBUT REMISE {fin___remise}")
                 
-                print("")
-                print("")
+                
+               
             taux_remise_decimal_=None
             
             if Decimal(remise__) > Decimal('0.00') and debut___remise is not None and fin___remise is not None:
@@ -472,7 +485,7 @@ def read_pdf(request):
 
             formatted_command = {
                 
-                "Commande":numero_commande,# " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande": " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Date":date_commande,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
@@ -653,7 +666,7 @@ def database():
         #print(ligne)
         if not ligne.isnull().all():
             if isinstance(ligne[1], str) and re.match(r'^\d+,\d+ € \d+,\d+% \d+,\d+ €$', ligne[1]):
-                print(ligne)
+                #print(ligne)
                 nom = ligne[0]
                 valeur = ligne[1]
                 nom_sans_premier_mot = ' '.join(nom.split(' ')[1:])
@@ -838,9 +851,7 @@ def parse_invoice_text(raw_text):
     for line in lines:
         # Nettoyage de la ligne
         line = line.strip()
-        print(" ")
-        print(" ")
-        print(" ")
+
         #print(line)
         
         # Vérification du numéro de BL
