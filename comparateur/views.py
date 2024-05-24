@@ -566,7 +566,20 @@ def appliquer_remise(request):
             produits_ids = request.POST.getlist('produits_ids')
             produits = Seiko.objects.filter(id__in=produits_ids)
             produits.update(remise=remise, date_debut_remise=date_debut_remise, date_fin_remise=date_fin_remise)
-            return HttpResponse(f"REMISE BIEN APPLIQUER SUR LES PRODUITS {produits}") 
+            previous_url = request.META.get('HTTP_REFERER', '/')
+            produits_noms = ', '.join([produit.reference for produit in produits])
+            message = f"""
+            <html>
+                <body>
+                    <h1>Remise de {remise} bien appliquée sur les produits suivants :</h1>
+                    <p>{produits_noms}</p>
+                    <form action='{previous_url}' method='get'>
+                        <button type='submit'>Retour</button>
+                    </form>
+                </body>
+            </html>
+            """
+            return HttpResponse(message)
         
     return HttpResponse("POST")
 
