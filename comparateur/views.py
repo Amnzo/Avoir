@@ -8,10 +8,12 @@ import json
 import PyPDF2
 from django.conf import settings
 import numpy as np
-from django.http import JsonResponse,HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse,HttpResponse
 import re
 from django.shortcuts import render,HttpResponse
 import openpyxl
+
+from comparateur.admin import RemiseForm
 from .models import Classeur, Seiko,StarVision
 from django.db.models import Q
 from decimal import Decimal
@@ -279,15 +281,18 @@ def trouver_produit_similaire_StarVision(reference):
     return produit_similaire, prix_produit_similaire, remise_similaire, mots_reference, date_debut_remise, date_fin_remise
 
 
-def trouver_produit_similaire_Seiko(reference, champ):
+import textdistance
 
-    #reference_to_search = reference.upper().strip()
-    #produit_equals = Seiko.objects.filter(reference__iexact=reference_to_search)
-    produit_equals = StarVision.objects.filter(reference=reference.upper,actif=True)
-    
+import textdistance
+
+def trouver_produit_similaire_Seiko(reference, champ, prix):
+    reference = reference.replace("Gris", "").replace("BRUN", "")
+    reference_to_search = reference.upper().strip()
+    produit_equals = Seiko.objects.filter(reference=reference_to_search, actif=True)
+
     date_debut_remise = None  # Initialisez date_debut_remise
     date_fin_remise = None  # Initialisez date_fin_remise
-    
+
     if produit_equals.exists():
         # Si des produits avec la référence exacte existent, les utiliser directement
         produit_similaire = produit_equals.first().reference
@@ -296,34 +301,54 @@ def trouver_produit_similaire_Seiko(reference, champ):
         date_debut_remise = produit_equals.first().date_debut_remise
         date_fin_remise = produit_equals.first().date_fin_remise
         if "CLASSE A" in produit_similaire:
-                    prix_produit_similaire = produit_equals.first().SCC
+            prix_produit_similaire = produit_equals.first().SCC
         mots_reference = reference.upper().split()
     else:
         mots_reference = reference.upper().split()
-        max_mots_communs = 0  # Initialisez le nombre maximum de mots communs
-        produit_similaire = None  # Initialisez la référence du produit similaire
-        prix_produit_similaire = 0.00  # Initialisez le prix du produit similaire
-        remise_similaire = 0.00  # Initialisez la remise du produit similaire
-
-        # Parcourir tous les produits dans la base de données
-        for produit in Seiko.objects.exclude(actif=True):
-            mots_produit = produit.reference.upper().split()  # Convertir la référence du produit en majuscules et la diviser en mots
-            # Compter le nombre de mots communs entre la référence donnée et la référence du produit
-            mots_communs = sum(1 for mot in mots_reference if mot in mots_produit)
+        produit_similaire = None
+        prix_produit_similaire = 0.00
+        remise_similaire = 0.00
+        print(reference)
+        for i in range(1, len(mots_reference) + 1):
+            reference_partial = ' '.join(mots_reference[:i])
+            produits_similaires = Seiko.objects.filter(reference__icontains=reference_partial, actif=True)
+            print(f"***{reference_partial}")
+            print(produits_similaires)
             
-            # Mettre à jour la référence du produit similaire si le nombre de mots communs est le plus grand
-            if mots_communs > max_mots_communs:
-                max_mots_communs = mots_communs
-                produit_similaire = produit.reference
-                if "CLASSE A" in produit.reference:
-                    prix_produit_similaire = produit.SCC
-                else:
-                    prix_produit_similaire = getattr(produit, champ, 0.00)
-                remise_similaire = produit.remise
-                date_debut_remise = produit.date_debut_remise
-                date_fin_remise = produit.date_fin_remise
 
+            if produits_similaires.count() == 1:
+                produit_similaire = produits_similaires.first().reference
+                prix_produit_similaire = getattr(produits_similaires.first(), champ, 0.00)
+                remise_similaire = produits_similaires.first().remise
+                date_debut_remise = produits_similaires.first().date_debut_remise
+                date_fin_remise = produits_similaires.first().date_fin_remise
+                if "CLASSE A" in produit_similaire:
+                    prix_produit_similaire = produits_similaires.first().SCC
+                break  # Sortir de la boucle si un seul produit est trouvé
+            elif produits_similaires.count() > 1:
+                # Si plusieurs produits similaires sont trouvés, trouvez le plus proche en termes de similitude de référence
+                max_similarity = 0
+                for produit in produits_similaires:
+                    similarity = textdistance.jaccard.normalized_similarity(reference_to_search, produit.reference.upper())
+                    if similarity > max_similarity:
+                        max_similarity = similarity
+                        produit_similaire = produit.reference
+                        prix_produit_similaire = getattr(produit, champ, 0.00)
+                        remise_similaire = produit.remise
+                        date_debut_remise = produit.date_debut_remise
+                        date_fin_remise = produit.date_fin_remise
+                        if "CLASSE A" in produit_similaire:
+                            prix_produit_similaire = produit.SCC
+        
+      
     return produit_similaire, prix_produit_similaire, remise_similaire, mots_reference, date_debut_remise, date_fin_remise
+
+
+# Call the function and unpack the return values
+#new_description = "Your product description here"  # Replace with actual description
+#finding_fiels = ["UC", "HC", "ISC"]  # Replace with actual field names if needed
+
+#produit_catalogue, prix_catalogue, remise__, mots_reference, debut___remise, fin___remise,reference = trouver_produit_similaire_Seiko(new_description, finding_fiels[0],prix_d)
 
 def decortiquer_commande(texte):
     lines = texte.split('\n')
@@ -395,9 +420,12 @@ def read_pdf(request):
             prix_d,prix_g=analyser_commande(command)
             new_description=produit_1_decortiquer
             if new_description.startswith("JS"):
-                    new_description=new_description.replace('JS',"JETSTAR")
+                new_description=new_description.replace('JS',"JETSTAR")
             new_description=new_description.replace("JET STAR","JETSTAR").replace("#","")
             new_description=new_description.replace('2P STAR',"2paire Star")
+            new_description=new_description.replace("non traité","")
+            if "JETSTAR" not in new_description:
+                    new_description = new_description.replace("GRIS 85%", "")
             
 
             new_description=new_description.split("(")[0]
@@ -418,13 +446,11 @@ def read_pdf(request):
                 for field in champs_seiko_fiels_model:
                     separateur=None
                     if field in new_description :
-                        print( " i  founs i shoud change by -------------")
-                        print(new_description)
+                       
                         new_description=new_description.replace(str(field),f"- {field}")
                         separateur=field
                         
-                        print(new_description)
-                        print("-------------------------------------")
+                        
                     if separateur  :
                         new_description=new_description.split(f"{separateur}")[0]
                         new_description=f"{new_description} {separateur}"
@@ -441,7 +467,7 @@ def read_pdf(request):
                
                 if "2paire".upper() not in new_description:
                     new_description = new_description.replace("Prog", "PROGRESSIF")
-                new_description=new_description.replace("UNIF","UNIFOCAL")
+                #new_description=new_description.replace("UNIF","UNIFOCAL")
 
                 for field in champs_seiko_fiels_model:
                     #print(champs_seiko_data)
@@ -460,7 +486,7 @@ def read_pdf(request):
                 else :
                     finding_fiels.append(champs_seiko_fiels_model[5])
 
-                produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_Seiko(new_description,finding_fiels[0])
+                produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_Seiko(new_description,finding_fiels[0],prix_d)
                 
                 
                
@@ -485,7 +511,7 @@ def read_pdf(request):
 
             formatted_command = {
                 
-                "Commande": " ".join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande": ' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Date":date_commande,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
@@ -526,6 +552,23 @@ def read_pdf(request):
 
         return render(request, 'excel/excel.html', {'formatted_commands': formatted_commands})
     return render(request, 'excel/excel.html')
+
+
+
+def appliquer_remise(request):
+    if request.method == 'POST':
+        form = RemiseForm(request.POST)
+        if form.is_valid():
+            remise = form.cleaned_data['remise']
+            date_debut_remise = form.cleaned_data['date_debut_remise']
+            date_fin_remise = form.cleaned_data['date_fin_remise']
+            produits_ids = request.POST.getlist('produits_ids')
+            produits = Seiko.objects.filter(id__in=produits_ids)
+            produits.update(remise=remise, date_debut_remise=date_debut_remise, date_fin_remise=date_fin_remise)
+            return HttpResponse(f"REMISE BIEN APPLIQUER SUR LES PRODUITS {produits}") 
+        
+    return HttpResponse("POST")
+    
     
 
 

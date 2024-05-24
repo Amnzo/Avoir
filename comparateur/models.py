@@ -34,6 +34,8 @@ class Seiko(models.Model):
     SUNISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     POLA_UC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     POLA_ISC = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    def __str__(self) -> str:
+        return f"{self.reference}"
 
 
 class StarVision(models.Model):
