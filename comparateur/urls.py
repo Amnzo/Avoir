@@ -7,11 +7,11 @@ from comparateur.views import *
 urlpatterns = [
     path('', read_pdf, name='comparateur_home'),
     #path('data/', data, name='data'),
-    path('delete/', delete, name='delete'),
-    path('export_to_excel/', export_to_excel, name='export_to_excel'),
+    #path('delete/', delete, name='delete'),
+    #path('export_to_excel/', export_to_excel, name='export_to_excel'),
     path('ophtal/', ophtal, name='ophtal'),
     path('appliquer_remise/', appliquer_remise, name='appliquer_remise'),
-    path('execute_sql_file/', execute_sql_file, name='execute_sql_file'),
+    #path('execute_sql_file/', execute_sql_file, name='execute_sql_file'),
     
     
     

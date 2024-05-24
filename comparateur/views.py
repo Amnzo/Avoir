@@ -511,7 +511,7 @@ def read_pdf(request):
 
             formatted_command = {
                 
-                "Commande": ' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande": numero_commande , #' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Date":date_commande,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
@@ -576,32 +576,7 @@ import os
 
 
 
-from django.http import HttpResponse
-from django.db import connection   
-    
-def execute_sql_file(request):
-    # Open the data.sql file and read its contents
-    data_dir = os.path.join(settings.BASE_DIR, 'comparateur', 'data')
-    excel_file = os.path.join(data_dir, 'data.sql')
-    with open(excel_file, 'r') as file:
-        sql_statements = file.read()
 
-    # Split the SQL statements by semicolon to get individual statements
-    statements = sql_statements.split(';')
-
-    # Execute each SQL statement one by one
-    with connection.cursor() as cursor:
-        for statement in statements:
-            if statement.strip():  # Check if the statement is not empty
-                cursor.execute(statement)
-
-    # Return a success response
-    return HttpResponse("SQL file executed successfully.")
-    
-
-def delete(request):
-    
-    return HttpResponse("products_to_delete")
 
 
 
