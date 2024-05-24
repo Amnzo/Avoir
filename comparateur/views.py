@@ -574,49 +574,29 @@ from django.http import HttpResponse
 import tempfile
 import os
 
-def export_data_as_sql(request):
-    # Create a temporary file to store the SQL data
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        # Iterate over all installed apps
-        for app_config in apps.get_app_configs():
-            # Iterate over all models in the app
-            for model in app_config.get_models():
-                # Query data from the model
-                queryset = model.objects.all()
 
-                # Write SQL INSERT statements to the temporary file
-                for obj in queryset:
-                    values = ', '.join(f"'{getattr(obj, field.name)}'" for field in obj._meta.fields)
-                    temp_file.write(f"INSERT INTO {model._meta.db_table} ({', '.join(field.column for field in obj._meta.fields)}) VALUES ({values});\n".encode('utf-8'))
 
-    # Open the temporary file for reading
-    with open(temp_file.name, 'rb') as f:
-        # Create an HTTP response with the file content as attachment
-        response = HttpResponse(f.read(), content_type='application/sql')
-        response['Content-Disposition'] = 'attachment; filename=data.sql'
-
-    # Delete the temporary file
-    os.unlink(temp_file.name)
-
-    return response
-
+from django.http import HttpResponse
+from django.db import connection   
     
-    
+def execute_sql_file(request):
+    # Open the data.sql file and read its contents
+    data_dir = os.path.join(settings.BASE_DIR, 'comparateur', 'data')
+    excel_file = os.path.join(data_dir, 'data.sql')
+    with open(excel_file, 'r') as file:
+        sql_statements = file.read()
 
+    # Split the SQL statements by semicolon to get individual statements
+    statements = sql_statements.split(';')
 
+    # Execute each SQL statement one by one
+    with connection.cursor() as cursor:
+        for statement in statements:
+            if statement.strip():  # Check if the statement is not empty
+                cursor.execute(statement)
 
-            
-            
-            
-
-            
-            
-
-           
-           
-         
-    
-    return render(request, 'excel/excel.html')
+    # Return a success response
+    return HttpResponse("SQL file executed successfully.")
     
 
 def delete(request):
