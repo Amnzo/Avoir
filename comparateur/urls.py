@@ -11,6 +11,8 @@ urlpatterns = [
     path('export_to_excel/', export_to_excel, name='export_to_excel'),
     path('ophtal/', ophtal, name='ophtal'),
     path('appliquer_remise/', appliquer_remise, name='appliquer_remise'),
+    path('export_data_as_sql/', export_data_as_sql, name='export_data_as_sql'),
+    
     
     
     

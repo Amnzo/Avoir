@@ -568,6 +568,38 @@ def appliquer_remise(request):
             return HttpResponse(f"REMISE BIEN APPLIQUER SUR LES PRODUITS {produits}") 
         
     return HttpResponse("POST")
+
+from django.apps import apps
+from django.http import HttpResponse
+import tempfile
+import os
+
+def export_data_as_sql(request):
+    # Create a temporary file to store the SQL data
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        # Iterate over all installed apps
+        for app_config in apps.get_app_configs():
+            # Iterate over all models in the app
+            for model in app_config.get_models():
+                # Query data from the model
+                queryset = model.objects.all()
+
+                # Write SQL INSERT statements to the temporary file
+                for obj in queryset:
+                    values = ', '.join(f"'{getattr(obj, field.name)}'" for field in obj._meta.fields)
+                    temp_file.write(f"INSERT INTO {model._meta.db_table} ({', '.join(field.column for field in obj._meta.fields)}) VALUES ({values});\n".encode('utf-8'))
+
+    # Open the temporary file for reading
+    with open(temp_file.name, 'rb') as f:
+        # Create an HTTP response with the file content as attachment
+        response = HttpResponse(f.read(), content_type='application/sql')
+        response['Content-Disposition'] = 'attachment; filename=data.sql'
+
+    # Delete the temporary file
+    os.unlink(temp_file.name)
+
+    return response
+
     
     
 
