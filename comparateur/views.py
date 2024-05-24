@@ -413,6 +413,7 @@ def read_pdf(request):
             date_commande=command.split("|")[0].split("du")[1].split("-")[0]
             produit = extract_product_info(command.split("|")[2])
             remise__=debut___remise=fin___remise=None
+            date_commande2=date_commande
 
             commande_decortiquer,reference_decortiquer, produit_1_decortiquer,option,option1,option2,option3,option4,option5,some1,some2=decortiquer_commande(command)
             D_decortiquer=extraire_informations_D(command)
@@ -512,7 +513,7 @@ def read_pdf(request):
             formatted_command = {
                 
                 "Commande": numero_commande , #' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
-                "Date":date_commande,
+                "Date":date_commande2,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
                 "Produit_2_": produit_1_decortiquer,

@@ -141,9 +141,9 @@
                 {% endif %}
                 {% if  c.Option %}
                 <tr>
-                    <td >-</td>
-                    <td >-</td>
-                    <td >-</td>
+                    <td >{{ c.Commande }}</td>
+                    <td >{{ c.Date }}</td>
+                    <td >{{ c.Référence }}</td>
                     <td >{{ c.Option.split|first }}</td>
                     <td >{{ c.Option }}</td>
                     <!-- <td>-</td> -->
@@ -160,8 +160,9 @@
                     {% if c.Option3 == "Détourage" %}
 
                     <tr>
-                        <td>-</td>
-                        <td>-</td>
+                    <td >{{ c.Commande }}</td>
+                    <td >{{ c.Date }}</td>
+                    <td >{{ c.Référence }}</td>
                         <td>{{ c.Option3 }}</td>
                         <td>{{ c.Option3 }}</td>
                         <!-- <td>-</td> -->
