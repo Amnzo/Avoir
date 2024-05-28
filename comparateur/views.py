@@ -14,9 +14,11 @@ from django.shortcuts import render,HttpResponse
 import openpyxl
 
 from comparateur.admin import RemiseForm
+from comparateur.nova.nova_views import nova
 from .models import Classeur, Seiko,StarVision
 from django.db.models import Q
 from decimal import Decimal
+
 # ExcelData.objects.create(reference=data["reference"], UC=data["UC"], HC=data["HC"], ISC=data["ISC"], SCC=data["SCC"], SRC=data["SRC"], SRB=data["SRB"], SRC_UV=data["SRC_UV"], SRBUV=data["SRBUV"], RCC=data["RCC"], price=data["price"])
 
 
@@ -388,7 +390,7 @@ def decortiquer_commande(texte):
 
 def read_pdf(request):
     if request.method == 'POST' and request.FILES['pdf_file']:
-        JETSTAR_LIST = ["JETSTAR", "STARVISION", "SENSO BASIC", "OFFICE"]
+        JETSTAR_LIST = ["JETSTAR", "STARVISION", "SENSO BASIC", "OFFICE","JetStar"]
         pdf_file = request.FILES['pdf_file']
         pdf_data = pdf_file.read()
         pdf_buffer = BytesIO(pdf_data)
@@ -424,9 +426,10 @@ def read_pdf(request):
                 new_description=new_description.replace('JS',"JETSTAR")
             new_description=new_description.replace("JET STAR","JETSTAR").replace("#","")
             new_description=new_description.replace('2P STAR',"2paire Star")
-            new_description=new_description.replace("non traité","")
+            new_description = re.sub(r'non traité.*', '', new_description)
             if "JETSTAR" not in new_description:
                     new_description = new_description.replace("GRIS 85%", "")
+            new_description=new_description.replace("VERT 85%","")
             
 
             new_description=new_description.split("(")[0]
@@ -441,6 +444,7 @@ def read_pdf(request):
                 new_description=new_description.replace("1.50","1,5")
                 new_description=new_description.replace("1.60","1,6")
                 new_description=new_description.replace("JETSTAR 150","JETSTAR 1,5")
+                new_description=new_description.replace("JetStar 1.60","JetStar 1,6")
                 #new_description=new_description.replace("HSC"," - HSC") 
                 #break
                 new_description = re.sub(r'\+ \d+', '', new_description)
@@ -468,6 +472,8 @@ def read_pdf(request):
                
                 if "2paire".upper() not in new_description:
                     new_description = new_description.replace("Prog", "PROGRESSIF")
+                if "SEIKO 1.60" in new_description:
+                    new_description = new_description.replace("SEIKO 1.60", "SEIKO HD 1.60")
                 #new_description=new_description.replace("UNIF","UNIFOCAL")
 
                 for field in champs_seiko_fiels_model:
@@ -512,7 +518,7 @@ def read_pdf(request):
 
             formatted_command = {
                 
-                "Commande": numero_commande , #' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande":numero_commande,# ' '.join(mots_reference),#numero_commande , #' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Date":date_commande2,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,

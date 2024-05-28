@@ -45,9 +45,9 @@
 <body>
 
     <div class="container">
-        <h2 class="my-4">Commandes</h2>
+        <h2 class="my-4">BL</h2>
     
-        <form action="{% url 'comparateur_home' %}" method="post" enctype="multipart/form-data">
+        <form action="{% url 'nova' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="pdf_file">Sélectionnez un fichier PDF :</label>
@@ -61,7 +61,7 @@
         <table id="table-data" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th scope="col">Nº Commande</th>
+                    <th scope="col">Nº BL</th>
                     <th scope="col">Date</th>
                     <th scope="col" onclick="sortTableByRefClient()">Réf Client</th>
                     <th scope="col">Réf Produit Facture</th>
@@ -70,119 +70,50 @@
                     <th scope="col">Correction</th>
                     <th scope="col">Prix Catalogue</th>
                     <th scope="col">Prix Facture</th>
-                    <th scope="col">REMISE</th>
-                    <!-- <th scope="col">Prix Apres Remise</th> -->
-                    <th scope="col">Difference</th>
+                    
                    
                 </tr>
             </thead>
             <tbody>
-                {% for c in formatted_commands %}
-                
-                {%if c.CorrectionD %}
+                {% for b in  formatted_commands%}
                 <tr>
-                    <td >{{ c.Commande }}</td>
-                    <td >{{ c.Date }}</td>
-                    <td >{{ c.Référence }}</td>
-                    <td >{{ c.Produit_1 }}</td>
-                    <td>{{ c.Similaire_1 }}</td>
-                    <!-- <td>{{ c.Option }}</td> -->
-                <td>D : {{c.CorrectionD.0}}|{{c.CorrectionD.1}}{% if c.CorrectionD.2 != "CT" %}|{{c.CorrectionD.2}} {% endif %}
-                        
-                        
-                         </td>
-                    <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
-                            {{ c.Prix_catalogue_1 }}     
-                    </td>
-                    <td class="{% if not c.Prix_Facture_D %}warning{% endif %}">
-                        {% if c.Prix_Facture_D %}
-                            {{ c.Prix_Facture_D }}
-                        {% else %}
-                           -
-                        {% endif %}
-                    </td>
-                    <td>{{c.Remise}}%</td>
-                    <!-- <td>{{c.Apres_Remise_d}}</td> -->
-                    <td class="{% if c.Diff_d != 0 %}orange{% endif %}">{{ c.Diff_d }}</td>
-                    
-                    
-                </tr>
-                {% endif %}
-                {%if c.CorrectionG%}
+                <td>{{ b.BL }}</td>
+                <td>{{ b.Date }}</td>
+                <td>{{ b.Porteur }}</td>
+                <td>{{ b.Produit1 }}</td>
+                <td>catalogue</td>
+                <td></td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% if b.Produit2 %} 
+               <tr>
+                <td>{{ b.BL }}</td>
+                <td>{{ b.Date }}</td>
+                <td>{{ b.Porteur }}</td>
+                <td>{{ b.Produit2 }}</td>
+                <td>catalogue</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              
+               </tr>
+               {% endif %}
 
-                <tr>
-
-                    <td >{{ c.Commande }}</td>
-                    <td >{{ c.Date }}</td>
-                    <td >{{ c.Référence }}</td>
-                    <td >{{ c.Produit_1 }}</td>
-                    <td>{{ c.Similaire_1 }}</td>
-                    <!-- <td>{{ c.Option }}</td> -->
-                    <td> G: {{c.CorrectionG.0}}|{{c.CorrectionG.1}}{% if c.CorrectionG.2 != "CT" %}|{{c.CorrectionG.2}}{% endif %}
-                    </td>
-                    <td class="{% if not c.Prix_catalogue_1 %}warning{% endif %}">
-                       
-                            {{ c.Prix_catalogue_1 }}
-                        
-                    </td>
-                    <td class="{% if not c.Prix_Facture_G %}warning{% endif %}">
-                        {% if c.Prix_Facture_G %}
-                            {{ c.Prix_Facture_G }}
-                        {% else %}
-                           -
-                        {% endif %}
-                    </td>
-                    <td>{{c.Remise}}%
-                        
-                    </td>
-                    <!-- <td>{{c.Apres_Remise_g}}</td> -->
-                    <td class="{% if c.Diff_g != 0 %}orange{% endif %}">{{ c.Diff_g }}</td>
-                    
-                </tr>
-                {% endif %}
-                {% if  c.Option %}
-                <tr>
-                    <td >{{ c.Commande }}</td>
-                    <td >{{ c.Date }}</td>
-                    <td >{{ c.Référence }}</td>
-                    <td >{{ c.Option.split|first }}</td>
-                    <td >{{ c.Option }}</td>
-                    <!-- <td>-</td> -->
-                    <td>-</td>
-                  
-                   
-                    <td> {{ c.Option1 }}</td>
-                  
-                    <td> {{ c.Option2 }}</td>
-                    <td>-</td>
-                   
-                    <td class="{% if c.Some1 != 0 %}orange{% endif %}">{{ c.Some1 }}</td>
-                  
-                    {% if c.Option3 == "Détourage" %}
-
-                    <tr>
-                    <td >{{ c.Commande }}</td>
-                    <td >{{ c.Date }}</td>
-                    <td >{{ c.Référence }}</td>
-                        <td>{{ c.Option3 }}</td>
-                        <td>{{ c.Option3 }}</td>
-                        <!-- <td>-</td> -->
-                        <td>-</td>
-                        
-                        <td>{{ c.Option4 }}</td>
-                       
-                        <td>{{ c.Option5 }}</td>
-                        <td>-</td>
-                      
-                        <td class="{% if c.Some2 != 0 %}orange{% endif %}">{{ c.Some2 }}</td>
-                        
-                    </tr>
-                    {% endif %}
-
-                   
-                </tr>
-                {% endif%}
+               {% if b.option %} 
+               <tr>
+                <td>-</td>
+                <td></td>
+                <td>-</td>
+                <td>-</td>
+                <td>{{ b.Option }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+               </tr>
+               {% endif %}
                 {% endfor %}
+                
             </tbody>
         </table>
     </div>
