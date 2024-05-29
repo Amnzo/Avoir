@@ -14,7 +14,7 @@ from django.shortcuts import render,HttpResponse
 import openpyxl
 
 from comparateur.admin import RemiseForm
-from comparateur.nova.nova_views import nova
+from .nova.nova_views import nova
 from .models import Classeur, Seiko,StarVision
 from django.db.models import Q
 from decimal import Decimal
@@ -396,6 +396,7 @@ def read_pdf(request):
         pdf_buffer = BytesIO(pdf_data)
         pdf_reader = PdfReader(pdf_buffer)
         content = ""
+
         for page_num in range(2,len(pdf_reader.pages)):
             page = pdf_reader.pages[page_num]
             text = page.extract_text()
@@ -403,6 +404,8 @@ def read_pdf(request):
             decoded_text = encoded_text.decode('utf-8')
             content += decoded_text
             #print(content)
+        content = re.sub(r'(?i)page \d+ sur 30', '', content).strip()
+        
         commands = extract_commands(content)
         formatted_commands = []
         #champs_seiko_data = [field.name for field in Seiko._meta.get_fields()]
