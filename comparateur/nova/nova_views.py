@@ -12,7 +12,7 @@ def decortiquer_bl(bl_content):
     produit1=produit2=option=None
     bl_lines=bl_content.split('\n')
     
-    numero_bl=f"BL {bl_lines[0].split("du")[0]}" 
+    numero_bl=bl_lines[0].split("du")[0] 
     date=bl_lines[0].split("du")[1].split('Réf')[0]#Réf
     porteur=bl_lines[0].split("du")[1].split('Réf')[1]#Réf
     
