@@ -296,6 +296,8 @@ def trouver_produit_similaire_Seiko(reference, champ, prix):
     date_fin_remise = None  # Initialisez date_fin_remise
 
     if produit_equals.exists():
+        print(f"pour {reference} produit equals sont {len(produit_equals)} :")
+        print(produit_equals)
         # Si des produits avec la référence exacte existent, les utiliser directement
         produit_similaire = produit_equals.first().reference
         prix_produit_similaire = getattr(produit_equals.first(), champ, 0.00)
@@ -314,8 +316,9 @@ def trouver_produit_similaire_Seiko(reference, champ, prix):
         for i in range(1, len(mots_reference) + 1):
             reference_partial = ' '.join(mots_reference[:i])
             produits_similaires = Seiko.objects.filter(reference__icontains=reference_partial, actif=True)
-            print(f"***{reference_partial}")
-            print(produits_similaires)
+            print(f"pour {reference} produit simulaire sont : {len(produits_similaires)}")
+            print(produit_similaire)
+ 
             
 
             if produits_similaires.count() == 1:
@@ -341,6 +344,7 @@ def trouver_produit_similaire_Seiko(reference, champ, prix):
                         date_fin_remise = produit.date_fin_remise
                         if "CLASSE A" in produit_similaire:
                             prix_produit_similaire = produit.SCC
+        print(f"*************************************************")
         
       
     return produit_similaire, prix_produit_similaire, remise_similaire, mots_reference, date_debut_remise, date_fin_remise
@@ -404,7 +408,8 @@ def read_pdf(request):
             decoded_text = encoded_text.decode('utf-8')
             content += decoded_text
             #print(content)
-        content = re.sub(r'(?i)page \d+ sur 30', '', content).strip()
+        content = re.sub(r'(?i)page \d+ sur \d+', '', content).strip()
+        #pattern = r'(?i)page \d+ sur \d+'
         
         commands = extract_commands(content)
         formatted_commands = []
@@ -429,7 +434,7 @@ def read_pdf(request):
                 new_description=new_description.replace('JS',"JETSTAR")
             new_description=new_description.replace("JET STAR","JETSTAR").replace("#","")
             new_description=new_description.replace('2P STAR',"2paire Star")
-            new_description = re.sub(r'non traité.*', '', new_description)
+            
             if "JETSTAR" not in new_description:
                     new_description = new_description.replace("GRIS 85%", "")
             new_description=new_description.replace("VERT 85%","")
@@ -477,6 +482,7 @@ def read_pdf(request):
                     new_description = new_description.replace("Prog", "PROGRESSIF")
                 if "SEIKO 1.60" in new_description:
                     new_description = new_description.replace("SEIKO 1.60", "SEIKO HD 1.60")
+                new_description=new_description.replace("Gris","")
                 #new_description=new_description.replace("UNIF","UNIFOCAL")
 
                 for field in champs_seiko_fiels_model:
@@ -494,7 +500,14 @@ def read_pdf(request):
                 if finding_fiels:
                     pass
                 else :
-                    finding_fiels.append(champs_seiko_fiels_model[5])
+                    finding_fiels.append(champs_seiko_fiels_model[2])
+                if "Pol" in new_description and len(finding_fiels)==1 and  new_description and "2PAIRE"  in new_description.upper():
+                    finding_fiels[0] = "POLA_"+finding_fiels[0]
+                
+                if "SUN" in new_description and len(finding_fiels)==1 and  new_description and "2PAIRE"  in new_description.upper():
+                    finding_fiels[0] = "SUN"+finding_fiels[0]
+                new_description = re.sub(r'non traité.*', '', new_description)
+               
 
                 produit_catalogue,prix_catalogue,remise__,mots_reference,debut___remise,fin___remise=trouver_produit_similaire_Seiko(new_description,finding_fiels[0],prix_d)
                 
@@ -517,7 +530,10 @@ def read_pdf(request):
             #except TypeError:
             #   Diff_d = 0
             
-            
+            if len(finding_fiels) == 1 and produit_catalogue is not None :
+                produit_catalogue = produit_catalogue +  '(' + finding_fiels[0] + ')'
+
+
 
             formatted_command = {
                 
@@ -559,7 +575,7 @@ def read_pdf(request):
                         
                     
                     
-
+        #formatted_commands = sorted(formatted_commands, key=lambda x: x["Diff_d"])
         return render(request, 'excel/excel.html', {'formatted_commands': formatted_commands})
     return render(request, 'excel/excel.html')
 
