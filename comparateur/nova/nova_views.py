@@ -20,9 +20,9 @@ def decortiquer_bl(bl_content):
     print("----------------------")
     print(numero_bl)
     produit1=bl_lines[1]
-    print(f" Produit 1  {produit1}")
+    #print(f" Produit 1  {produit1}")
     second_line=bl_lines[2].split()
-    print(len(second_line))
+    #print(len(second_line))
     if len(second_line)>5 :
         produit2=bl_lines[2]
        
@@ -31,8 +31,8 @@ def decortiquer_bl(bl_content):
        
     if len(bl_lines)>3 :
         option=bl_lines[3]
-    print(f" Produit 2  {produit2}")
-    print(f" Option  {option}")
+    #print(f" Produit 2  {produit2}")
+    #print(f" Option  {option}")
     return numero_bl,produit1,produit2,option,date,porteur
     
 
