@@ -485,7 +485,8 @@ def read_pdf(request):
                 if "SEIKO 1.60" in new_description:
                     new_description = new_description.replace("SEIKO 1.60", "SEIKO HD 1.60")
                 new_description=new_description.replace("Gris","")
-                #new_description=new_description.replace("UNIF","UNIFOCAL")
+                if "CLASSE A" in new_description:
+                    new_description=new_description.replace("UNIF","UNIFOCAL")
 
                 for field in champs_seiko_fiels_model:
                     #print(champs_seiko_data)
@@ -539,7 +540,7 @@ def read_pdf(request):
 
             formatted_command = {
                 
-                "Commande":numero_commande,# ' '.join(mots_reference),#numero_commande , #' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
+                "Commande":numero_commande,#' '.join(mots_reference),#numero_commande,# ' '.join(mots_reference),#numero_commande , #' '.join(mots_reference),#numero_commande ,#command.split("|")[0] , #.split("|")[0],
                 "Date":date_commande2,
                 "Référence": reference_decortiquer,
                 "Produit_1": produit_1_decortiquer,
