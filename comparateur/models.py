@@ -49,6 +49,21 @@ class StarVision(models.Model):
 
     def __str__(self) -> str:
         return f"{self.reference}- {self.prix}"
+
+
+
+# class NovaCell(models.Model):
+#     Classeur_Name = models.CharField(max_length=100)
+#     reference = models.CharField(max_length=100)
+#     SANS_TR=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     DIAPLUS=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     MAJOR_CLEAN=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     SELIS_XT=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     GRAPHENE=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     AIRLIS_Shock=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     BLUE_Shock=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+
     
 
 

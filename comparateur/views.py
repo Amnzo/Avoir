@@ -430,6 +430,8 @@ def read_pdf(request):
             G_decortiquer=extraire_informations_G(command)
             prix_d,prix_g=analyser_commande(command)
             new_description=produit_1_decortiquer
+            new_description=new_description.replace("STARVISION+","STARVISION +")
+            new_description=new_description.replace("Prog.","Prog")
             if new_description.startswith("JS"):
                 new_description=new_description.replace('JS',"JETSTAR")
             new_description=new_description.replace("JET STAR","JETSTAR").replace("#","")
