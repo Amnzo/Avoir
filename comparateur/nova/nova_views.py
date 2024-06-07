@@ -402,7 +402,7 @@ def novadata(request):
                     
                     try:
                         print(nom_feuille)
-                        if nom_feuille == "LENTILLE":
+                        if nom_feuille == "GLOBALE":
                             
                             nova_cell = NovaCell(
                                 reference=ligne[0],
