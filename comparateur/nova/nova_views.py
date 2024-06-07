@@ -126,7 +126,7 @@ def nova(request):
         print(df_aksess)
 
         
-        Traitements=["GRAPHEN","MAJOR"]
+        Traitements=["GRAPHEN","MAJOR","SELIS","SEL.INT"]
         pdf_file = request.FILES['pdf_file']
         pdf_data = pdf_file.read()
       
@@ -139,7 +139,9 @@ def nova(request):
             #pattern = r'/ Récapitulatif(?:.*?\b(\w+\s*){7})'
             pattern = r'/ Récapitulatif(?:.*?\b(\w+|\W+\s*){})'
             text = re.sub(pattern, '', text)
-            text = re.sub(r'/\s*Récapitulatif(?:\s+(?:\S+\s*){0,7})?°?', '', text)
+            #text = re.sub(r'/\s*Récapitulatif(?:\s+(?:\S+\s*){0,7})?°?', '', text)
+            text = re.sub(r'(\d+)\s*/\s*Récapitulatif(?:\s+(?:\S+\s*){0,7})?°?', r'\1', text)
+            
             encoded_text = text.encode('utf-8', 'ignore')  # Ignore characters that cannot be encoded
             decoded_text = encoded_text.decode('utf-8')
             content += decoded_text
@@ -161,8 +163,18 @@ def nova(request):
                 for t in Traitements:
                     if produit_ and t in produit_:
                         finding_traitement.append(t)
+                
+
                 if not finding_traitement:
                      finding_traitement.append("SANSTR")
+                if finding_traitement[0]=="SELIS":
+                    finding_traitement[0]="SELISXT"
+                if finding_traitement[0]=="SEL.INT":
+                    finding_traitement[0]="SELISXT"
+
+
+                   
+                
 
                 #print(f"{produit_} and finding is {finding_traitement}")
                 if produit_ and "E." in produit_ :
@@ -174,6 +186,13 @@ def nova(request):
                     #produit_=produit_.replace(".,",".")
                     produit_=produit_.replace("E 1","E 1.")
                     produit_=produit_.replace("PERFECT E 1.5","PERFECT E 1.50")
+                    produit_=produit_.replace("PERFECT 174","PERFECT 1,74")
+                    produit_=produit_.replace('SPH','Sphérique')
+                    produit_=produit_.replace('Sphérique.','Sphérique')
+                    produit_=produit_.replace('EDEN ZETA 1','EDEN ZETA 1,')
+                    produit_=produit_.replace('PERFECT ECO','PERFECT E')
+                    
+                  
                     
                     
                     #produit_=produit_.replace("PERFECT E 1.6","PERFECT E 1.6")
