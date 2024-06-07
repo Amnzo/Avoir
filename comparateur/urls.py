@@ -11,8 +11,11 @@ urlpatterns = [
     path('export_to_excel/', export_to_excel, name='export_to_excel'),
     path('ophtal/', ophtal, name='ophtal'),
     path('appliquer_remise/', appliquer_remise, name='appliquer_remise'),
-     path('nova/', nova, name='nova'),
+    path('novadata/', novadata, name='novadata'),
+    path('nova/', nova, name='nova'),
     #path('execute_sql_file/', execute_sql_file, name='execute_sql_file'),
+    
+    
     
     
     

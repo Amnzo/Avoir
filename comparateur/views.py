@@ -14,7 +14,7 @@ from django.shortcuts import render,HttpResponse
 import openpyxl
 
 from comparateur.admin import RemiseForm
-from .nova.nova_views import nova
+from .nova.nova_views import *
 from .models import Classeur, Seiko,StarVision
 from django.db.models import Q
 from decimal import Decimal

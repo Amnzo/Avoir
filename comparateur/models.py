@@ -52,16 +52,40 @@ class StarVision(models.Model):
 
 
 
-# class NovaCell(models.Model):
-#     Classeur_Name = models.CharField(max_length=100)
-#     reference = models.CharField(max_length=100)
-#     SANS_TR=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     DIAPLUS=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     MAJOR_CLEAN=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     SELIS_XT=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     GRAPHENE=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     AIRLIS_Shock=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-#     BLUE_Shock=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+class NovaCell(models.Model):
+
+    reference = models.CharField(max_length=100)
+    SANSTR=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    DIAPLUS=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    MAJOR=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    SELISXT=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    GRAPHEN=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    AIRLISShock=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    BLUE_Shock=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    #TEINTE=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    def __str__(self) -> str:
+        return f"{self.reference}"
+
+class POL(models.Model):
+
+    reference = models.CharField(max_length=100)
+    DIAPLUS=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    ARINTERNE=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    MAJOR=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    AIRLIS=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    def __str__(self) -> str:
+        return f"{self.reference}"
+    
+class AKSESS(models.Model):
+
+    reference = models.CharField(max_length=100)
+    PRIX=models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+   
+    
+    def __str__(self) -> str:
+        return f" {self.reference}"
+    
     
 
     

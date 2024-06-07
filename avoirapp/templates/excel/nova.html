@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -70,6 +71,7 @@
                     <th scope="col">Correction</th>
                     <th scope="col">Prix Catalogue</th>
                     <th scope="col">Prix Facture</th>
+                    <th scope="col">Difference</th>
                     
                    
                 </tr>
@@ -81,10 +83,12 @@
                 <td>{{ b.Date }}</td>
                 <td>{{ b.Porteur }}</td>
                 <td>{{ b.Produit1 }}</td>
-                <td>catalogue</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{b.S2}}</td>
+                <td>{{b.Correction1}}</td>
+                <td>{{b.S_prix1}}</td>
+                <td>{{b.Prix1}}</td>
+                <td class="{% if b.Diff1 != 0.00 %}orange{% endif %}">{{ b.Diff1 }}</td>
+
                </tr>
                {% if b.Produit2 %} 
                <tr>
@@ -92,26 +96,31 @@
                 <td>{{ b.Date }}</td>
                 <td>{{ b.Porteur }}</td>
                 <td>{{ b.Produit2 }}</td>
-                <td>catalogue</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{b.S2}}</td>
+                <td>{{b.Correction2}}</td>
+                <td>{{b.S_prix2}}</td>
+                <td>{{b.Prix2}}</td>
+                <td class="{% if b.Diff1 != 0.00 %}orange{% endif %}">{{ b.Diff1 }}</td>
+
               
                </tr>
                {% endif %}
 
-               {% if b.option %} 
+               {% if b.Option %}
                <tr>
-                <td>-</td>
+                <td>{{ b.BL }}</td>
+                <td>{{ b.Date }}</td>
+                <td>{{ b.Porteur }}</td>
+              
                 <td></td>
-                <td>-</td>
-                <td>-</td>
-                <td>{{ b.Option }}</td>
+                <td>{{ b.Option.1 }}</td>
+                <td>{{ b.Option.0 }}</td>
+                
                 <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ b.Option.2 }}</td>
                </tr>
                {% endif %}
+              
                 {% endfor %}
                 
             </tbody>

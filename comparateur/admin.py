@@ -3,7 +3,7 @@ from django import forms
 from django.shortcuts import render
 from django.urls import path
 from django.http import HttpResponseRedirect
-from .models import Seiko, StarVision
+from .models import AKSESS, POL, NovaCell, Seiko, StarVision
 
 class RemiseForm(forms.Form):
     remise = forms.DecimalField(max_digits=10, decimal_places=2)
@@ -45,3 +45,20 @@ class StarvisionAdmin(admin.ModelAdmin):
     search_fields = ['reference']  # Liste des champs à rechercher
 
 admin.site.register(StarVision, StarvisionAdmin)
+class NovaAdmin(admin.ModelAdmin):
+    list_display = ('reference','id','SANSTR')
+    search_fields = ('reference',)
+  
+admin.site.register(NovaCell,NovaAdmin)
+
+class POLAdmin(admin.ModelAdmin):
+    list_display = ('reference','id')
+    search_fields = ('reference',)
+  
+admin.site.register(POL,POLAdmin)
+
+class AKSESSAdmin(admin.ModelAdmin):
+    list_display = ('reference','PRIX')
+    search_fields = ('reference',)
+  
+admin.site.register(AKSESS,AKSESSAdmin)
