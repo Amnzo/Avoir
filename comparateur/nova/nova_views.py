@@ -372,12 +372,12 @@ def novadata2(request):
 
 
 def novadata(request):
-    chemin_fichier_excel = 'C:/Users/Amnzo/Desktop/Nova/nova.xlsx' #LENTILLE
+    #chemin_fichier_excel = 'C:/Users/Amnzo/Desktop/Nova/nova.xlsx' #LENTILLE
     data_dir = os.path.join(settings.BASE_DIR, 'comparateur', 'data')
-    chemin_fichier_excel = os.path.join(data_dir, 'nova.xlsx')
+    chemin_fichier_excel = os.path.join(data_dir, 'NOVA_LENTILLE.xlsx')
     #chemin_fichier_excel = ''#C:/Users/Amnzo/Desktop/Nova/NOVA_LENTILLE.xlsx
-    noms_feuilles = ["GLOBALE", "POL", "AKSESS"]
-    #noms_feuilles = ["LENTILLE"]
+    #noms_feuilles = ["GLOBALE", "POL", "AKSESS"]
+    noms_feuilles = ["LENTILLE"]
     
     try:
         # Chargement du classeur Excel
@@ -402,17 +402,17 @@ def novadata(request):
                     
                     try:
                         print(nom_feuille)
-                        if nom_feuille == "GLOBALE":
+                        if nom_feuille == "LENTILLE":
                             
                             nova_cell = NovaCell(
                                 reference=ligne[0],
                                 SANSTR=convert_value(ligne[1]),
-                                DIAPLUS=convert_value(ligne[2]),
-                                MAJOR=convert_value(ligne[3]),
-                                SELISXT=convert_value(ligne[4]),
-                                GRAPHEN=convert_value(ligne[5]),
-                                AIRLISShock=convert_value(ligne[6]),
-                                BLUE_Shock=convert_value(ligne[7]),
+                                # DIAPLUS=convert_value(ligne[2]),
+                                # MAJOR=convert_value(ligne[3]),
+                                # SELISXT=convert_value(ligne[4]),
+                                # GRAPHEN=convert_value(ligne[5]),
+                                # AIRLISShock=convert_value(ligne[6]),
+                                # BLUE_Shock=convert_value(ligne[7]),
                                 # Ajoutez les autres colonnes ici
                             )
                             nova_cell.save()
