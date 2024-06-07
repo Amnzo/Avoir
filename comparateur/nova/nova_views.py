@@ -290,7 +290,7 @@ def nova(request):
                 if porteur:
                     porteur=porteur.replace(" Prix Facturé H.T.", "")
                 formatted_command = {
-                "BL": produit_,#numero_bl,
+                "BL": numero_bl,
                 "Date": date,
                 "Porteur": porteur,
                 "Produit1": produit_,
