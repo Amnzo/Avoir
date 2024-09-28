@@ -2,6 +2,7 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseRedirect, JsonResponse
+import openpyxl
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
 from .models import Anomalie, Avoir, Client, Famille,Consommation, JourneeVente, Litige, Livraison, RemiseBanque, Repertoire, Retour, Sav, Stock, Teletransmition, Vente
@@ -140,12 +141,59 @@ def dashboard(request):
     return render(request, 'dashbord/dashboard.html', {'data': data})
 
 
-    return HttpResponse("kkkkkkkk")
+def lire_excel_avoir(request):
+    # Construire le chemin complet vers le fichier Excel dans 'data'
+    excel_file_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'data', 'RETOURS.xlsx')
+    # Liste pour stocker les données du fichier Excel
+    data = []
+    
+    # Charger le fichier Excel avec openpyxl
+    workbook = openpyxl.load_workbook(excel_file_path)
+    worksheet = workbook.active  # Sélectionner la première feuille
+    Retour.objects.all().delete()
 
+    for row in worksheet.iter_rows(values_only=True):
+        date_excel = row[0]  # Suppose que la première colonne est 'Date'
+        nom_prenom = row[1]  # Suppose que la deuxième colonne est 'Nom Prénom'
+        fournisseur = row[2]  # Suppose que la troisième colonne est 'Fournisseur'
+        marque = row[3]       # Suppose que la quatrième colonne est 'Marque'
+        designation = row[4]  # Suppose que la cinquième colonne est 'Designation'
+        motif = row[5]        # Suppose que la sixième colonne est 'Motif'
+       # Convertir la date depuis Excel
+        if date_excel:
+            # Convertir la date depuis Excel
+            if isinstance(date_excel, datetime):  # Si la date est déjà au format datetime
+                date_value = date_excel
+            else:
+                try:
+                    date_value = datetime.strptime(date_excel, '%Y-%m-%d %H:%M:%S')  # Convertir depuis string si nécessaire
+                except ValueError:
+                    continue  # Si la conversion échoue, passer à la ligne suivante
+        else:
+            continue  # Si date_excel est None, ignorer cette ligne
+        if nom_prenom:
+            try:
+                nom, prenom = nom_prenom.split(' ', 1)  # Sépare en deux parties : nom et prénom
+            except ValueError:
+                nom = nom_prenom
+                prenom = ''  # Si pas de prénom
 
+            # Créer et sauvegarder l'objet Retour dans la base de données
+        retour = Retour(
+                date=date_value,
+                nom=nom,
+                prenom=prenom,
+                fournisseur=fournisseur,
+                marque=marque,
+                designation=designation,
+                motif=motif,
+                is_active=True,
+                facture="retours_invoice/logo-salmi_3zz7Cwn.png"
+        )
+        print(retour)
+        retour.save()
+    return HttpResponse("Données importées avec succès avec les dates")
 @login_required(login_url='login')
-
-
 def avoir(request):
     items_per_page = 8
     
@@ -919,6 +967,7 @@ def add_retour(request):
         designation = request.POST.get('designation')
         marque = request.POST.get('marque')
         code = request.POST.get('code')
+        motif = request.POST.get('motif')
         facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
         
         # Créer un nouvel objet Retour
@@ -929,6 +978,7 @@ def add_retour(request):
             fournisseur=fournisseur,
             designation=designation,
             code=code,
+            motif=motif,
             facture=facture  # Assignez le fichier de la facture
         )
         
@@ -955,6 +1005,7 @@ def edit_retour(request, id):
         fournisseur = request.POST.get('fournisseur')
         designation = request.POST.get('designation')
         code = request.POST.get('code')
+        motif = request.POST.get('motif')
         facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
         date = request.POST.get('date')
         date_retour= datetime.strptime(date, '%d-%m-%Y').date()
@@ -967,6 +1018,8 @@ def edit_retour(request, id):
         retour.fournisseur = fournisseur
         retour.designation = designation
         retour.code = code
+        retour.motif = motif
+        
         if facture:  # Vérifiez si un nouveau fichier de facture a été fourni
             retour.facture = facture
         

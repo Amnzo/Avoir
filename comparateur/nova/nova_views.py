@@ -166,7 +166,7 @@ def nova(request):
                 
 
                 if not finding_traitement:
-                     finding_traitement.append("SANSTR")
+                     finding_traitement=["SANSTR"]
                 if finding_traitement[0]=="SELIS":
                     finding_traitement[0]="SELISXT"
                 if finding_traitement[0]=="SEL.INT":
@@ -248,7 +248,7 @@ def nova(request):
                             
                             # Récupérer la valeur de la colonne 'reference'
                             similaire1 = row_with_closest_param['reference']
-                            prix_produit_similaire=row_with_closest_param[finding_traitement[0]]
+                            prix_produit_similaire=row_with_closest_param['id']
                             
                             print("Produit similaire:", similaire1)
                         #print(rows_with_max_similarity)
@@ -290,7 +290,8 @@ def nova(request):
                 if porteur:
                     porteur=porteur.replace(" Prix Facturé H.T.", "")
                 formatted_command = {
-                "BL": numero_bl,
+                "BL": produit_,#numero_bl,
+                "Valeur":finding_traitement,
                 "Date": date,
                 "Porteur": porteur,
                 "Produit1": produit_,

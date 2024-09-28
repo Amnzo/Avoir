@@ -63,6 +63,7 @@
             <thead>
                 <tr>
                     <th scope="col">Nº BL</th>
+                    <th scope="col">Valeur</th>
                     <th scope="col">Date</th>
                     <th scope="col" onclick="sortTableByRefClient()">Réf Client</th>
                     <th scope="col">Réf Produit Facture</th>
@@ -80,6 +81,7 @@
                 {% for b in  formatted_commands%}
                 <tr>
                 <td>{{ b.BL }}</td>
+                <td>{{ b.Valeur }}</td>
                 <td>{{ b.Date }}</td>
                 <td>{{ b.Porteur }}</td>
                 <td>{{ b.Produit1 }}</td>
@@ -93,6 +95,7 @@
                {% if b.Produit2 %} 
                <tr>
                 <td>{{ b.BL }}</td>
+                <td>{{ b.Valeur }}</td>
                 <td>{{ b.Date }}</td>
                 <td>{{ b.Porteur }}</td>
                 <td>{{ b.Produit2 }}</td>

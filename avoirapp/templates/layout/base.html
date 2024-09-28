@@ -1,5 +1,3 @@
-<!-- templates/base.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,32 +11,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
     <style>
+        .sidebar-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
 
-.sidebar-header {
-    /* Add styles for the sidebar header */
-    background-color: #f8f9fa; /* Change the background color to a visible color */
-    padding: 10px;
-    border-bottom: 1px solid #dee2e6; /* Add a border to separate it from the rest of the sidebar */
-}
+        .sidebar-header h6 a {
+            color: #343a40;
+            text-decoration: none;
+        }
 
-.sidebar-header h4 a {
-    /* Add styles for the anchor tag within the header */
-    color: #343a40; /* Change the text color to a visible color */
-    text-decoration: none; /* Remove underline */
-}
+        .sidebar-header h6 a:hover {
+            color: #007bff;
+        }
 
-.sidebar-header h4 a:hover {
-    /* Add styles for the anchor tag on hover */
-    color: #007bff; /* Change the text color on hover */
-}
-
-
-              body {
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
         }
+
         .message-list {
             list-style-type: none;
             padding: 0;
@@ -56,11 +50,10 @@
         }
 
         .success {
-    background-color: #28a745; /* Green color for success */
-    color: #fff; /* White text color */
-    border-color: #28a745; /* Matching border color */
-}
-
+            background-color: #28a745;
+            color: #fff;
+            border-color: #28a745;
+        }
 
         .warning {
             background-color: #ffffcc;
@@ -75,9 +68,6 @@
         .wrapper {
             display: flex;
         }
-
-
-
 
         #sidebar {
             min-width: 250px;
@@ -100,7 +90,7 @@
             text-align: center;
         }
 
-        #sidebar .sidebar-header h3 {
+        #sidebar .sidebar-header h6 {
             margin-bottom: 0;
             color: #ffffff;
         }
@@ -111,8 +101,8 @@
         }
 
         #sidebar ul li a {
-            padding: 15px;
-            font-size: 1.1em;
+            padding: 10px 15px; /* Adjusted padding for smaller font size */
+            font-size: 1em; /* Adjusted font size */
             display: block;
             color: #dfe3e8;
             transition: all 0.3s;
@@ -158,11 +148,12 @@
         #sidebarCollapse:hover {
             color: #0056b3;
         }
+
         table {
-    width: 100%;
-    margin-bottom: 1rem;
-    text-align: center; /* Ajouter le centrage pour tous les tableaux */
-}
+            width: 100%;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -170,17 +161,11 @@
     <div class="wrapper">
         <!-- Sidebar -->
         <nav id="sidebar">
-            <div class="sidebar-header">
-                <h6><a href="{% url 'comparateur_home' %}"> COMPARATEUR SEIKO </a> </h6>
-                <h6><a href="{% url 'nova' %}"> COMPARATEUR NOVA </a> </h6>
-               
-            </div>
-           
+            
             <ul class="list-unstyled components">
                 {% if user.is_superuser %}
                 <li class="active">
                     <a href="{% url 'profile' %}" title="USERS">
-
                         <i class="fas fa-user-circle"></i> PROFIL ADMIN
                     </a>
                 </li>
@@ -189,55 +174,49 @@
                         <i class="fas fa-user"></i> LISTE DES UTILISATEURS
                     </a>
                 </li>
+                <li class="active">
+                    <a href="{% url 'familles' %}" title="Famille de catégories de produits">
+                        <i class="fas fa-sitemap"></i> FAMILLES
+                    </a>
+                </li>
                 {% endif %}
-
-                   <li class="active">
-                        <a href="{% url 'familles' %}" title="Famille de catégories de produits">
-                            <i class="fas fa-sitemap"></i> FAMILLES
-                        </a>
-                    </li>
-
                 <li class="active">
                     <a href="{% url 'client' %}" title="Client">
                         <i class="fas fa-users"></i> CLIENTS
                     </a>
                 </li>
-                 <li class="active">
+                {% if user.is_superuser %}
+                <li class="active">
                     <a href="{% url 'avoir' %}" title="Avoir">
                         <i class="fas fa-euro-sign"></i> ETAT CREDIT
                     </a>
                 </li>
-
-               
+                {% endif %}
                 <li class="active">
                     <a href="{% url 'retour_list' %}" title="Client">
-                        <i class="fas fa-undo"></i> {{"Gestion Retour" |upper }}
+                        <i class="fas fa-undo"></i> {{ "Gestion Retour" |upper }}
                     </a>
                 </li>
                 <li class="active">
                     <a href="{% url 'repertoire_list' %}" title="Repertoire">
-                        <i class="fas fa-folder-open"></i>  {{"GESTION REPERTOIRE" |upper }}
+                        <i class="fas fa-folder-open"></i> {{ "GESTION REPERTOIRE" |upper }}
                     </a>
                 </li>
-                
-                <!-- Add more links as needed -->
-               
                 <li class="active">
                     <a href="{% url 'ventes_journee' %}" title="Client">
-                        <i class="far fa-calendar-alt"></i> {{"Compte Rendu" |upper }}
+                        <i class="far fa-calendar-alt"></i> {{ "Compte Rendu" |upper }}
                     </a>
                 </li>
-                
+                {% if user.is_superuser %}
                 <li class="active">
                     <a href="{% url 'get_statistics' %}" title="Statistiques">
-                        <i class="far fa-chart-bar"></i> {{"Statistiques" |upper }}
+                        <i class="far fa-chart-bar"></i> {{ "Statistiques" |upper }}
                     </a>
                 </li>
-               
-
+                {% endif %}
                 <li>
                     <a href="{% url 'logout' %}" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i> {{"Logout"|upper}}
+                        <i class="fas fa-sign-out-alt"></i> {{ "Logout" |upper }}
                     </a>
                 </li>
             </ul>

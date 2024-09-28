@@ -99,7 +99,7 @@ class Consommation(models.Model):
     code_barre = models.CharField(max_length=25, blank=True ,null=True)
     facture = models.FileField(
         upload_to=upload_invoice_path,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        validators=[FileExtensionValidator(allowed_extensions=['pdf','jpg', 'jpeg', 'png'])],
          blank=True ,  # La facture est obligatoire
          null=True
     )
@@ -140,9 +140,10 @@ class Retour(models.Model):
     marque=models.CharField(max_length=100,blank=True ,null=True)
     designation = models.CharField(max_length=100,blank=True ,null=True,)
     code = models.CharField(max_length=50,blank=True ,null=True)
+    motif = models.CharField(max_length=50,blank=True ,null=True)
     facture = models.FileField(
         upload_to=upload_invoice_path_retour,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        validators=[FileExtensionValidator(allowed_extensions=['pdf','jpg', 'jpeg', 'png'])],
          blank=True ,  # La facture est obligatoire
          null=True
     )
