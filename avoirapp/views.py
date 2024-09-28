@@ -188,7 +188,7 @@ def lire_excel_avoir(request):
                 designation=designation,
                 motif=motif,
                 is_active=True,
-                facture="retours_invoice/logo-salmi_3zz7Cwn.png"
+              
         )
         print(retour)
         retour.save()
