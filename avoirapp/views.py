@@ -187,7 +187,7 @@ def lire_excel_avoir(request):
                 marque=marque,
                 designation=designation,
                 motif=motif,
-                is_active=True,
+                is_active=False,
               
         )
         print(retour)

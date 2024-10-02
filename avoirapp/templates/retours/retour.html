@@ -5,96 +5,111 @@
 {% block content %}
 {% load tz %}  {# Charger les filtres de fuseau horaire #}
 <style>
-    
+/* Styles pour les lignes avec des classes spécifiques */
+#retoursTable tbody tr.success {
+    background-color: lightgreen !important;
+    color: black !important;
+}
+
+#retoursTable tbody tr.warning {
+    background-color: #ffe6b3 !important;  /* Orange pâle */
+    color: black !important;
+}
+
+#retoursTable tbody tr.danger {
+    background-color: lightcoral !important;  /* Rouge clair */
+    color: black !important;
+}
+
+/* Styles pour les autres lignes */
 #retoursTable thead {
     position: sticky;
     top: 0;
     background-color: #007BFF;
     color: #FFFFFF;
 }
+.text-black-link {
+    color: black; /* Couleur noire pour le lien */
+    text-decoration: none; /* Supprimer le soulignement */
+}
+
+.text-black-link:hover {
+    color: black; /* Garder la couleur noire lors du survol */
+    text-decoration: underline; /* Optionnel : ajouter un soulignement au survol */
+}
+
+
 #retoursTable {
     border-collapse: collapse;
 }
 
 #retoursTable th, #retoursTable td {
-    border: 1px solid #ddd; /* Choisissez une couleur adaptée */
-    padding: 8px; /* Ajustez selon vos besoins */
+    border: 1px solid #ddd;
+    padding: 8px;
 }
-#retoursTable tbody tr:nth-child(even) {
-    background-color: #f2f2f2; /* Choisissez une couleur de fond */
+
+#retoursTable tbody tr:nth-child(even):not(.success):not(.warning):not(.danger) {
+    background-color: #f2f2f2;
 }
 
 #retoursTable th, #retoursTable td {
-    width: 150px; /* Ajustez selon vos besoins */
+    width: 150px;
 }
-#retoursTable {
-    overflow-x: auto;
+
+.designation-col {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-    /* Réduire la largeur de la colonne DESIGNATION */
-    .designation-col {
-        max-width: 100px; /* ou toute autre valeur souhaitée */
-        overflow: hidden;
-        text-overflow: ellipsis; /* Ajouter des points de suspension si le texte dépasse */
-        white-space: nowrap; /* Empêcher le texte de se retourner à la ligne */
-    }
 
-    .space {
-        margin-right: 6px; /* ou tout autre valeur pour l'espace désiré */
-    }
+.space {
+    margin-right: 6px;
+}
 
-    tr.success {
-        background-color: lightgreen; /* Vert léger */
-        color: black;
-    }
+/* Élargissement de la colonne DESIGNATION */
+.designation-col {
+    max-width: 200px; /* Augmentation de la largeur maximale */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    tr.warning {
-        background-color: #ffe6b3; /* Orange léger */
-        color: black;
-    }
-
-    tr.danger {
-        background-color: lightcoral; /* Rouge léger */
-        color: black;
-    }
-
-    .text-black {
-        color: rgb(9, 0, 128) !important;
-    }
+.text-black {
+    color: rgb(9, 0, 128) !important;
+}
 </style>
+
 <div class="container mt-4">
     
-  
     {% if messages %}
     <ul class="message-list">
         {% for message in messages %}
             <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
     </ul>
- {% endif %}
- <h1 class="text-center mb-4">ÉTAT DES RETOURS NON VALIDES</h1>
+    {% endif %}
+    
+    <h1 class="text-center mb-4">ÉTAT DES RETOURS NON VALIDES</h1>
   
- <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
-    <i class="fas fa-plus"></i> AJOUTER RETOUR
-</a>
+    <a href="{% url 'add_retour' %}" class="btn btn-primary mb-4">
+        <i class="fas fa-plus"></i> AJOUTER RETOUR
+    </a>
 
-    <a href="{% url  'consultation_list_retour' %}" class="btn btn-success mb-4">
+    <a href="{% url 'consultation_list_retour' %}" class="btn btn-success mb-4">
         <i class="fas fa-check"></i> CONSULTER LES RETOURS VALIDES
     </a>
 
     <!-- Formulaire de recherche -->
-
     <div class="card">
         <div class="card-body">
-          
             <form id="searchForm" action="{% url 'retour_list' %}" method="GET">
-                
                 <div class="form-row">
                     <div class="form-group col-md-5">
                         <label for="searchInput" class="sr-only">Rechercher par nom... :</label>
-                        <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom"  value="{{ search_query }}" oninput="this.value = this.value.toUpperCase()">
+                        <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom" value="{{ search_query }}" oninput="this.value = this.value.toUpperCase()">
                     </div>
                     <div class="form-group col-md-5">          
-                       
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="checkbox" id="rougeCheckbox" name="couleur[]" value="rouge" {% if 'rouge' in couleurs %}checked{% endif %}>
                             <label class="form-check-label" for="rougeCheckbox">{{"Rouge"|upper}}</label>
@@ -104,9 +119,10 @@
                             <label class="form-check-label" for="orangeCheckbox">{{"Orange"|upper}}</label>
                         </div>
                     </div>
-                    <div class="col-md-2"> <button type="submit" class="btn btn-primary">RECHERCHE</button></div>
+                    <div class="col-md-2"> 
+                        <button type="submit" class="btn btn-primary">RECHERCHE</button>
+                    </div>
                 </div>
-                
             </form>
         </div>
     </div>
@@ -115,78 +131,95 @@
     <table class="table table-bordered table-hover" id="retoursTable">
         <thead style="background-color: #007BFF; color: #FFFFFF;">
             <tr>
-                
+             
                 <th>DATE</th>
                 <th>NOM</th>
                 <th>PRENOM</th>
-               
                 <th>FOURNISSEUR</th>
                 <th>MARQUE</th>
                 <th class="designation-col">DESIGNATION</th>
-                <th>CODE BARRE</th>
-         
+                <th>CODE </th>
                 <th>ACTION</th>
-                
             </tr>
         </thead>
         <tbody>
             {% for retour in retours %}
-           
-            {% if retour.facture %}
-            <tr class="success">
-            {% elif retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
-                <tr class="warning">
-            {% else %}
-                <tr class="danger">
-            {% endif %}
-        
-
-            <td>{{ retour.date | date:"d-m-Y" }}</td>
-            <td>{{ retour.nom|upper }}</td>
-            <td>{{ retour.prenom|upper }}</td>
-            <td>{{ retour.fournisseur|upper }}</td>
-            <td>
-                {% if retour.marque %}
-                {{ retour.marque|upper }}
+                {% if retour.facture %}
+                    <tr class="success">
                 {% else %}
-                -
+                    {% if retour.jours_ecoules >= 0 and retour.jours_ecoules <= 25 %}
+                        <tr class="warning">
+                    {% else %}
+                        <tr class="danger">
+                    {% endif %}
                 {% endif %}
-
-            </td>
-            <td class="designation-col">
-                {% if retour.designation %}
-                {{ retour.designation }}
-                {% else %}
-                -
-                {% endif %}
-            </td>
-            <td>
-                {% if retour.code %}
-                {{ retour.code }}
-                {% else %}
-                -
-                {% endif %}
-            </td>
-              
-            <td>
-                <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
-                <span class="space"></span>
-                {% if user.is_superuser %}
-                {% if not retour.facture %}   
-                <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
-                {% endif %} 
-                {% endif %}
-            </td>
-            
+                
+               
+                <td>{{ retour.date | date:"d-m-Y" }}</td>
+                <td>{{ retour.nom|upper }}</td>
+                <td>{{ retour.prenom|upper }}</td>
+                <td>{{ retour.fournisseur|upper }}</td>
+                <td>
+                    {% if retour.marque %}
+                        {{ retour.marque|upper }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="designation-col">
+                    {% if retour.designation %}
+                    <a href="#" data-toggle="modal" data-target="#designationModal{{ retour.id }}" class="text-black-link">
+                        {{ retour.designation|truncatechars:30 }} <!-- Texte tronqué ici -->
+                    </a>
+                
+                    <!-- Modal -->
+                    <div class="modal fade" id="designationModal{{ retour.id }}" tabindex="-1" role="dialog" aria-labelledby="designationModalLabel{{ retour.id }}" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="designationModalLabel{{ retour.id }}">Désignation Complète</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            {{ retour.designation }}
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                
+                
+                <td>
+                    {% if retour.code %}
+                        {{ retour.code }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
+                    <span class="space"></span>
+                    {% if user.is_superuser %}
+                        {% if not retour.facture %}
+                            <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
+                        {% endif %}
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8">Aucun retour trouvé.</td>
+                <td colspan="9">Aucun retour trouvé.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
- 
 </div>
 {% endblock %}
