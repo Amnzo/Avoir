@@ -73,6 +73,8 @@ class Avoir(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
     date_ajout = models.DateTimeField(default=timezone.now)
+    date_renvoi = models.DateTimeField(default=timezone.now)
+    motif=models.TextField(blank=True, null=True)
     #date_de_cmd = models.
     #description = models.TextField(blank=True, null=True)
     #ean_13 = models.CharField(max_length=13, verbose_name='EAN-13 Barcode', blank=False ,null=True)
@@ -134,6 +136,7 @@ class Repertoire(models.Model):
 
 class Retour(models.Model):
     date= models.DateTimeField(default=timezone.now)
+    date_renvoi = models.DateTimeField(default=timezone.now)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     fournisseur = models.CharField(max_length=100)

@@ -153,12 +153,14 @@ def lire_excel_avoir(request):
     Retour.objects.all().delete()
 
     for row in worksheet.iter_rows(values_only=True):
+        print(row)
         date_excel = row[0]  # Suppose que la première colonne est 'Date'
         nom_prenom = row[1]  # Suppose que la deuxième colonne est 'Nom Prénom'
         fournisseur = row[2]  # Suppose que la troisième colonne est 'Fournisseur'
         marque = row[3]       # Suppose que la quatrième colonne est 'Marque'
         designation = row[4]  # Suppose que la cinquième colonne est 'Designation'
-        motif = row[5]        # Suppose que la sixième colonne est 'Motif'
+        date_renvoi = row[5]  # Suppose que la cinquième colonne est 'Designation'
+        motif = row[7]        # Suppose que la sixième colonne est 'Motif'
        # Convertir la date depuis Excel
         if date_excel:
             # Convertir la date depuis Excel
@@ -167,6 +169,18 @@ def lire_excel_avoir(request):
             else:
                 try:
                     date_value = datetime.strptime(date_excel, '%Y-%m-%d %H:%M:%S')  # Convertir depuis string si nécessaire
+                except ValueError:
+                    continue  # Si la conversion échoue, passer à la ligne suivante
+        else:
+            continue  # Si date_excel est None, ignorer cette ligne
+
+        if date_renvoi:
+            # Convertir la date depuis Excel
+            if isinstance(date_renvoi, datetime):  # Si la date est déjà au format datetime
+                date_value2 = date_renvoi
+            else:
+                try:
+                    date_value2 = datetime.strptime(date_renvoi, '%Y-%m-%d %H:%M:%S')  # Convertir depuis string si nécessaire
                 except ValueError:
                     continue  # Si la conversion échoue, passer à la ligne suivante
         else:
@@ -181,6 +195,7 @@ def lire_excel_avoir(request):
             # Créer et sauvegarder l'objet Retour dans la base de données
         retour = Retour(
                 date=date_value,
+                date_renvoi=date_value2,
                 nom=nom,
                 prenom=prenom,
                 fournisseur=fournisseur,
@@ -191,6 +206,7 @@ def lire_excel_avoir(request):
               
         )
         print(retour)
+        print("ADD")
         retour.save()
     return HttpResponse("Données importées avec succès avec les dates")
 @login_required(login_url='login')

@@ -56,12 +56,11 @@
     width: 150px;
 }
 
-.designation-col {
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+/* Empêcher le retour à la ligne dans la cellule de la date */
+.no-wrap {
     white-space: nowrap;
 }
+
 
 .space {
     margin-right: 6px;
@@ -132,12 +131,13 @@
         <thead style="background-color: #007BFF; color: #FFFFFF;">
             <tr>
              
-                <th>DATE</th>
+                <th class="designation-col">DATE</th>
                 <th>NOM</th>
                 <th>PRENOM</th>
                 <th>FOURNISSEUR</th>
                 <th>MARQUE</th>
                 <th class="designation-col">DESIGNATION</th>
+                <th class="designation-col">DATE RENVOI</th>
                 <th>CODE </th>
                 <th>ACTION</th>
             </tr>
@@ -155,7 +155,8 @@
                 {% endif %}
                 
                
-                <td>{{ retour.date | date:"d-m-Y" }}</td>
+                <td class="no-wrap">{{ retour.date | date:"d-m-Y" }}</td>
+
                 <td>{{ retour.nom|upper }}</td>
                 <td>{{ retour.prenom|upper }}</td>
                 <td>{{ retour.fournisseur|upper }}</td>
@@ -195,6 +196,7 @@
                     -
                     {% endif %}
                 </td>
+                <td>{{ retour.date_renvoi|date:"d-m-Y" }}</td>
                 
                 
                 <td>
