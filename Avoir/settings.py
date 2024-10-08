@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
+#database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
