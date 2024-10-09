@@ -138,7 +138,9 @@
                 <th>MARQUE</th>
                 <th class="designation-col">DESIGNATION</th>
                 <th class="designation-col">DATE RENVOI</th>
+                <th class="designation-col">MOTIF</th>
                 <th>CODE </th>
+              
                 <th>ACTION</th>
             </tr>
         </thead>
@@ -197,6 +199,7 @@
                     {% endif %}
                 </td>
                 <td>{{ retour.date_renvoi|date:"d-m-Y" }}</td>
+                <td>{{ retour.motif }}</td>
                 
                 
                 <td>

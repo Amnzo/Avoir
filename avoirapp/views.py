@@ -150,7 +150,7 @@ def lire_excel_avoir(request):
     # Charger le fichier Excel avec openpyxl
     workbook = openpyxl.load_workbook(excel_file_path)
     worksheet = workbook.active  # Sélectionner la première feuille
-    Retour.objects.all().delete()
+    #Retour.objects.all().delete()
 
     for row in worksheet.iter_rows(values_only=True):
         print(row)
@@ -205,9 +205,9 @@ def lire_excel_avoir(request):
                 is_active=False,
               
         )
-        print(retour)
-        print("ADD")
-        retour.save()
+        print(f" motif : {motif}")
+        #print("ADD")
+        #retour.save()
     return HttpResponse("Données importées avec succès avec les dates")
 @login_required(login_url='login')
 def avoir(request):
@@ -1011,8 +1011,7 @@ def add_retour(request):
 def edit_retour(request, id):
     retour = Retour.objects.get(pk=id)
     previous_url = request.GET.get('previous_url', '')
-    print(f"referer_url={previous_url}")
-    
+    print(f"referer_url={previous_url}")   
     if request.method == 'POST':
         # Récupérer les données du formulaire depuis la requête POST
         nom = request.POST.get('nom')
@@ -1029,7 +1028,6 @@ def edit_retour(request, id):
         retour.nom = nom
         retour.date=date_retour
         retour.marque = marque
-
         retour.prenom = prenom
         retour.fournisseur = fournisseur
         retour.designation = designation
@@ -1055,6 +1053,7 @@ def valider_retour(request,id):
 def confirme_validation(request, id):
     retour = Retour.objects.get(pk=id)   
     if request.method == 'POST':
+        #return HttpResponse(request'retour_list')
         if 'confirmation' in request.POST:
             # Mettre à jour la facture du retour avec le fichier uploadé
             facture = request.FILES.get('facture')

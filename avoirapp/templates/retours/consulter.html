@@ -8,6 +8,79 @@
 {% load tz %}  {# Charger les filtres de fuseau horaire #}
 <style>
 
+    /* Styles pour les lignes avec des classes spécifiques */
+#retoursTable tbody tr.success {
+    background-color: lightgreen !important;
+    color: black !important;
+}
+
+#retoursTable tbody tr.warning {
+    background-color: #ffe6b3 !important;  /* Orange pâle */
+    color: black !important;
+}
+
+#retoursTable tbody tr.danger {
+    background-color: lightcoral !important;  /* Rouge clair */
+    color: black !important;
+}
+
+/* Styles pour les autres lignes */
+#retoursTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #007BFF;
+    color: #FFFFFF;
+}
+.text-black-link {
+    color: black; /* Couleur noire pour le lien */
+    text-decoration: none; /* Supprimer le soulignement */
+}
+
+.text-black-link:hover {
+    color: black; /* Garder la couleur noire lors du survol */
+    text-decoration: underline; /* Optionnel : ajouter un soulignement au survol */
+}
+
+
+#retoursTable {
+    border-collapse: collapse;
+}
+
+#retoursTable th, #retoursTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#retoursTable tbody tr:nth-child(even):not(.success):not(.warning):not(.danger) {
+    background-color: #f2f2f2;
+}
+
+#retoursTable th, #retoursTable td {
+    width: 150px;
+}
+
+/* Empêcher le retour à la ligne dans la cellule de la date */
+.no-wrap {
+    white-space: nowrap;
+}
+
+
+.space {
+    margin-right: 6px;
+}
+
+/* Élargissement de la colonne DESIGNATION */
+.designation-col {
+    max-width: 200px; /* Augmentation de la largeur maximale */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-black {
+    color: rgb(9, 0, 128) !important;
+}
+
 #retoursTable thead {
     position: sticky;
     top: 0;
