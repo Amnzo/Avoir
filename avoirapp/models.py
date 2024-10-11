@@ -1,5 +1,6 @@
 # myapp/models.py
 
+import json
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User
@@ -7,14 +8,41 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.db.models import Max
 class Client(models.Model):
-    nom = models.CharField(max_length=100, unique=True)
+    nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100, blank=True, null=True)
     datenaissance = models.DateField(blank=True, null=True)
+    enfants_ids = models.TextField(blank=True, null=True)  # Pour stocker les IDs sous forme de chaîne JSON
     #email = models.EmailField(blank=True, null=True)
     #telephone = models.CharField(max_length=15, blank=True, null=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['nom', 'prenom'], name='unique_nom_prenom')
+        ]
 
     def __str__(self):
         return f' {self.nom} {self.prenom} '
+    def ajouter_enfant(self, enfant_id):
+        """Méthode pour ajouter un enfant (ID) à la liste des enfants."""
+        if self.enfants_ids:
+            enfants = json.loads(self.enfants_ids)
+        else:
+            enfants = []
+        
+        enfants.append(enfant_id)
+        self.enfants_ids = json.dumps(enfants)
+        self.save()
+    def get_enfants(self):
+    
+        if self.enfants_ids:
+            print(f"Raw enfants_ids: {self.enfants_ids}")  # Debugging line
+            try:
+                enfants_ids = json.loads(self.enfants_ids)
+                return Client.objects.filter(id__in=enfants_ids)
+            except json.JSONDecodeError as e:
+                print(f"JSON Decode Error: {e}")  # Catch and print the error
+                return []  # Or handle the error appropriately
+        return []
+
 
     def total_consommation_client(self):
         return self.consommation_set.aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0

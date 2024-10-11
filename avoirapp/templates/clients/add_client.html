@@ -9,9 +9,21 @@
             <div class="card-header bg-primary text-white text-center">
                 <h2 class="mb-0">AJOUTER CLIENT </h2>
             </div>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="error">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
 
                     <!-- Bootstrap form styling -->
                     <div class="form-group">

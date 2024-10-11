@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseRedirect, JsonResponse
@@ -756,18 +757,37 @@ def add_client(request):
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, f"VOUS AVEZ CREER LE CLIENT {form.cleaned_data['nom'].upper()} {form.cleaned_data['prenom'].upper()} AVEC SUCCÈS", extra_tags='temp')
+            try:
+                form.save()
+                messages.success(request, f"VOUS AVEZ CRÉÉ LE CLIENT {form.cleaned_data['nom'].upper()} {form.cleaned_data['prenom'].upper()} AVEC SUCCÈS", extra_tags='temp')
+                return redirect('client')  # Rediriger vers la liste des clients ou une autre page
+            except IntegrityError:
+                form.add_error(None, 'Un client avec ce nom et prénom existe déjà.')
 
-            return redirect('client')  # Replace 'client_list' with the URL name of the client list view
+                # Ajoute un message d'erreur dans le système de messages
+                messages.error(request, "Erreur : Ce client existe déjà.")
+
     else:
-        #form = ClientForm()
-        form = ClientForm(initial={'nom': '','prenom': '','datenaissance':''})
+        form = ClientForm(initial={'nom': '', 'prenom': '', 'datenaissance': ''})
 
     return render(request, 'clients/add_client.html', {'form': form})
 
 def edit_client(request,id):
     client = Client.objects.get(pk=id)
+    enfants_ids = []
+
+    if client.enfants_ids:
+        print(f"Raw enfants_ids-------------: {client.enfants_ids}")  # Debugging line
+        try:
+            # Decode the JSON string to a list
+            enfants_ids = json.loads(client.enfants_ids)
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error: {e}")  # Catch and print the error
+
+    # Print the list of child IDs to the console
+    print(enfants_ids)  # This will display the list of IDs
+    
+    enfants = Client.objects.all()  # Récupérer tous les enfants
     if request.method == 'POST':
         form = ClientForm(request.POST,instance=client)
         if form.is_valid():
@@ -778,7 +798,8 @@ def edit_client(request,id):
 
         form = ClientForm(instance=client)
 
-    return render(request, 'clients/edit_client.html', {'form': form})
+    client = Client.objects.get(pk=id)
+    return render(request, 'clients/edit_client.html', {'form': form,'enfants':enfants,'client':client,'enfants_ids': enfants_ids})
 
 
 from django.db.models import Count

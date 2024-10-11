@@ -1,4 +1,3 @@
-<!-- templates/add_client.html -->
 {% extends 'layout/base.html' %}
 
 {% block title %}Ajouter Client{% endblock %}
@@ -7,71 +6,122 @@
 <style>
 /* Style pour le champ input de type date */
 input[type="date"] {
-    /* Ajoutez vos styles personnalisés ici */
-    /* Par exemple */
     padding: 8px 12px;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-/* Style pour le champ input de type date lorsqu'il est en focus */
 input[type="date"]:focus {
-    /* Ajoutez vos styles personnalisés ici */
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 </style>
 
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header bg-primary text-white text-center">
-                <h2 class="mb-0">MODIFICATION FICHE : {{ form.nom.value|upper }} {{ form.prenom.value|upper }} </h2>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-
-
-                    <!-- Bootstrap form styling -->
-                    <div class="form-group">
-                        <label for="{{ form.nom.id_for_label }}" class="form-label">NOM :</label>
-                        <input type="text" class="form-control" id="{{ form.nom.id_for_label }}" name="{{ form.nom.name }}" value="{{ form.nom.value }}" required oninput="this.value = this.value.toUpperCase()">
-                        {{ form.nom.errors }}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.prenom.id_for_label }}" class="form-label">PRENOM :</label>
-                        <input type="text" class="form-control" id="{{ form.prenom.id_for_label }}" name="{{ form.prenom.name }}" value="{{ form.prenom.value }}" required oninput="this.value = this.value.toUpperCase()">
-                        {{ form.prenom.errors }}
-                    </div>
-
-                    <div class="form-group">
-
-    <div class="input-group">
-        <div class="input-group-prepend">
-            <span class="input-group-text">DATE DE NAISSANCE : </span>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="mb-0">MODIFICATION FICHE : {{ form.nom.value|upper }} {{ form.prenom.value|upper }}</h2>
         </div>
-        {{ form.datenaissance }}
-        {{ form.datenaissance.errors }}
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Bootstrap form styling -->
+                <div class="form-group">
+                    <label for="{{ form.nom.id_for_label }}" class="form-label">NOM :</label>
+                    <input type="text" class="form-control" id="{{ form.nom.id_for_label }}" name="{{ form.nom.name }}" value="{{ form.nom.value }}" required oninput="this.value = this.value.toUpperCase()">
+                    {{ form.nom.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.prenom.id_for_label }}" class="form-label">PRENOM :</label>
+                    <input type="text" class="form-control" id="{{ form.prenom.id_for_label }}" name="{{ form.prenom.name }}" value="{{ form.prenom.value }}" required oninput="this.value = this.value.toUpperCase()">
+                    {{ form.prenom.errors }}
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">DATE DE NAISSANCE : </span>
+                        </div>
+                        {{ form.datenaissance }}
+                        {{ form.datenaissance.errors }}
+                    </div>
+                </div>
+
+                <h3>Enfants :</h3>
+                {{enfants_ids}}
+                <ul id="enfants-list">
+                    {% for enfant in enfants_ids %}
+                        <li>{{ enfant.nom }} {{ enfant.prenom }}</li>
+                    {% empty %}
+                        <li>Aucun enfant associé.</li>
+                    {% endfor %}
+                </ul>
+
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#selectEnfantModal">
+                    Ajouter un Enfant
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="selectEnfantModal" tabindex="-1" role="dialog" aria-labelledby="selectEnfantModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="selectEnfantModalLabel">Sélectionner un Enfant</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="form-select-enfant">
+                                    <div class="form-group">
+                                        <label for="selectEnfant">Sélectionner un Enfant :</label>
+                                        <select id="selectEnfant" class="form-control">
+                                            <option value="">-- Choisir un Enfant --</option>
+                                            {% for enfant in enfants %}
+                                                {% if enfant.id != form.instance.id %}  <!-- Exclure le client actuel -->
+                                                    <option value="{{ enfant.id }}">{{ enfant.nom }} {{ enfant.prenom }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                <button type="button" class="btn btn-primary" id="confirmSelectEnfant">Ajouter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> VALIDER
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
+<script>
+    document.getElementById('confirmSelectEnfant').onclick = function() {
+        var select = document.getElementById('selectEnfant');
+        var selectedValue = select.value;
+        if (selectedValue) {
+            // Créer un nouvel élément de liste
+            var li = document.createElement('li');
+            li.textContent = select.options[select.selectedIndex].text; // Récupérer le texte de l'option sélectionnée
+            document.getElementById('enfants-list').appendChild(li); // Ajouter à la liste des enfants
+            // Fermer le modal
+            $('#selectEnfantModal').modal('hide');
+        }
+    };
+</script>
 
-
-
-
-                    <div class="text-center mt-3">
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check"></i> VALIDER
-                        </button>
-                        <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-    </div>
 {% endblock %}

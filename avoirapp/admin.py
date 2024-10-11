@@ -31,7 +31,7 @@ class ConsommationAdmin(admin.ModelAdmin):
 
 
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'prenom', 'display_total_avoir_moins_consommation')
+    list_display = ('id','nom', 'prenom', 'display_total_avoir_moins_consommation')
     search_fields = ('nom', 'prenom')
 
     def display_total_avoir_moins_consommation(self, obj):
@@ -72,7 +72,7 @@ class JourneeVenteAdmin(admin.ModelAdmin):
 admin.site.register(JourneeVente,JourneeVenteAdmin)
 
 class VenteAdmin(admin.ModelAdmin):
-    list_display = ('nom_client','prenom_client', 'prix_achat','prix_vente','vendeur','date')
+    list_display = ('id','nom_client','prenom_client', 'prix_achat','prix_vente','vendeur','date')
 
 admin.site.register(Vente,VenteAdmin)
 

@@ -50,10 +50,16 @@ class ClientForm(forms.ModelForm):
         model = Client
         fields = ['nom', 'prenom', 'datenaissance']
 
-    datenaissance = forms.DateField(
-        widget=DateInput(),
-        required=True
-    )
+    def clean(self):
+        cleaned_data = super().clean()
+        nom = cleaned_data.get('nom')
+        prenom = cleaned_data.get('prenom')
+
+        # Vérifie si un client avec le même nom et prénom existe
+        if Client.objects.filter(nom=nom, prenom=prenom).exists():
+            raise ValidationError("Un client avec ce nom et prénom existe déjà.")
+
+        return cleaned_data
 
 
 class FamilleForm(forms.ModelForm):
