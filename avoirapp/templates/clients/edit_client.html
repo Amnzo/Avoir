@@ -4,6 +4,44 @@
 
 {% block content %}
 <style>
+     #enfants-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    #enfants-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+    }
+
+    #enfants-list li a {
+        text-decoration: none;
+        font-weight: bold;
+        color: #333;
+    }
+
+    #enfants-list li a:hover {
+        color: #007bff;
+    }
+
+    #enfants-list button {
+        margin-left: 16px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2em;
+        color: #eb273b; /* Red color for trash icon */
+    }
+
+    #enfants-list button:hover {
+        color: #c82333; /* Darker red on hover */
+    }
 /* Style pour le champ input de type date */
 input[type="date"] {
     padding: 8px 12px;
@@ -23,11 +61,13 @@ input[type="date"]:focus {
     <div class="card">
         <div class="card-header bg-primary text-white text-center">
             <h2 class="mb-0">MODIFICATION FICHE : {{ form.nom.value|upper }} {{ form.prenom.value|upper }}</h2>
+           
         </div>
         <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
+            
+            <form method="post" action="{% url 'edit_client' client.id %}">
 
+                {% csrf_token %}
                 <!-- Bootstrap form styling -->
                 <div class="form-group">
                     <label for="{{ form.nom.id_for_label }}" class="form-label">NOM :</label>
@@ -51,26 +91,43 @@ input[type="date"]:focus {
                     </div>
                 </div>
 
-                <h3>Enfants :</h3>
-                {{enfants_ids}}
+                <h3>{{"Membres"|upper}} : </h3>
+               
                 <ul id="enfants-list">
-                    {% for enfant in enfants_ids %}
-                        <li>{{ enfant.nom }} {{ enfant.prenom }}</li>
+                    {% for m in membres %}
+                        <li>
+                            <a href="{% url 'client_details' m.id %}">{{ m }}</a>
+                            <button onclick="deleteMember({{ client.id }}, {{ m.id }})" title="Supprimer">
+                                🗑️
+                            </button>
+                        </li>
                     {% empty %}
-                        <li>Aucun enfant associé.</li>
+                        <li>{{ "Aucun membre associé."|upper }}</li>
                     {% endfor %}
                 </ul>
+                
+                
 
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#selectEnfantModal">
-                    Ajouter un Enfant
+                    {{"Ajouter un membre"|upper}}
                 </button>
 
+
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> VALIDER
+                    </button>
+                    <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a>
+                </div>
+            </form>
+
+            
                 <!-- Modal -->
                 <div class="modal fade" id="selectEnfantModal" tabindex="-1" role="dialog" aria-labelledby="selectEnfantModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="selectEnfantModalLabel">Sélectionner un Enfant</h5>
+                                <h5 class="modal-title" id="selectEnfantModalLabel">{{"Sélectionner un membre"|upper}}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -78,9 +135,9 @@ input[type="date"]:focus {
                             <div class="modal-body">
                                 <form id="form-select-enfant">
                                     <div class="form-group">
-                                        <label for="selectEnfant">Sélectionner un Enfant :</label>
+                                        <label for="selectEnfant">{{"Sélectionner un membre"|upper}} :</label>
                                         <select id="selectEnfant" class="form-control">
-                                            <option value="">-- Choisir un Enfant --</option>
+                                            <option value="">-- Choisir un Membre --</option>
                                             {% for enfant in enfants %}
                                                 {% if enfant.id != form.instance.id %}  <!-- Exclure le client actuel -->
                                                     <option value="{{ enfant.id }}">{{ enfant.nom }} {{ enfant.prenom }}</option>
@@ -91,20 +148,14 @@ input[type="date"]:focus {
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                               
                                 <button type="button" class="btn btn-primary" id="confirmSelectEnfant">Ajouter</button>
+                                
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="text-center mt-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check"></i> VALIDER
-                    </button>
-                    <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -122,6 +173,63 @@ input[type="date"]:focus {
             $('#selectEnfantModal').modal('hide');
         }
     };
+
+
+
+    document.getElementById('confirmSelectEnfant').onclick = function() {
+        var select = document.getElementById('selectEnfant');
+        var selectedValue = select.value;
+        
+        if (selectedValue) {
+            // Effectuer une requête AJAX pour ajouter l'enfant
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "{% url 'ajouter_enfant' %}", true); // Remplacez 'ajouter_enfant' par l'URL appropriée
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); // Ajouter le token CSRF
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Ajouter l'enfant à la liste sur la page
+                    var li = document.createElement('li');
+                    li.textContent = select.options[select.selectedIndex].text; // Récupérer le texte de l'option sélectionnée
+                    document.getElementById('enfants-list').appendChild(li); // Ajouter à la liste des enfants
+
+                    // Fermer le modal
+                    $('#selectEnfantModal').modal('hide');
+                } else {
+                    alert('Erreur lors de l\'ajout de l\'enfant');
+                }
+            };
+
+            xhr.send("id={{ form.instance.id }}&enfant_id=" + selectedValue); // Envoyer l'ID du client et l'ID de l'enfant
+        }
+    };
+
+    
+    function deleteMember(clientId, enfantId) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", `/delete_member/${clientId}/${enfantId}/`, true); // Use the correct URL
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); // Ensure you have CSRF protection
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Remove the member from the list in the UI
+                var listItem = document.querySelector(`#enfants-list li[data-id="${enfantId}"]`);
+                if (listItem) {
+                    listItem.remove(); // Remove the list item
+                }
+            } else {
+                alert('Erreur lors de la suppression du membre');
+            }
+        };
+
+        xhr.send(); // Send the DELETE request
+    }
+}
+
+
+
 </script>
 
 {% endblock %}

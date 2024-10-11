@@ -55,6 +55,8 @@ urlpatterns = [
     path('vente_statistique/', vente_statistique, name='vente_statistique'),
     path('get_statistics/', get_statistics, name='get_statistics'),
     path('lire_excel_avoir/', lire_excel_avoir, name='lire_excel_avoir'),
+    path('ajouter_enfant/', ajouter_enfant, name='ajouter_enfant'),
+    path('delete_member/<int:id>/<int:enfant_id>/', delete_member, name='delete_member'),
     
    
     #path('global_statistique/', global_statistique, name='global_statistique'),

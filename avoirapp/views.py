@@ -774,18 +774,18 @@ def add_client(request):
 
 def edit_client(request,id):
     client = Client.objects.get(pk=id)
-    enfants_ids = []
-
+    linked_ = []
+    membres=[]
     if client.enfants_ids:
-        print(f"Raw enfants_ids-------------: {client.enfants_ids}")  # Debugging line
-        try:
-            # Decode the JSON string to a list
-            enfants_ids = json.loads(client.enfants_ids)
-        except json.JSONDecodeError as e:
-            print(f"JSON Decode Error: {e}")  # Catch and print the error
+       # membres=
+        membres=list(map(int, client.enfants_ids.split(',')))  
+        linked_=Client.objects.filter(id__in=membres)
+        print(linked_)
+     
+        
 
     # Print the list of child IDs to the console
-    print(enfants_ids)  # This will display the list of IDs
+    print(membres)  # This will display the list of IDs
     
     enfants = Client.objects.all()  # Récupérer tous les enfants
     if request.method == 'POST':
@@ -799,9 +799,43 @@ def edit_client(request,id):
         form = ClientForm(instance=client)
 
     client = Client.objects.get(pk=id)
-    return render(request, 'clients/edit_client.html', {'form': form,'enfants':enfants,'client':client,'enfants_ids': enfants_ids})
+    return render(request, 'clients/edit_client.html', {'form': form,'enfants':enfants,'client':client,'membres': linked_})
 
+@csrf_exempt  # Assurez-vous d'ajouter le décorateur CSRF si vous n'utilisez pas la protection CSRF
+def ajouter_enfant(request):
+    if request.method == 'POST':
+        client_id = request.POST.get('id')
+        enfant_id = request.POST.get('enfant_id')
+        
+        client = Client.objects.get(pk=client_id)
+        client.ajouter_enfant(enfant_id)  # Utiliser la méthode pour ajouter un enfant
+        
+        return JsonResponse({'success': True})  # Retourner une réponse JSON
+    return JsonResponse({'success': False}, status=400)  # Erreur si ce n'est pas une requête POST
+from django.views.decorators.http import require_http_methods
+@require_http_methods(["DELETE"])
+def delete_member(request, id, enfant_id):
+    try:
+        # Get the client instance based on the provided ID
+        client = Client.objects.get(id=id)
+        
+        # Split the enfants_ids into a list of integers
+        enfants_list = list(map(int, client.enfants_ids.split(',')))
 
+        # Remove all instances of the enfant_id from the list
+        enfants_list = [e for e in enfants_list if e != enfant_id]
+
+        # Join the list back into a comma-separated string
+        client.enfants_ids = ','.join(map(str, enfants_list))
+
+        # Save the updated client object
+        client.save()
+
+        return JsonResponse({'success': True})
+    except Client.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Client not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 from django.db.models import Count
 def compte_rendu(request):
     if request.method == 'POST':

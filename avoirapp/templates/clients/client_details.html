@@ -98,6 +98,10 @@
         <div class="row">
             <div class="col">
                 <h2>{{ client.nom|upper }} {{ client.prenom|upper }}</h2>
+                <a href="javascript:history.back()" class="btn btn-secondary mb-4">
+                    <i class="fas fa-chevron-left"></i> RETOUR
+                </a>
+                
             </div>
             <div class="col text-end">
                 <div class="{% if client.total_avoir_client == 0 %}bg-danger{% elif client.dernier_avoir_plus_de_24_mois %}bg-info{% else %}bg-warning{% endif %} rounded p-3">
@@ -153,6 +157,8 @@
                 {% if not client.dernier_avoir_plus_de_24_mois %} 
                 <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMMATION </a>
                 {% endif %}
+               
+                
 
             </div>
         </div>

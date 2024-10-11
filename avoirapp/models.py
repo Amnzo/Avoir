@@ -23,25 +23,20 @@ class Client(models.Model):
         return f' {self.nom} {self.prenom} '
     def ajouter_enfant(self, enfant_id):
         """Méthode pour ajouter un enfant (ID) à la liste des enfants."""
+        # Vérifiez si des IDs d'enfants existent
         if self.enfants_ids:
-            enfants = json.loads(self.enfants_ids)
+            enfants = list(map(int, self.enfants_ids.split(',')))  # Convertir en liste d'entiers
         else:
             enfants = []
-        
-        enfants.append(enfant_id)
-        self.enfants_ids = json.dumps(enfants)
+
+        # Ajoutez l'ID de l'enfant à la liste s'il n'est pas déjà présent
+        if enfant_id not in enfants:
+            enfants.append(enfant_id)
+
+        # Convertir la liste d'enfants en chaîne de caractères
+        self.enfants_ids = ','.join(map(str, enfants))
         self.save()
-    def get_enfants(self):
     
-        if self.enfants_ids:
-            print(f"Raw enfants_ids: {self.enfants_ids}")  # Debugging line
-            try:
-                enfants_ids = json.loads(self.enfants_ids)
-                return Client.objects.filter(id__in=enfants_ids)
-            except json.JSONDecodeError as e:
-                print(f"JSON Decode Error: {e}")  # Catch and print the error
-                return []  # Or handle the error appropriately
-        return []
 
 
     def total_consommation_client(self):
