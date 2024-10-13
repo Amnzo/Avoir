@@ -37,6 +37,11 @@ urlpatterns = [
     path('client/<int:client_id>/consommer-avoir/', login_required(consommer_avoir), name='consommer_avoir'),
     path('editer_avoir/<int:id>/', login_required(editer_avoir), name='editer_avoir'),
     path('editer_consommation/<int:id>/', login_required(editer_consommation), name='editer_consommation'),
+    path('avoir_a_valider/', login_required(avoir_a_valider), name='avoir_a_valider'),
+    path('avoir_admin_confirmation/<int:id>/', login_required(avoir_admin_confirmation), name='avoir_admin_confirmation'),
+    
+
+    
     path('add_client/', login_required(add_client), name='add_client'),
     path('edit_client/<int:id>/', login_required(edit_client), name='edit_client'),
     path('test/', login_required(test), name='test'),
@@ -56,6 +61,7 @@ urlpatterns = [
     path('get_statistics/', get_statistics, name='get_statistics'),
     path('lire_excel_avoir/', lire_excel_avoir, name='lire_excel_avoir'),
     path('ajouter_enfant/', ajouter_enfant, name='ajouter_enfant'),
+    #path('delete_member/<int:id>/<int:enfant_id>/', delete_member, name='delete_member'),
     path('delete_member/<int:id>/<int:enfant_id>/', delete_member, name='delete_member'),
     
    

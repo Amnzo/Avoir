@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render,HttpResponse
 from django.db.models import Sum
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseRedirect, JsonResponse
+from django.urls import reverse
 import openpyxl
 from avoirapp.forms import AvoirForm,ConsommationForm,FamilleForm
 from django.http import JsonResponse
@@ -210,12 +211,27 @@ def lire_excel_avoir(request):
         #print("ADD")
         #retour.save()
     return HttpResponse("Données importées avec succès avec les dates")
+
+@login_required(login_url='login')
+def avoir_admin_confirmation(request,id):
+    avoir = Avoir.objects.get(id=id)
+    if request.method == 'POST':
+        montant=request.POST.get('montant')
+        avoir.is_confirmed=True
+        avoir.save()
+        #return redirect('avoir_a_valider')
+        return redirect(reverse('client_details', args=[avoir.client.id]))
+
+    return render(request, 'avoirs/confirmer_avoir.html',{'avoir':avoir})
+@login_required(login_url='login')
+def avoir_a_valider(request):
+    avoirs = Avoir.objects.filter(is_confirmed=False).order_by('-date_ajout')
+    return render(request, 'avoirs/avoir_a_valider.html',{'avoirs': avoirs})
 @login_required(login_url='login')
 def avoir(request):
-    items_per_page = 8
-    
+    items_per_page = 8 
     # Query for Avoirs and paginate the results
-    avoirs = Avoir.objects.all().order_by('-date_ajout')
+    avoirs = Avoir.objects.filter(is_confirmed=True).order_by('-date_ajout')
     paginator = Paginator(avoirs, items_per_page)
     page = request.GET.get('page')
     try:
@@ -226,7 +242,7 @@ def avoir(request):
         avoirs = paginator.page(paginator.num_pages)
 
     # Group Consommations by year, month, and famille
-    consommations = Consommation.objects.order_by('-date_ajout')
+    consommations = Consommation.objects.all().order_by('-date_ajout')
     consommations_groupes = defaultdict(lambda: defaultdict(int))
 
     for consommation in consommations:
@@ -248,7 +264,7 @@ def avoir(request):
         data.append({'annee': year, 'mois': month, 'consommations_familles': consommations_data})
 
 
-    credits = Avoir.objects.order_by('-date_ajout')
+    credits = Avoir.objects.filter(is_confirmed=True).order_by('-date_ajout')
     # Group Avoirs by year and month
     avoirs_groupes = defaultdict(list)
     for credit in credits:
@@ -363,6 +379,7 @@ def search_filter(request):
                     'montant': avoir.montant,
                     'date_ajout': avoir.date_ajout,
                     'id': avoir.id,
+                    'is_confirmed':avoir.is_confirmed,
                    
                     
                   
@@ -534,6 +551,7 @@ def ajouter_avoir(request, client_id):
 
     if request.method == 'POST':
         form = AvoirForm(request.POST, request.FILES)  # Ensure FILES is included
+        print("Fichier téléchargé :", request.FILES.get('facture'))
         if form.is_valid():
             avoir = form.save(commit=False)
             avoir.client = client
@@ -542,6 +560,10 @@ def ajouter_avoir(request, client_id):
             avoir.save()
             messages.success(request, f'UNE CREDIT DE {avoir.montant} A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
             return redirect('client_details', client_id=client.id)
+        else:
+            print(form.errors)
+
+            print("Formulaire non valide de l'avoir")
     else:
         form = AvoirForm()
 
@@ -777,23 +799,23 @@ def edit_client(request,id):
     linked_ = []
     membres=[]
     if client.enfants_ids:
-       # membres=
         membres=list(map(int, client.enfants_ids.split(',')))  
         linked_=Client.objects.filter(id__in=membres)
-        print(linked_)
-     
-        
-
-    # Print the list of child IDs to the console
-    print(membres)  # This will display the list of IDs
+    enfants = Client.objects.all().exclude(id=id) # Récupérer tous les enfants
     
-    enfants = Client.objects.all()  # Récupérer tous les enfants
     if request.method == 'POST':
+        print("edition")
         form = ClientForm(request.POST,instance=client)
         if form.is_valid():
-            form.save()
-            messages.success(request, f'VOUS AVEZ MODIFIÉ LE FICHIER DE {client.nom.upper()} {client.prenom.upper()} AVEC SUCCÈS', extra_tags='temp')
-            return redirect('client')  # Replace 'client_list' with the URL name of the client list view
+            print("edition222")
+            try:
+                form.save()
+                messages.success(request, f'VOUS AVEZ MODIFIÉ LE FICHIER DE {client.nom.upper()} {client.prenom.upper()} AVEC SUCCÈS', extra_tags='temp')
+                return redirect('client')  # Replace 'client_list' with the URL name of the client list view
+            except IntegrityError:
+                print("  Ce client existe déjà.")
+                form.add_error(None, 'Un client avec ce nom et prénom existe déjà.')
+                messages.error(request, "Erreur : Ce client existe déjà.")
     else:
 
         form = ClientForm(instance=client)
@@ -816,19 +838,10 @@ from django.views.decorators.http import require_http_methods
 @require_http_methods(["DELETE"])
 def delete_member(request, id, enfant_id):
     try:
-        # Get the client instance based on the provided ID
         client = Client.objects.get(id=id)
-        
-        # Split the enfants_ids into a list of integers
         enfants_list = list(map(int, client.enfants_ids.split(',')))
-
-        # Remove all instances of the enfant_id from the list
         enfants_list = [e for e in enfants_list if e != enfant_id]
-
-        # Join the list back into a comma-separated string
         client.enfants_ids = ','.join(map(str, enfants_list))
-
-        # Save the updated client object
         client.save()
 
         return JsonResponse({'success': True})

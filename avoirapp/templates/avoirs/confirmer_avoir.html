@@ -1,0 +1,293 @@
+{% extends 'layout/base.html' %}
+{% load tz %}
+{% block title %}Ajouter Avoir{% endblock %}
+
+{% block content %}
+<style>
+
+     
+#comparison-container {
+    display: flex;
+    justify-content: flex-start; /* Aligns items to the left */
+}
+
+#pdf-preview {
+    width: 40%; /* Adjust this value to control the size of the PDF preview */
+    max-height: 500px; /* Limit the height if necessary */
+    overflow: auto; /* Enable scrolling if the PDF is too large */
+    margin-right: 20px; /* Space between the PDF preview and the table */
+}
+
+
+   
+
+
+ 
+
+    .custom-border {
+        border: 2px solid #0e0d0d; /* Adjust the border properties as needed */
+        padding: 10px; /* Add padding inside the border if desired */
+    }
+
+    .pdf-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+    }
+
+    .pdf-preview {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+
+    .pdf-preview-inner {
+        display: inline-block;
+        margin-top: 10%;
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        position: relative;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 25px;
+        z-index: 1001;
+    }
+.custom-section {
+    border: 2px solid #007bff;    /* Bordure bleue */
+    border-radius: 12px;          /* Coins bien arrondis */
+    background-color: #e9f5ff;    /* Fond léger bleu ciel pour un effet doux */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre pour effet de profondeur */
+    padding: 15px;                /* Espacement interne pour aérer le contenu */
+}
+</style>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0 text-center">CONFIRMATION CRÉDIT DE : {{avoir.client |upper}}</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="form">
+                {% csrf_token %}
+
+                <!-- Hidden field for logged-in user -->
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label text-right">UTILISATEUR :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="user" name="user" value="{{ avoir.user.username |upper }}" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label text-right">DATE :</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="date" name="date" value="{{ avoir.date_ajout|date:'d-m-Y' }}" required>
+                    </div>
+                </div>
+                
+                
+
+                
+
+                <!-- Hidden field for date and time of the operation -->
+                
+
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label text-right">MONTANT :</label>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="montant" name="montant" value="{{ avoir.montant }}" step="0.01" min="0" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8"></div>
+                    <div class="col-md-6 col-lg-3 mb-4"> <!-- Adjust grid column width and margin -->
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <a href="{{ avoir.facture.url }}" target="_blank" 
+                                   onmouseenter="showFilePreview('{{ avoir.facture.url }}')"
+                                   onmouseleave="hidePdfPreview()">
+                                   <i class="fa fa-eye icon"></i>
+                                    <h5 class="card-title mt-2">FACTURE</h5>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+
+                
+
+                <div class="form-group row">
+                    <div class="col-sm-9 offset-sm-3">
+                        <button type="submit" class="btn btn-primary">VALIDER CRÉDIT</button>
+                        <a href="javascript:history.back()" class="btn btn-secondary">ANNULER</a> <!-- Bouton ANNULER -->
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="pdf-preview" class="pdf-preview">
+    <div class="pdf-container" id="pdf-container">  
+        <button class="close-button" type="button" onclick="closePdfPreview()">X</button>
+    
+        <div class="pdf-preview-inner" id="pdf-viewer">
+            <canvas id="pdf-render"></canvas>
+        </div>
+    </div>
+    
+</div>
+
+
+{% endblock %}
+{% block extra_js %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    $( function() {
+        $( "#date" ).datepicker({
+            dateFormat: "dd-mm-yy" // Format de date souhaité
+            // Vous pouvez également ajouter d'autres options selon vos besoins
+        });
+    } );
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+<script>
+    let hoveringLink = false;
+    let hoveringPreview = false;
+    let hideTimeout;
+
+
+    function showFilePreview(fileUrl) {
+    const pdfContainer = document.getElementById('pdf-preview');
+    const pdfViewer = document.getElementById('pdf-viewer');
+
+    // Clear the preview container
+    pdfViewer.innerHTML = '';
+
+    // Check the file extension to determine if it's a PDF or an image
+    const fileExtension = fileUrl.split('.').pop().toLowerCase();
+
+    if (fileExtension === 'pdf') {
+        // PDF preview logic
+        const loadingTask = pdfjsLib.getDocument(fileUrl);
+
+        loadingTask.promise.then(function(pdf) {
+            pdf.getPage(1).then(function(page) {
+                const scale = 1;
+                const viewport = page.getViewport({ scale: scale });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+
+                // Render PDF on canvas
+                page.render(renderContext);
+                pdfViewer.appendChild(canvas);
+            });
+        });
+    } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+        // Image preview logic
+        const img = document.createElement('img');
+        img.src = fileUrl;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        pdfViewer.appendChild(img);
+    }
+
+    // Show the preview container
+    pdfContainer.style.display = 'block';
+    hoveringLink = true;
+}
+
+
+   
+
+
+    function hidePdfPreview() {
+        const pdfContainer = document.getElementById('pdf-preview');
+
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+        }
+
+        // Ajouter un léger délai avant de masquer l'aperçu
+        hideTimeout = setTimeout(function() {
+            if (!hoveringLink && !hoveringPreview) {
+                pdfContainer.style.display = 'none';
+            }
+        }, 200); // ajuster le délai selon vos besoins
+    }
+
+    function closePdfPreview() {
+    const pdfContainer = document.getElementById('pdf-preview');
+    pdfContainer.style.display = 'none';
+}
+
+document.addEventListener('click', function(event) {
+    const pdfContainer = document.getElementById('pdf-preview');
+    const isClickInside = pdfContainer.contains(event.target); // Check if the click is inside the PDF container
+
+    if (!isClickInside && pdfContainer.style.display === 'block') {
+        closePdfPreview(); // Close preview if the click is outside the container
+    }
+});
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('#myForm input, #myForm textarea').forEach(function(element) {
+            element.addEventListener("keydown", function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                }
+            });
+        });
+
+        document.getElementById("submitButton").addEventListener("click", function() {
+            document.getElementById("myForm").submit();
+        });
+
+        // Gérer le survol de l'aperçu
+        document.getElementById('pdf-preview').addEventListener('mouseenter', function() {
+            hoveringPreview = true;
+        });
+
+        document.getElementById('pdf-preview').addEventListener('mouseleave', function() {
+            hoveringPreview = false;
+            hidePdfPreview();
+        });
+    });
+</script>
+
+{% endblock %}
+

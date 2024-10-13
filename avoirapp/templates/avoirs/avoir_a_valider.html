@@ -1,0 +1,97 @@
+<!-- templates/client_list.html -->
+
+{% extends 'layout/base.html' %}
+
+{% block title %}Liste des clients{% endblock %}
+
+{% block content %}
+<style>
+    .pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination-inner {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.pagination-link {
+    color: #333;
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 3px;
+}
+
+.current-page {
+    background-color: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 3px;
+}
+</style>
+    <div class="container mt-4">
+        {% if messages %}
+            <ul class="message-list">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+         {% endif %}
+        <h1 class="text-center mb-4">LISTE DES CREDITS A VALIDER </h1>
+        
+
+
+       
+
+        <!-- Bouton "Ajouter Client" -->
+
+
+        <!-- Tableau des clients -->
+        <table class="table table-bordered table-hover">
+            <thead style="background-color: #007BFF; color: #FFFFFF;">
+                <tr>
+                   
+                    <th>NOM</th>
+                    <th>PRENOM</th>
+                    <th>MONTANT</th>
+                    <th>DATE CREATION</th>
+                    <th>CREATEUR</th>
+                 
+                    <th>VALIDER</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in avoirs %}
+                
+                <tr {% if client.dernier_avoir_plus_de_24_mois %} style="background-color: orange;" data-color="orange" {% endif %}>
+
+                        <td>{{ v.client.nom|upper }}</td>
+                        <td>{{ v.client.prenom|upper }}</td>
+                        <td>{{ v.montant}}</td>
+                        
+                        <td> {{ v.date_ajout|date:"d-m-Y" }}</td>
+                        <td>{{ v.user }}</td>
+                     
+                        <td>
+                            <a href="{% url 'avoir_admin_confirmation' id=v.id %}">
+                                <i class="fas fa-check text-primary" title="Voir les détails"></i>
+                            </a>
+                           
+                        </td>
+                    </tr>
+                  
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        
+
+
+
+    </div>
+{% endblock %}

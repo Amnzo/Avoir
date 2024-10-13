@@ -251,7 +251,21 @@
                     <tbody>
                         {% for avoir in avoirs %}
                         <tr>
-                            <td>{{ avoir.montant }}</td>
+                            <td>
+                                {% if avoir.is_confirmed %}
+                                    <span style="color: #006400;"> <!-- Vert foncé, élégant et lisible -->
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        {{ avoir.montant }} <small>(Confirmé)</small>
+                                    </span>
+                                {% else %}
+                                    <span style="color: #FF4500;"> <!-- Orange foncé pour l'attente -->
+                                        <i class="bi bi-hourglass-split"></i>
+                                        {{ avoir.montant }} <small>(En attente)</small>
+                                    </span>
+                                {% endif %}
+                            </td>
+                            
+                            
                             <td>{{ avoir.date_ajout|date:"d-m-Y" }}</td>
                             <td>{{ avoir.user|upper }}</td>
                             <td>

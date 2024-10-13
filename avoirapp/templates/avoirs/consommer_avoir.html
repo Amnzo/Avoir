@@ -3,6 +3,28 @@
 {% block title %}Consommer Avoir{% endblock %}
 
 {% block content %}
+<style>
+    .errorlist {
+        list-style-type: none; /* Remove default list style */
+        padding: 0; /* Remove padding */
+        margin: 0; /* Remove margin */
+        background-color: #f8d7da; /* Light red background */
+        color: #721c24; /* Dark red text */
+        border: 1px solid #f5c6cb; /* Light red border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 10px; /* Padding around the text */
+        margin-bottom: 20px; /* Space below the error message */
+    }
+
+    .errorlist li {
+        margin: 5px 0; /* Space between each error message */
+    }
+
+    .error-message {
+        font-weight: bold; /* Bold text */
+    }
+</style>
+
     <div class="container mt-5">
         <div class="card">
             <div class="card-header bg-primary text-white text-center">
@@ -11,7 +33,24 @@
             <div class="card-body">
                 <form method="post"  enctype="multipart/form-data" class="form">
                     {% csrf_token %}
-                    {{ form.errors }}
+                    {% if form.errors %}
+                    <ul class="errorlist">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>
+                                    <span class="error-message">{{ field.label }}: {{ error }}</span>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                        
+                        {% for error in form.non_field_errors %}
+                            <li>
+                                <span class="error-message">Error: {{ error }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
 
                     <!-- Hidden field for logged-in user -->
                     <div class="form-group row">

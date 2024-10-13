@@ -68,6 +68,11 @@ input[type="date"]:focus {
             <form method="post" action="{% url 'edit_client' client.id %}">
 
                 {% csrf_token %}
+                {% if form.non_field_errors %}
+                        <div class="error">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
                 <!-- Bootstrap form styling -->
                 <div class="form-group">
                     <label for="{{ form.nom.id_for_label }}" class="form-label">NOM :</label>
@@ -190,43 +195,42 @@ input[type="date"]:focus {
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     // Ajouter l'enfant à la liste sur la page
-                    var li = document.createElement('li');
-                    li.textContent = select.options[select.selectedIndex].text; // Récupérer le texte de l'option sélectionnée
-                    document.getElementById('enfants-list').appendChild(li); // Ajouter à la liste des enfants
-
-                    // Fermer le modal
-                    $('#selectEnfantModal').modal('hide');
+                    location.reload(); // Recharger la page
                 } else {
                     alert('Erreur lors de l\'ajout de l\'enfant');
                 }
             };
 
             xhr.send("id={{ form.instance.id }}&enfant_id=" + selectedValue); // Envoyer l'ID du client et l'ID de l'enfant
+            
         }
     };
 
     
+    
     function deleteMember(clientId, enfantId) {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) {
         var xhr = new XMLHttpRequest();
-        xhr.open("DELETE", `/delete_member/${clientId}/${enfantId}/`, true); // Use the correct URL
-        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); // Ensure you have CSRF protection
+        xhr.open("DELETE", `/delete_member/${clientId}/${enfantId}/`, true);
+
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); // Assurez-vous d'avoir la protection CSRF
 
         xhr.onload = function() {
             if (xhr.status === 200) {
-                // Remove the member from the list in the UI
-                var listItem = document.querySelector(`#enfants-list li[data-id="${enfantId}"]`);
-                if (listItem) {
-                    listItem.remove(); // Remove the list item
-                }
+                location.reload(); // Recharger la page
             } else {
-                alert('Erreur lors de la suppression du membre');
+                alert('Erreur lors de la suppression du membre : ' + xhr.responseText);
             }
         };
 
-        xhr.send(); // Send the DELETE request
+        xhr.onerror = function() {
+            alert('Erreur réseau. Veuillez réessayer.');
+        };
+
+        xhr.send(); // Envoyer la requête DELETE
     }
 }
+
 
 
 

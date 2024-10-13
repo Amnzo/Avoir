@@ -13,17 +13,20 @@ class CustomLoginForm(forms.Form):
 
 class RepertoireSearchForm(forms.Form):
     search = forms.CharField(label='Rechercher', required=False)
-class AvoirForm(forms.ModelForm):
-    class Meta:
-        model = Avoir
-        fields = ['montant','facture']
 
+
+class AvoirForm(forms.ModelForm):
     facture = forms.FileField(
         label='Facture',
         required=True,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
-         # Use HiddenInput to make it invisible
+        validators=[
+            FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png', 'gif'])
+        ],
     )
+
+    class Meta:
+        model = Avoir  # Remplacez Avoir par le nom de votre modèle
+        fields = ['montant', 'facture']  # Assurez-vous que tous les champs nécessaires sont inclus
 
 class ConsommationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -36,7 +39,7 @@ class ConsommationForm(forms.ModelForm):
     facture = forms.FileField(
         label='Facture',
         required=False,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        validators=[FileExtensionValidator(allowed_extensions=['pdf','jpg','jpeg','png','gif'])],
          # Use HiddenInput to make it invisible
     )
     
@@ -45,19 +48,34 @@ class DateInput(forms.DateInput):
     input_type = 'date'
     format='%d/%m/%Y'
 
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import Client
+
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ['nom', 'prenom', 'datenaissance']
 
+    def __init__(self, *args, **kwargs):
+        # Capture the instance if provided (for update)
+        self.instance = kwargs.get('instance', None)
+        super().__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
         nom = cleaned_data.get('nom')
         prenom = cleaned_data.get('prenom')
+        datenaissance = cleaned_data.get('datenaissance')
 
-        # Vérifie si un client avec le même nom et prénom existe
-        if Client.objects.filter(nom=nom, prenom=prenom).exists():
-            raise ValidationError("Un client avec ce nom et prénom existe déjà.")
+        # Vérifie si un client avec le même nom, prénom et date de naissance existe
+        # Exclure l'instance actuelle lors de la mise à jour
+        if self.instance:
+            if Client.objects.filter(nom=nom, prenom=prenom, datenaissance=datenaissance).exclude(pk=self.instance.pk).exists():
+                raise ValidationError("Un client avec ce nom, prénom et date de naissance existe déjà.")
+        else:
+            if Client.objects.filter(nom=nom, prenom=prenom, datenaissance=datenaissance).exists():
+                raise ValidationError("Un client avec ce nom, prénom et date de naissance existe déjà.")
 
         return cleaned_data
 

@@ -16,7 +16,7 @@ class Client(models.Model):
     #telephone = models.CharField(max_length=15, blank=True, null=True)
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['nom', 'prenom'], name='unique_nom_prenom')
+            models.UniqueConstraint(fields=['nom', 'prenom','datenaissance'], name='unique_nom_prenom')
         ]
 
     def __str__(self):
@@ -40,12 +40,12 @@ class Client(models.Model):
 
 
     def total_consommation_client(self):
-        return self.consommation_set.aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
+        return self.consommation_set.all().aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
 
 
     def total_avoir_client(self):
         #return self.avoir_set.aggregate(models.Sum('montant'))['montant__sum'] or 0
-        avoir_total = self.avoir_set.aggregate(models.Sum('montant'))['montant__sum'] or 0
+        avoir_total = self.avoir_set.filter(is_confirmed=True).aggregate(models.Sum('montant'))['montant__sum'] or 0
         consommation_total = self.total_consommation_client()
         solde=avoir_total-consommation_total
         return solde
@@ -98,12 +98,13 @@ class Avoir(models.Model):
     date_ajout = models.DateTimeField(default=timezone.now)
     date_renvoi = models.DateTimeField(default=timezone.now)
     motif=models.TextField(blank=True, null=True)
+    is_confirmed=models.BooleanField(default=False)
     #date_de_cmd = models.
     #description = models.TextField(blank=True, null=True)
     #ean_13 = models.CharField(max_length=13, verbose_name='EAN-13 Barcode', blank=False ,null=True)
     facture = models.FileField(
         upload_to=upload_invoice_path,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        validators=[FileExtensionValidator(allowed_extensions=['pdf','jpg','jpeg','png','gif'])],
          blank=True ,  # La facture est obligatoire
          null=True
     )
@@ -122,6 +123,7 @@ class Consommation(models.Model):
     date_ajout = models.DateTimeField(default=timezone.now)
     designation = models.TextField(blank=False, null=False)
     code_barre = models.CharField(max_length=25, blank=True ,null=True)
+    is_confirmed=models.BooleanField(default=False)
     facture = models.FileField(
         upload_to=upload_invoice_path,
         validators=[FileExtensionValidator(allowed_extensions=['pdf','jpg', 'jpeg', 'png'])],
