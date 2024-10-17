@@ -283,7 +283,7 @@ def avoir(request):
     familles =Famille.objects.filter(is_active=True)
 
     # Return the rendered template with the data
-    return render(request, 'avoirs/avoir_list.html', {'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles})
+    return render(request, 'avoirs/avoir_list.html', {'consommations':consommations,'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles})
 
 
 def consommation_periode(request):
@@ -539,9 +539,16 @@ def client_details(request, client_id):
     client = get_object_or_404(Client, id=client_id)
     avoirs = Avoir.objects.filter(client=client).order_by('-date_ajout')
     consomations = Consommation.objects.filter(client=client).order_by('-date_ajout')
+    linked_ = []
+    membres=[]
+    if client.enfants_ids:
+        membres=list(map(int, client.enfants_ids.split(',')))  
+        linked_=Client.objects.filter(id__in=membres)
     context = {
         'client': client,
         'avoirs': avoirs,
+        'membres':linked_,
+
         'consommations': consomations }
     # You can add additional logic or context data here if needed
     return render(request, 'clients/client_details.html', context)
@@ -597,36 +604,38 @@ def editer_avoir(request, id):
 def editer_consommation(request, id):
     conso = Consommation.objects.get(pk=id)
     familles=Famille.objects.all()
-    print(familles)
-   
     if request.method == 'POST':
-        # Récupérer les données du formulaire depuis la requête POST
-        prix_achat = request.POST.get('prix_achat')
-        prix_vente = request.POST.get('prix_vente')
-        designation = request.POST.get('designation')
-        facture = request.FILES.get('facture')
-        famille = request.POST.get('familles')
-        print(famille)
-        code=request.POST.get('code')
-        print(code)
-        conso.prix_achat=prix_achat
-        conso.prix_vente=prix_vente
-        conso.designation=designation
-        date = request.POST.get('date')
-        date_= datetime.strptime(date, '%d-%m-%Y').date()
-        conso.date_ajout=date_
-        if facture:
-            conso.facture=facture
-        if code :
-            conso.code_barre=code
-        if famille:
-            f=Famille.objects.get(pk=famille)
-            conso.famille=f
-        
-        # Enregistrer les modifications dans la base de données
-        conso.save()
-        messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE', extra_tags='temp')
-        return redirect('client_details', client_id=conso.client.id)
+        if Decimal(request.POST.get('prix_vente')) <= conso.client.total_avoir_client() :
+            # Récupérer les données du formulaire depuis la requête POST
+            prix_achat = request.POST.get('prix_achat')
+            prix_vente = request.POST.get('prix_vente')
+            designation = request.POST.get('designation')
+            facture = request.FILES.get('facture')
+            famille = request.POST.get('familles')
+            print(famille)
+            code=request.POST.get('code')
+            print(code)
+            conso.prix_achat=prix_achat
+            conso.prix_vente=prix_vente
+            conso.designation=designation
+            date = request.POST.get('date')
+            date_= datetime.strptime(date, '%d-%m-%Y').date()
+            conso.date_ajout=date_
+            if facture:
+                conso.facture=facture
+            if code :
+                conso.code_barre=code
+            if famille:
+                f=Famille.objects.get(pk=famille)
+                conso.famille=f
+            
+            # Enregistrer les modifications dans la base de données
+            conso.save()
+            messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE', extra_tags='temp')
+            return redirect('client_details', client_id=conso.client.id)
+        else:
+            messages.error(request, f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {conso.client.total_avoir_client():.2f} .")
+            #messages.error(request, "Erreur : Ce client existe déjà.")
         
     return render(request, 'avoirs/editer_consommation.html', {'conso': conso,'familles':familles})
     
@@ -830,7 +839,10 @@ def ajouter_enfant(request):
         enfant_id = request.POST.get('enfant_id')
         
         client = Client.objects.get(pk=client_id)
+        enfant=Client.objects.get(pk=enfant_id)
         client.ajouter_enfant(enfant_id)  # Utiliser la méthode pour ajouter un enfant
+        enfant.ajouter_enfant(client_id) 
+
         
         return JsonResponse({'success': True})  # Retourner une réponse JSON
     return JsonResponse({'success': False}, status=400)  # Erreur si ce n'est pas une requête POST
@@ -843,6 +855,14 @@ def delete_member(request, id, enfant_id):
         enfants_list = [e for e in enfants_list if e != enfant_id]
         client.enfants_ids = ','.join(map(str, enfants_list))
         client.save()
+        
+
+        # Étape 2 : Supprimer l'ID du client de chaque enfant
+        enfant = Client.objects.get(id=enfant_id)
+        clients_list = list(map(int, enfant.enfants_ids.split(',')))
+        clients_list = [c for c in clients_list if c != id]
+        enfant.enfants_ids = ','.join(map(str, clients_list))
+        enfant.save()
 
         return JsonResponse({'success': True})
     except Client.DoesNotExist:

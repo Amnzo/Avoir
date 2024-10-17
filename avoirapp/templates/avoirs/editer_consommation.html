@@ -4,6 +4,15 @@
 
 {% block content %}
 <div class="container mt-5">
+    Solde Client : ({{conso.client.total_avoir_client}})
+   
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     <div class="card">
         <div class="card-header bg-primary text-white text-center">
             <h2 class="mb-0">MODIFICATION CONSOMMATION DE : {{ conso.client }} </h2>

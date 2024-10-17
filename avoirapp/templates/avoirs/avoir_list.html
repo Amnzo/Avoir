@@ -9,6 +9,7 @@
 
 {% block content %}
 <style>
+
     /* Ajoutez ces styles dans votre fichier CSS */
 .confirmed {
     color: #006400; /* Vert foncé */
@@ -110,26 +111,39 @@
         {% endfor %}
     </ul>
  {% endif %}
-    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="liste-credits-tab" data-toggle="tab" href="#liste-credits" role="tab"
-                aria-controls="liste-credits" aria-selected="true">LISTE DES CREDITS</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="credit-periode-tab" data-toggle="tab" href="#credit-periode" role="tab"
-                aria-controls="credit-periode" aria-selected="false">ETAT PERIODE</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="consomation-periode-tab" data-toggle="tab" href="#consomation-periode" role="tab"
-                aria-controls="consomation-periode" aria-selected="false">ETAT MENSUEL DES CREDITS</a>
-        </li>
+ <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="liste-credits-tab" data-toggle="tab" href="#liste-credits" role="tab"
+            aria-controls="liste-credits" aria-selected="true">
+            <i class="fas fa-list"></i> CREDITS
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="liste-consommations-tab" data-toggle="tab" href="#liste-consommations" role="tab"
+            aria-controls="liste-consommations" aria-selected="false">
+            <i class="fas fa-list"></i> CONSOMMATIONS
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="credit-periode-tab" data-toggle="tab" href="#credit-periode" role="tab"
+            aria-controls="credit-periode" aria-selected="false">
+            <i class="fas fa-calendar-alt"></i> PERIODE
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="consomation-periode-tab" data-toggle="tab" href="#consomation-periode" role="tab"
+            aria-controls="consomation-periode" aria-selected="false">
+            <i class="fas fa-calendar"></i> ETAT DES CREDITS
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="consomation2-periode-tab" data-toggle="tab" href="#consomation2-periode" role="tab"
+            aria-controls="consomation2-periode" aria-selected="false">
+            <i class="fas fa-calendar-check"></i> ETAT DES CONSOMMATIONS
+        </a>
+    </li>
+</ul>
 
-        <li class="nav-item">
-            <a class="nav-link" id="consomation2-periode-tab" data-toggle="tab" href="#consomation2-periode" role="tab"
-                aria-controls="consomation2-periode" aria-selected="false">ETAT MENSUEL DES CONSOMMATIONS</a>
-        </li>
-        
-    </ul>
 
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="liste-credits" role="tabpanel" aria-labelledby="liste-credits-tab">
@@ -202,6 +216,80 @@
                 </div>
             </div>
         </div>
+
+        <!-- DEBUT CONSOMATIONNNNNNNNNNNNNNNNNNNNN-->
+        <div class="tab-pane fade" id="liste-consommations" role="tabpanel" aria-labelledby="liste-consommations-tab">
+            
+            <div class="row">
+                <div class="col-md-8"><h1 class="text-center mb-4">LISTE DES CONSOMATIONS</h1></div>
+                <div class="col-md-4"> <a href="{% url 'avoir_a_valider' %}" class="btn btn-success">CONSOMMATIONS A VALIDER </a></div>
+                
+            </div>
+           
+            <table class="table table-striped" id="consommationTable">
+                <!-- Insérer le contenu de la liste des crédits ici -->
+                <thead style="background-color: #007BFF; color: #FFFFFF;">
+                    <tr>
+                        <th scope="col">NOM</th>
+                        <th scope="col">PRENOM</th>
+                        <th scope="col">FAMILLE</th>
+                        <th scope="col">DESIGNATION</th>
+                        <th scope="col">PRIX ACHAT HT</th>
+                        <th scope="col">PRIX VENTE TTC	</th>
+                        <th scope="col">DATE</th>
+                        <th scope="col">CODE</th>
+                        <th scope="col">FACTURE</th>
+                        {% if user.is_superuser %}
+                        <th scope="col">ACTION</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consommation in consommations %}
+                    <tr>
+                        <td>{{ consommation.client.nom|upper }}</td>
+                        <td>{{ consommation.client.prenom|upper }}</td>
+                       
+                        <td>{{ consommation.famille }}</td>
+                        <td>{{ consommation.designation|upper  }}</td>
+                        <td>{{ consommation.prix_achat}}</td>
+                        <td>{{ consommation.prix_vente}}</td>
+                        <td>  {{ consommation.date_ajout|date:"d-m-Y" }}</td>
+                        <td>
+                        {% if consommation.code_barre %}
+                        {{ consommation.code_barre }}
+                            {% else %}
+                           -
+                        {% endif %}
+                    </td>
+                     <td>
+                        {% if consommation.famille.is_facture %}
+                        {% if consommation.facture %}
+                        <a href="{{ consommation.facture.url }}" target="_blank">VOIRE LA FACTURE</a>
+                            {% else %}
+                           -
+                        {% endif %}
+
+                        {% endif%}
+                        
+                            
+                    </td>
+                      
+                        
+                        {% if user.is_superuser %}
+                        <td>
+                            <a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
+                           
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Pagination -->
+            
+        </div>
+         <!-- FIN CONSOMATIONNNNNNNNNNNNNNNNNNNNN-->
         <div class="tab-pane fade" id="credit-periode" role="tabpanel" aria-labelledby="credit-periode-tab">
             <!-- Formulaire de recherche -->
             <form id="searchForm" class="mb-4" method="post" action="{% url 'compte_rendu' %}">
