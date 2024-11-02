@@ -59,8 +59,8 @@ urlpatterns = [
     path('edit/<str:model_name>/<int:item_id>/', edit_item, name='edit_item'),
     path('vente_statistique/', vente_statistique, name='vente_statistique'),
     path('get_statistics/', get_statistics, name='get_statistics'),
-    path('lire_excel_avoir/', lire_excel_avoir, name='lire_excel_avoir'),
-    path('charger_credit_database/', charger_credit_database, name='charger_credit_database'),
+    #path('lire_excel_avoir/', lire_excel_avoir, name='lire_excel_avoir'),
+    #path('charger_credit_database/', charger_credit_database, name='charger_credit_database'),
     
     path('ajouter_enfant/', ajouter_enfant, name='ajouter_enfant'),
     #path('delete_member/<int:id>/<int:enfant_id>/', delete_member, name='delete_member'),
