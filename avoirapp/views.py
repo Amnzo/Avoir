@@ -51,7 +51,7 @@ def client(request):
     print(clients)
 
     print(search)
-    items_per_page = 8
+    items_per_page = 12
     paginator = Paginator(clients, items_per_page)
     page = request.GET.get('page')
     try:
