@@ -143,6 +143,65 @@ def dashboard(request):
     return render(request, 'dashbord/dashboard.html', {'data': data})
 
 
+
+
+import os
+import pandas as pd
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.utils import timezone
+from decimal import Decimal
+from .models import Client, Avoir  # Assurez-vous d'importer vos modèles
+
+def charger_credit_database(request):
+    Avoir.objects.all().delete() # Supprimer tous les "Client"
+    Client.objects.all().delete() # Supprimer tous les "User" sauf les administrateurs
+    User.objects.exclude(is_superuser=True).delete()
+    excel_file_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'data', 'credits.ods')
+    data = pd.read_excel(excel_file_path, engine="odf")
+    parent_client = None  # Variable pour stocker le dernier client parent
+    for _, row in data.iterrows():
+        vendeur_name = row['VENDEUR'].strip()  # Retirer les espaces
+        vendeur, _ = User.objects.get_or_create(username=vendeur_name)
+        print(vendeur)
+        nom = row['NOM'].strip()
+        prenom = row['PRENOM'].strip()
+        datenaissance = pd.to_datetime(row['DATE DE NAISSANCE'], dayfirst=True).date()
+        datevente= pd.to_datetime(row['DATE DE VTE'], dayfirst=True).date()
+        solde_avoir = Decimal(str(row['SOLDE AVOIR']).replace(',', '.'))
+        
+        #client.ajouter_enfant(enfant_id)  # Utiliser la méthode pour ajouter un enfant
+        #enfant.ajouter_enfant(client_id) 
+        state=row['0 OU 1'] 
+
+        client, created = Client.objects.get_or_create(
+            nom=nom,
+            prenom=prenom,
+            datenaissance=datenaissance
+        )
+        is_parent = row['0 OU 1']
+        if is_parent == 1 :
+            last_inserted_client=client
+        if is_parent == 0 :
+            last_inserted_client.ajouter_enfant(client.id)
+            client.ajouter_enfant(last_inserted_client.id)
+
+        facture_bidon_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'static', 'avoirapp', 'factures', 'facture_bidon.pdf')
+        Avoir.objects.get_or_create(
+            client=client,
+            montant=solde_avoir,
+            date_ajout=datevente,
+            date_renvoi=datevente,
+            user=vendeur,
+            facture=facture_bidon_path,
+            is_confirmed=True,  # Par défaut non confirmé
+           
+        )
+
+    return HttpResponse("Vous avez bien chargé les crédits et créé les clients.")
+
+
 def lire_excel_avoir(request):
     # Construire le chemin complet vers le fichier Excel dans 'data'
     excel_file_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'data', 'RETOURS.xlsx')
