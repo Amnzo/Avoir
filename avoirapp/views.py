@@ -153,53 +153,63 @@ from django.http import HttpResponse
 from django.utils import timezone
 from decimal import Decimal
 from .models import Client, Avoir  # Assurez-vous d'importer vos modèles
-
 def charger_credit_database(request):
-    Avoir.objects.all().delete() # Supprimer tous les "Client"
-    Client.objects.all().delete() # Supprimer tous les "User" sauf les administrateurs
+    Avoir.objects.all().delete()  # Supprimer tous les "Client"
+    Client.objects.all().delete()  # Supprimer tous les "User" sauf les administrateurs
     User.objects.exclude(is_superuser=True).delete()
+
     excel_file_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'data', 'credits.ods')
-    data = pd.read_excel(excel_file_path, engine="odf")
-    parent_client = None  # Variable pour stocker le dernier client parent
-    for _, row in data.iterrows():
-        vendeur_name = row['VENDEUR'].strip()  # Retirer les espaces
-        vendeur, _ = User.objects.get_or_create(username=vendeur_name)
-        print(vendeur)
-        nom = row['NOM'].strip()
-        prenom = row['PRENOM'].strip()
-        datenaissance = pd.to_datetime(row['DATE DE NAISSANCE'], dayfirst=True).date()
-        datevente= pd.to_datetime(row['DATE DE VTE'], dayfirst=True).date()
-        solde_avoir = Decimal(str(row['SOLDE AVOIR']).replace(',', '.'))
-        
-        #client.ajouter_enfant(enfant_id)  # Utiliser la méthode pour ajouter un enfant
-        #enfant.ajouter_enfant(client_id) 
-        state=row['0 OU 1'] 
+    data = pd.read_excel(excel_file_path, engine="odf", sheet_name=None)  # Read all sheets
 
-        client, created = Client.objects.get_or_create(
-            nom=nom,
-            prenom=prenom,
-            datenaissance=datenaissance
-        )
-        is_parent = row['0 OU 1']
-        if is_parent == 1 :
-            last_inserted_client=client
-        if is_parent == 0 :
-            last_inserted_client.ajouter_enfant(client.id)
-            client.ajouter_enfant(last_inserted_client.id)
+    # Iterate through each sheet
+    for sheet_name, df in data.items():
+        print(f"Processing sheet: {sheet_name}")  # Debug: Show the name of the current sheet
 
-        facture_bidon_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'static', 'avoirapp', 'factures', 'facture_bidon.pdf')
-        Avoir.objects.get_or_create(
-            client=client,
-            montant=solde_avoir,
-            date_ajout=datevente,
-            date_renvoi=datevente,
-            user=vendeur,
-            facture=facture_bidon_path,
-            is_confirmed=True,  # Par défaut non confirmé
-           
-        )
+        # Get the number of rows and columns
+        num_rows, num_cols = df.shape
+        print(f"Number of rows: {num_rows}, Number of columns: {num_cols}")  # Print rows and columns
+
+        parent_client = None  # Variable pour stocker le dernier client parent
+        for _, row in df.iterrows():  # Iterate over rows in the DataFrame
+            vendeur_name = row['VENDEUR'].strip()  # Retirer les espaces
+            vendeur, _ = User.objects.get_or_create(username=vendeur_name)
+            print(vendeur)
+            nom = row['NOM'].strip()
+            prenom = row['PRENOM'].strip()
+            datenaissance = pd.to_datetime(row['DATE DE NAISSANCE'], dayfirst=True).date()
+            datevente = pd.to_datetime(row['DATE DE VTE'], dayfirst=True).date()
+            solde_avoir = Decimal(str(row['SOLDE AVOIR']).replace(',', '.'))
+            
+
+            state = row['0 OU 1']
+
+            client, created = Client.objects.get_or_create(
+                nom=nom,
+                prenom=prenom,
+                datenaissance=datenaissance
+            )
+            print("***********************************************")
+            print(client)
+            is_parent = row['0 OU 1']
+            if is_parent == 1:
+                last_inserted_client = client
+            if is_parent == 0:
+                last_inserted_client.ajouter_enfant(client.id)
+                client.ajouter_enfant(last_inserted_client.id)
+
+            facture_bidon_path = os.path.join(settings.BASE_DIR, 'avoirapp', 'static', 'avoirapp', 'factures', 'facture_bidon.pdf')
+            Avoir.objects.get_or_create(
+                client=client,
+                montant=solde_avoir,
+                date_ajout=datevente,
+                date_renvoi=datevente,
+                user=vendeur,
+                facture=facture_bidon_path,
+                is_confirmed=True,  # Par défaut non confirmé
+            )
 
     return HttpResponse("Vous avez bien chargé les crédits et créé les clients.")
+
 
 
 def lire_excel_avoir(request):
