@@ -7,32 +7,36 @@
 {% block content %}
 <style>
     .pagination {
-    margin-top: 20px;
-    text-align: center;
-}
+        margin-top: 20px;
+        text-align: center;
+    }
 
-.pagination-inner {
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-}
+    .pagination-inner {
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 5px;
+    }
 
-.pagination-link {
-    color: #333;
-    text-decoration: none;
-    padding: 5px 10px;
-    margin: 0 2px;
-    border-radius: 3px;
-}
+    .pagination-link, .pagination-disabled {
+        color: #333;
+        text-decoration: none;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border-radius: 3px;
+    }
 
-.current-page {
-    background-color: #007bff;
-    color: #fff;
-    padding: 5px 10px;
-    margin: 0 2px;
-    border-radius: 3px;
-}
+    .pagination-link:hover {
+        background-color: #ddd;
+    }
+
+    .current-page {
+        background-color: #007bff;
+        color: #fff;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border-radius: 3px;
+    }
 </style>
     <div class="container mt-4">
         {% if messages %}
@@ -87,7 +91,7 @@
 
         <!-- Bouton "Ajouter Client" -->
 
-
+        {% if clients %}
         <!-- Tableau des clients -->
         <table class="table table-bordered table-hover">
             <thead style="background-color: #007BFF; color: #FFFFFF;">
@@ -102,7 +106,7 @@
             </thead>
             <tbody>
                 {% for client in clients %}
-                {% if not client.dernier_avoir_plus_de_24_mois %} 
+                    {% if not client.dernier_avoir_plus_de_24_mois %} 
                 <tr {% if client.dernier_avoir_plus_de_24_mois %} style="background-color: orange;" data-color="orange" {% endif %}>
 
                         <td>{{ client.nom|upper }}</td>
@@ -129,28 +133,28 @@
                 {% endfor %}
             </tbody>
         </table>
-        
         <div class="pagination-inner">
-        {% if clients.has_previous %}
-            <a class="pagination-link" href="?page=1">&laquo; First</a>
-            <a class="pagination-link" href="?page={{ clients.previous_page_number }}">Previous</a>
-        {% endif %}
-
-        {% for num in clients.paginator.page_range %}
-            {% if num == clients.number %}
-                <span class="current-page">{{ num }}</span>
-            {% else %}
-                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+            {% if clients.has_previous %}
+                <a class="pagination-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">&laquo; First</a>
+                <a class="pagination-link" href="?page={{ clients.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
             {% endif %}
-        {% endfor %}
-
-        {% if clients.has_next %}
-            <a class="pagination-link" href="?page={{ clients.next_page_number }}">Next</a>
-            <a class="pagination-link" href="?page={{ clients.paginator.num_pages }}">Last &raquo;</a>
-        {% endif %}
-    </div>
-
-
-
-    </div>
+        
+            {% for num in clients.paginator.page_range %}
+                {% if num == clients.number %}
+                    <span class="current-page">{{ num }}</span>
+                {% else %}
+                    <a class="pagination-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+        
+            {% if clients.has_next %}
+                <a class="pagination-link" href="?page={{ clients.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
+                <a class="pagination-link" href="?page={{ clients.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+        </div>
+        
+    {% else %}
+        <p class="text-center">Aucun client trouvé pour cette page.</p>
+    {% endif %}
+</div>
 {% endblock %}

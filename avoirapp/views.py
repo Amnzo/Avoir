@@ -42,25 +42,30 @@ def custom_login(request):
 
 # Create your views here.
 @login_required(login_url='login')
-def client(request):
-    clients = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id').all()
-    search = request.GET.get('search', '')
 
+def client(request):
+    # Base queryset with annotation for total_avoir and ordered by ID
+    clients = Client.objects.annotate(total_avoir=Sum('avoir__montant')).order_by('-id')
+
+    # Handle search filtering
+    search = request.GET.get('search', '').strip()
     if search:
         clients = clients.filter(Q(nom__icontains=search) | Q(prenom__icontains=search))
-    print(clients)
 
-    print(search)
-    items_per_page = 12
+    # Pagination setup
+    items_per_page = 50
     paginator = Paginator(clients, items_per_page)
-    page = request.GET.get('page')
+    page_number = request.GET.get('page', 1)
+
     try:
-        clients = paginator.page(page)
+        clients_page = paginator.page(page_number)
     except PageNotAnInteger:
-        clients = paginator.page(1)
+        clients_page = paginator.page(1)  # Default to first page
     except EmptyPage:
-        clients = paginator.page(paginator.num_pages)
-    return render(request, 'clients/client.html', {'clients': clients,'search':search})
+        clients_page = paginator.page(paginator.num_pages)  # Go to the last page if page is out of range
+
+    # Render template with the current page of clients
+    return render(request, 'clients/client.html', {'clients': clients_page, 'search': search})
 
 
 @login_required(login_url='login')
