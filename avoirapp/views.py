@@ -460,7 +460,38 @@ def search_filter(request):
                     # Add other fields from Avoir model as needed
                 }
                 data.append(avoir_data)
+        elif type=='solde':
 
+
+            clients = Client.objects.annotate(
+            dernier_avoir=Max('avoir__date_ajout')
+             ).filter(
+            Q(dernier_avoir__gte=start_date_iso) & Q(dernier_avoir__lte=end_date_iso)
+            )
+
+            resultats = []
+            sum_result=0
+            for client in clients:
+                total_solde = client.total_avoir_client()
+
+                if total_solde:
+                    sum_result=sum_result+total_solde
+                    resultats.append({
+                    'prenom': client.nom,
+                    'nom': client.nom,
+                    'total_solde': total_solde,
+                    'dernier_avoir': client.dernier_avoir,
+                }   )
+            print(len(resultats))
+            print(sum_result)
+            response_data = {
+            'clients': resultats,  # Liste des résultats des clients
+            'sum_result': sum_result  # Total des soldes
+            }
+                
+
+            # 3. Retourner la réponse JSON
+            return JsonResponse(response_data, safe=False)
         else:
             # Invalid search type
             data = {'error': 'Type de recherche non valide'}

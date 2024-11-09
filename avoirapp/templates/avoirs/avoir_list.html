@@ -226,7 +226,7 @@
                 
             </div>
            
-            <table class="table table-striped" id="consommationTable">
+            <table class="table table-striped" id="consommationTablee">
                 <!-- Insérer le contenu de la liste des crédits ici -->
                 <thead style="background-color: #007BFF; color: #FFFFFF;">
                     <tr>
@@ -301,6 +301,7 @@
             <select class="form-control" id="type" name="type">
                 <option value="credit" id="credit">{{ "CREDIT" |upper }}</option>
                 <option value="consommation" id="consommation">{{ "CONSOMMATION" |upper }}</option>
+                <option value="solde" id="solde">{{ "solde" |upper }}</option>
             </select>
         </div>
         <!-- Sélection de la famille -->
@@ -338,7 +339,24 @@
     <button type="button" class="btn btn-primary" id="submitSearchFormBtn">Rechercher</button>
 </form>
 
+<div class="text-center my-4">
+    <h4 id="totalSum" style="color: #007BFF;"></h4>
+</div>
 
+<!-- Credit Table -->
+<table class="table text-center" id="soldeTable" style="display: none;">
+    <thead style="background-color: #007BFF; color: #FFFFFF;">
+        <tr>
+            <th>NOM</th>
+            <th>{{ "PRENOM" |upper }}</th>
+            <th>SOLDE CREDIT</th>
+            <th>DATE DERNIER CREDIT</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        <!-- Data will be inserted here by JavaScript -->
+    </tbody>
+</table>
 <table class="table text-center" id="consommationTable" style="display: none;">
     <thead style="background-color: #007BFF; color: #FFFFFF;">
         <tr>
@@ -389,13 +407,7 @@
                     <h2 class="text-center mb-4">ETAT MENSUEL DES CREDITS</h2>
                     <div class="table-responsive">
                         <table class="table table-striped text-center">
-                           
-                                <thead style="background-color: #007BFF; color: #FFFFFF;">
-                                <tr>
-                                    <th scope="col">MOIS</th>
-                                    <th scope="col">NB CREDIT</th>
-                                    <th scope="col">ETAT </th>
-                                </tr>
+                            document.getElementById("totalSum").textContent = `TOTAL: ${parseFloat(data.sum_result).toFixed(2)}`;
                             </thead>
                             <tbody>
                                 {% for item2 in data2 %}
@@ -563,11 +575,35 @@
             },
             dataType: "json",
             success: function(response) {
+                if (type === 'solde') {
+                    $('#soldeTable').show(); // Show the consommation table
+                    $('#creditTable').hide(); // Hide the credit table
+                    $('#consommationTable').hide(); // Hide the credit table
+                    console.log("******************************");
+                    console.log(response);
+                    document.getElementById("totalSum").textContent = `Total Balance: ${parseFloat(response.sum_result).toFixed(2)}`;
+                    $('#soldeTable tbody').empty(); // Clear previous data
+
+                    response.clients.forEach(function(item){
+                        var row = '<tr>' +
+                            '<td>' + item.nom + '</td>' +
+                          '<td>' + item.prenom  + '</td>' +
+                          '<td>' + parseFloat(item.total_solde).toFixed(2) + '</td>'+
+
+                         '<td>' + formatDate(item.dernier_avoir) + '</td>' ;    
+                        row += '</tr>';
+                        $('#soldeTable tbody').append(row);
+                    });
+
+                }
                 if (type === 'consommation') {
                     console.log("Consommation returned");
                     $('#consommationTable').show(); // Show the consommation table
                     $('#creditTable').hide(); // Hide the credit table
+                    $('#soldeTable').hide(); // Show the consommation table
                     $('#consommationTable tbody').empty(); // Clear previous data
+
+
                     console.log(response);
                     // Handle consommation type response
                     response.forEach(function(item) {
@@ -591,11 +627,12 @@
                             '</tr>';
                         $('#consommationTable tbody').append(row);
                     });
-                } else {
+                } if (type === 'credit') {
                     console.log("Credit or other type returned");
                     $('#consommationTable').hide(); // Hide the consommation table
                     $('#creditTable').show(); // Show the credit table
                     $('#creditTable tbody').empty(); // Clear previous data
+                    $('#soldeTable').hide(); // Show the consommation table
 
                     // Handle credit type response
                     response.forEach(function(item) {
