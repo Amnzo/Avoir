@@ -40,7 +40,7 @@ class Client(models.Model):
 
 
     def total_consommation_client(self):
-        return self.consommation_set.all().aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
+        return self.consommation_set.filter(is_confirmed=True).aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
 
 
     def total_avoir_client(self):

@@ -149,11 +149,19 @@
         <div class="tab-pane fade show active" id="liste-credits" role="tabpanel" aria-labelledby="liste-credits-tab">
             <div class="row">
                 <div class="col-md-6"><h1 class="text-center mb-4">LISTE DES CREDITS</h1></div>
-                <div class="col-md-6"> <a href="{% url 'avoir_a_valider' %}" class="btn btn-success">CREDITS A VALIDER </a></div>
+                <div class="col-md-4"> <a href="{% url 'avoir_a_valider' %}" class="btn btn-success">CREDITS A VALIDER </a></div>
+              
+            <div class="col-md-2" >
+                <div class="text-end mb-3">
+                    <a href="#" id="downloadExcel" class="btn btn-link">
+                        <i class="fas fa-file-excel fa-3x text-success" title="Télécharger en Excel"></i>
+                    </a>
+                </div>
+            </div>
                 
             </div>
            
-            <table class="table table-striped">
+            <table class="table table-striped" id="creditsTable">
                 <!-- Insérer le contenu de la liste des crédits ici -->
                 <thead style="background-color: #007BFF; color: #FFFFFF;">
                     <tr>
@@ -222,7 +230,7 @@
             
             <div class="row">
                 <div class="col-md-8"><h1 class="text-center mb-4">LISTE DES CONSOMATIONS</h1></div>
-                <div class="col-md-4"> <a href="{% url 'avoir_a_valider' %}" class="btn btn-success">CONSOMMATIONS A VALIDER </a></div>
+                <div class="col-md-4"> <a href="{% url 'consommation_a_valider' %}" class="btn btn-success">CONSOMMATIONS A VALIDER </a></div>
                 
             </div>
            
@@ -900,6 +908,12 @@ $(document).ready(function() {
         });
     });
 });
+
+document.getElementById('downloadExcel').addEventListener('click', function () {
+        var table = document.getElementById('creditsTable'); // Récupérer le tableau par son ID
+        var wb = XLSX.utils.table_to_book(table, { sheet: "Credits" }); // Convertir le tableau en un fichier Excel
+        XLSX.writeFile(wb, "credits.xlsx"); // Télécharger le fichier Excel
+    });
    
 </script>
 

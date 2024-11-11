@@ -45,10 +45,6 @@
     <!-- Affichage des messages -->
     
 
-
-
-
-
     <div class="row mb-3">
         <div class="col-md-4">
             <!-- Bouton Retour avec icône -->
@@ -58,34 +54,41 @@
         </div>
         <div class="col-md-8">
             <!-- Titre centré avec icône -->
-            <h1><i class="fas fa-arrow-up"></i> Liste des crédits à valider</h1>
+            <h1><i class="fas fa-arrow-down"></i> Liste des consommations à valider</h1>
 
         </div>
     </div>
-
+    
     <!-- Tableau des crédits à valider -->
     <table class="table table-bordered table-hover">
         <thead style="background-color: #007BFF; color: #FFFFFF;">
             <tr>
                 <th>NOM</th>
                 <th>PRÉNOM</th>
-                <th>MONTANT</th>
+                <th>FAMILLE</th>
+                <th>PRIX_ACHAT</th>
+                <th>PRIX_VENTE</th>
                 <th>DATE CREATION</th>
                 <th>CREATEUR</th>
                 <th>VALIDER</th>
             </tr>
         </thead>
         <tbody>
-            {% for v in avoirs %}
+            {% for c in consommations %}
                 <tr class="{% if v.client.dernier_avoir_plus_de_24_mois %}highlight-row{% endif %}">
-                    <td>{{ v.client.nom|upper }}</td>
-                    <td>{{ v.client.prenom|upper }}</td>
-                    <td>{{ v.montant }}</td>
-                    <td>{{ v.date_ajout|date:"d-m-Y" }}</td>
-                    <td>{{ v.user }}</td>
+                    <td>{{ c.client.nom|upper }}</td>
+                    <td>{{ c.client.prenom|upper }}</td>
+                    <td>{{ c.famille }}</td>
+                    <td>{{ c.prix_achat }}</td>
+                    <td>{{ c.prix_vente }}</td>
+                    <td>{{ c.date_ajout|date:"d-m-Y" }}</td>
+                    <td>{{ c.user }}</td>
                     <td>
-                        <a href="{% url 'avoir_admin_confirmation' id=v.id %}">
-                            <i class="fas fa-check text-primary" title="Valider le crédit"></i>
+                        
+                            <a href="{% url 'confirmation_consommation' id=c.id %}">
+                                <i class="fas fa-check text-primary" title="Valider le crédit"></i>
+                            
+                          
                         </a>
                     </td>
                 </tr>

@@ -38,7 +38,9 @@ urlpatterns = [
     path('editer_avoir/<int:id>/', login_required(editer_avoir), name='editer_avoir'),
     path('editer_consommation/<int:id>/', login_required(editer_consommation), name='editer_consommation'),
     path('avoir_a_valider/', login_required(avoir_a_valider), name='avoir_a_valider'),
+    path('consommation_a_valider/', login_required(consommation_a_valider), name='consommation_a_valider'),
     path('avoir_admin_confirmation/<int:id>/', login_required(avoir_admin_confirmation), name='avoir_admin_confirmation'),
+    path('confirmation_consommation/<int:id>/', login_required(confirmation_consommation), name='confirmation_consommation'),
     
 
     

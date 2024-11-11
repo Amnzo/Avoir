@@ -179,26 +179,42 @@
     <div class="tab-pane fade show active" id="client-details">
         <div class="card-body">
             <div class="row">
+                <!-- Informations sur le client -->
                 <div class="col-md-6">
-                    <p class="mb-2"><strong>NOM : </strong> {{ client.nom|upper}} </p>
-                    <p class="mb-2"><strong>PRÉNOM : </strong> {{ client.prenom|upper}}</p>
-                    <p class="mb-2"><strong>DATE DE NAISSANCE : </strong> {{ client.datenaissance|date:"d/m/Y" }}</p>
+                    <p class="mb-2"><strong>NOM :</strong> {{ client.nom|upper }}</p>
+                    <p class="mb-2"><strong>PRÉNOM :</strong> {{ client.prenom|upper }}</p>
+                    <p class="mb-2"><strong>DATE DE NAISSANCE :</strong> {{ client.datenaissance|date:"d/m/Y" }}</p>
                 </div>
-                <div class="col-md-6">
-                    <div class="mt-3">
-                <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary mr-2">AJOUTER CRÉDIT</a>
-                {% if not client.dernier_avoir_plus_de_24_mois %} 
-                <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success">AJOUTER CONSOMMATION </a>
-                {% endif %}
-               
                 
-
-            </div>
-
-                   
-
+                <!-- Actions -->
+                <div class="col-md-6">
+                    <div class="btn-group mt-3" role="group" aria-label="Actions client">
+                        <!-- Bouton d'ajout de crédit -->
+                        <a href="{% url 'ajouter_avoir' client.id %}" class="btn btn-primary btn-lg" title="Ajouter Crédit">
+                            <i class="fas fa-plus-circle"></i> Crédit
+                        </a>
+            
+                        <!-- Bouton d'ajout de consommation -->
+                        {% if not client.dernier_avoir_plus_de_24_mois %} 
+                            <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success btn-lg" title="Ajouter Consommation">
+                                <i class="fas fa-plus-square"></i> Conso
+                            </a>
+                        {% endif %}
+                        
+                        <!-- Boutons pour les actions en attente de validation -->
+                        <a  href="{% url 'avoir_a_valider' %}?client_id={{ client.id }}" class="btn btn-warning btn-lg" title="Crédit en attente de validation" style="background-color: #FFA726; color: white;">
+                            <i class="fas fa-hourglass-half"></i> Crédit Att.
+                        </a>
+            
+                        {% if not client.dernier_avoir_plus_de_24_mois %} 
+                            <a href="{% url 'consommation_a_valider' %}?client_id={{ client.id }}" class="btn btn-warning btn-lg" title="Consommation en attente de validation" style="background-color: #FF7043; color: white;">
+                                <i class="fas fa-hourglass-start"></i> Conso Att.
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+            
             <div class="mt-3">
                
 

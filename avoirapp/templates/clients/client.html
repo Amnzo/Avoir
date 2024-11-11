@@ -1,5 +1,3 @@
-<!-- templates/client_list.html -->
-
 {% extends 'layout/base.html' %}
 
 {% block title %}Liste des clients{% endblock %}
@@ -37,63 +35,43 @@
         margin: 0 2px;
         border-radius: 3px;
     }
+    bg-red {
+        background-color: red;
+    }
 </style>
-    <div class="container mt-4">
-        {% if messages %}
-            <ul class="message-list">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-         {% endif %}
-        <h1 class="text-center mb-4">LISTE DES CLIENTS </h1>
-        <div class="row">
-            <div class="col-md-4">
-                <a href="{% url 'add_client' %}" class="btn btn-primary mb-4">
-                    <i class="fas fa-plus"></i> AJOUTER CLIENT
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="{% url 'client_expired' %}" class="btn btn-danger mb-4">
-                    <i class="fas fa-hourglass-end"></i> LES CLIENTS AVEC SOLDE EXPIRE
-                </a>
-            </div>
-            <div class="col-md-4">
-                 <a href="{% url 'avoir_a_valider' %}" class="btn btn-success">CREDITS A VALIDER </a>
+
+<div class="container mt-4">
+    <h1 class="text-center mb-4">LISTE DES CLIENTS</h1>
+    
+    <!-- Formulaire de recherche -->
+    <form id="searchForm" method="get" class="mb-4">
+        <div class="form-row">
+            <div class="form-group col-md-5" >
+                <label for="searchInput" class="sr-only">Rechercher par nom ou prénom :</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Entrez le nom" value="{{ search }}" oninput="this.value = this.value.toUpperCase()">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">RECHERCHE</button>
+                    </div>
                 </div>
+            </div>
+            <div class="col-md-6"></div>
+            <div class="col-lg-1" >
+                <div class="text-end mb-3">
+                    <a href="#" id="downloadExcel" class="btn btn-link">
+                        <i class="fas fa-file-excel fa-3x text-success" title="Télécharger en Excel"></i>
+                    </a>
+                </div>
+            </div>
         </div>
-        
+    </form>
+    
 
-
-        <!-- Formulaire de recherche -->
-        <form id="searchForm" class="mb-4">
-            <div class="form-row">
-                <div class="form-group col-md-5">
-                    <label for="searchInput" class="sr-only">Rechercher par nom ou prénom :</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="search" name="search" placeholder="Entrez le nom" value="{{search}}" oninput="this.value = this.value.toUpperCase()">
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-primary">RECHERCHE</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2"></div>
-                <div class="col-md-5">
-                    <div class="form-check form-check-inline">
-                        <!-- <input class="form-check-input" type="checkbox" id="orangeCheckbox" name="orange" value="orange">
-<label class="form-check-label" for="orangeCheckbox">{{"ORANGE"|upper}}</label> -->
-                    </div>
-
-                </div>
-                
-            </div>
-        </form>
-
-        <!-- Bouton "Ajouter Client" -->
-
-        {% if clients %}
-        <!-- Tableau des clients -->
-        <table class="table table-bordered table-hover">
+    <!-- Tableau des clients ou message d'absence de résultat -->
+    {% if clients and clients.object_list %}
+   
+    
+        <table id="clientsTable" class="table table-bordered table-hover">
             <thead style="background-color: #007BFF; color: #FFFFFF;">
                 <tr>
                     <th>NOM</th>
@@ -106,9 +84,7 @@
             </thead>
             <tbody>
                 {% for client in clients %}
-                    {% if not client.dernier_avoir_plus_de_24_mois %} 
-                <tr {% if client.dernier_avoir_plus_de_24_mois %} style="background-color: orange;" data-color="orange" {% endif %}>
-
+                    <tr>
                         <td>{{ client.nom|upper }}</td>
                         <td>{{ client.prenom|upper }}</td>
                         <td>{{ client.datenaissance|date:"d/m/Y" }}</td>
@@ -129,16 +105,17 @@
                             </a>
                         </td>
                     </tr>
-                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Pagination -->
         <div class="pagination-inner">
             {% if clients.has_previous %}
                 <a class="pagination-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">&laquo; First</a>
                 <a class="pagination-link" href="?page={{ clients.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
             {% endif %}
-        
+
             {% for num in clients.paginator.page_range %}
                 {% if num == clients.number %}
                     <span class="current-page">{{ num }}</span>
@@ -146,15 +123,28 @@
                     <a class="pagination-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
                 {% endif %}
             {% endfor %}
-        
+
             {% if clients.has_next %}
                 <a class="pagination-link" href="?page={{ clients.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
                 <a class="pagination-link" href="?page={{ clients.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">Last &raquo;</a>
             {% endif %}
         </div>
-        
     {% else %}
-        <p class="text-center">Aucun client trouvé pour cette page.</p>
+        <p class="text-center">Aucun résultat trouvé pour "{{ search }}"</p>
     {% endif %}
 </div>
 {% endblock %}
+
+{% block extra_js %}
+
+
+<script>
+      document.getElementById('downloadExcel').addEventListener('click', function () {
+        var table = document.getElementById('clientsTable'); // Récupérer le tableau par son ID
+        var wb = XLSX.utils.table_to_book(table, { sheet: "Clients" }); // Convertir le tableau en un fichier Excel
+        XLSX.writeFile(wb, "clients.xlsx"); // Télécharger le fichier Excel
+    });
+
+</script>
+{% endblock %}
+

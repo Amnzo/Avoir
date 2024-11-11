@@ -39,7 +39,33 @@ def custom_login(request):
         form = CustomLoginForm()
 
     return render(request, 'login/login.html', {'form': form,'hide_menu': True})
+def export_data_to_excel(request, model_data):
+    print(model_data)
+    # Crée un fichier Excel
+    workbook = openpyxl.Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Export Data'
 
+    # Définir les en-têtes
+    headers = ['ID', 'Nom', 'Prénom','DATE NAISSANCE','DATE DERNIER CREDIT' ,'Total Avoir']
+    worksheet.append(headers)
+
+    # Remplir les données dans le fichier Excel
+    for item in model_data:
+        worksheet.append([
+            item.id,
+            item.nom,
+            item.prenom,
+            item.datenaissance,
+            date_dernier_avoir ,
+            item.total_avoir or 0  # Utiliser 0 si le total_avoir est None
+        ])
+
+    # Créer la réponse HTTP pour télécharger le fichier Excel
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=data_export.xlsx'
+    workbook.save(response)
+    return response 
 # Create your views here.
 @login_required(login_url='login')
 
@@ -51,9 +77,13 @@ def client(request):
     search = request.GET.get('search', '').strip()
     if search:
         clients = clients.filter(Q(nom__icontains=search) | Q(prenom__icontains=search))
+    if 'download_excel' in request.GET:
+        return export_data_to_excel(request, clients)
+    
+    print(clients)  # This will show the filtered queryset in the console
 
     # Pagination setup
-    items_per_page = 50
+    items_per_page = 20
     paginator = Paginator(clients, items_per_page)
     page_number = request.GET.get('page', 1)
 
@@ -64,8 +94,13 @@ def client(request):
     except EmptyPage:
         clients_page = paginator.page(paginator.num_pages)  # Go to the last page if page is out of range
 
+    # Check if there are any clients in the filtered page
+    if not clients_page.object_list:
+        clients_page = None  # This can help the template check for no results
+
     # Render template with the current page of clients
     return render(request, 'clients/client.html', {'clients': clients_page, 'search': search})
+
 
 
 @login_required(login_url='login')
@@ -297,10 +332,69 @@ def avoir_admin_confirmation(request,id):
         return redirect(reverse('client_details', args=[avoir.client.id]))
 
     return render(request, 'avoirs/confirmer_avoir.html',{'avoir':avoir})
+
+
 @login_required(login_url='login')
+def confirmation_consommation(request,id):
+    consommation = Consommation.objects.get(id=id)
+    client = get_object_or_404(Client, id=consommation.client.id)
+    if request.method == 'POST':
+        achat=request.POST.get('achat')
+        vente=request.POST.get('vente')
+        total_solde=client.total_avoir_client()
+        if Decimal(vente) <= total_solde:
+            consommation.is_confirmed=True
+            consommation.prix_achat=achat
+            consommation.prix_vente=vente
+            consommation.save()
+        #return redirect('avoir_a_valider')
+            return redirect(reverse('client_details', args=[consommation.client.id]))
+        else:
+           # messages.error(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
+            messages.error(request, f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {total_solde:.2f} DH.")
+
+    return render(request, 'avoirs/confirmer_consommation.html',{'consommation':consommation})
+@login_required(login_url='login')
+
+
+
 def avoir_a_valider(request):
-    avoirs = Avoir.objects.filter(is_confirmed=False).order_by('-date_ajout')
-    return render(request, 'avoirs/avoir_a_valider.html',{'avoirs': avoirs})
+    client_id = request.GET.get('client_id')  # Récupérer le client_id depuis les paramètres GET
+    message = ""  # Variable pour le message conditionnel
+    if client_id:
+
+        # Filtrer les avoirs pour un client spécifique
+        avoirs = Avoir.objects.filter(client_id=client_id, is_confirmed=False).order_by('-date_ajout')
+        client = get_object_or_404(Client, id=client_id)  # Récupérer le client pour affichage ou autres informations
+        if not avoirs:
+            message = f"Aucun avoir à valider pour . {client}."
+    else:
+        avoirs = Avoir.objects.filter(is_confirmed=False).order_by('-date_ajout')
+    
+    return render(request, 'avoirs/avoir_a_valider.html', {
+        'avoirs': avoirs,
+        'message': message  # Passer le message au template
+    })
+
+
+def consommation_a_valider(request):
+    client_id = request.GET.get('client_id')  # Récupérer le client_id depuis les paramètres GET
+    message = ""  # Variable pour le message conditionnel
+    if client_id:
+
+        # Filtrer les avoirs pour un client spécifique
+        consommations = Consommation.objects.filter(client_id=client_id, is_confirmed=False).order_by('-date_ajout')
+        client = get_object_or_404(Client, id=client_id)  # Récupérer le client pour affichage ou autres informations
+        if not consommations:
+            message = f"Aucun consommation à valider pour . {client}."
+    else:
+        consommations = Consommation.objects.filter(is_confirmed=False).order_by('-date_ajout')
+    
+    return render(request, 'avoirs/consomation_a_valider.html', {
+        'consommations': consommations,
+        'message': message  # Passer le message au template
+    })
+
 @login_required(login_url='login')
 def avoir(request):
     items_per_page = 8 
