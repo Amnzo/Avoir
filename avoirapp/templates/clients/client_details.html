@@ -200,16 +200,19 @@
                                 <i class="fas fa-plus-square"></i> Conso
                             </a>
                         {% endif %}
-                        
+                        {% if user.is_superuser %}
                         <!-- Boutons pour les actions en attente de validation -->
                         <a  href="{% url 'avoir_a_valider' %}?client_id={{ client.id }}" class="btn btn-warning btn-lg" title="Crédit en attente de validation" style="background-color: #FFA726; color: white;">
                             <i class="fas fa-hourglass-half"></i> Crédit Att.
                         </a>
+                        {% endif %}
+                        {% if user.is_superuser %}
             
                         {% if not client.dernier_avoir_plus_de_24_mois %} 
                             <a href="{% url 'consommation_a_valider' %}?client_id={{ client.id }}" class="btn btn-warning btn-lg" title="Consommation en attente de validation" style="background-color: #FF7043; color: white;">
                                 <i class="fas fa-hourglass-start"></i> Conso Att.
                             </a>
+                        {% endif %}
                         {% endif %}
                     </div>
                 </div>
