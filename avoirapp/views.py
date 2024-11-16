@@ -66,7 +66,7 @@ def export_data_to_excel(request, model_data):
 
     # Créer la réponse HTTP pour télécharger le fichier Excel
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=data_export.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=clients.xlsx'
     workbook.save(response)
     return response 
 # Create your views here.
