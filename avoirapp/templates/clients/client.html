@@ -46,7 +46,7 @@
     <!-- Formulaire de recherche -->
     <form id="searchForm" method="get" class="mb-4">
         <div class="form-row">
-            <div class="form-group col-md-5" >
+            <div class="form-group col-md-5">
                 <label for="searchInput" class="sr-only">Rechercher par nom ou prénom :</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="search" name="search" placeholder="Entrez le nom" value="{{ search }}" oninput="this.value = this.value.toUpperCase()">
@@ -56,15 +56,17 @@
                 </div>
             </div>
             <div class="col-md-6"></div>
-            <div class="col-lg-1" >
+            <div class="col-lg-1">
                 <div class="text-end mb-3">
-                    <a href="#" id="downloadExcel" class="btn btn-link">
+                    <!-- Lien pour télécharger en Excel -->
+                    <a href="?download_excel=1{% if search %}&search={{ search }}{% endif %}" class="btn btn-link">
                         <i class="fas fa-file-excel fa-3x text-success" title="Télécharger en Excel"></i>
                     </a>
                 </div>
             </div>
         </div>
     </form>
+    
     
 
     <!-- Tableau des clients ou message d'absence de résultat -->
@@ -138,13 +140,6 @@
 {% block extra_js %}
 
 
-<script>
-      document.getElementById('downloadExcel').addEventListener('click', function () {
-        var table = document.getElementById('clientsTable'); // Récupérer le tableau par son ID
-        var wb = XLSX.utils.table_to_book(table, { sheet: "Clients" }); // Convertir le tableau en un fichier Excel
-        XLSX.writeFile(wb, "clients.xlsx"); // Télécharger le fichier Excel
-    });
 
-</script>
 {% endblock %}
 

@@ -52,12 +52,15 @@ def export_data_to_excel(request, model_data):
 
     # Remplir les données dans le fichier Excel
     for item in model_data:
+        last_credit_date = item.avoir_set.order_by('-date_ajout').first().date_ajout if item.avoir_set.exists() else None
+        if last_credit_date and last_credit_date.tzinfo:
+            last_credit_date = last_credit_date.replace(tzinfo=None)
         worksheet.append([
             item.id,
             item.nom,
             item.prenom,
             item.datenaissance,
-            date_dernier_avoir ,
+            last_credit_date ,
             item.total_avoir or 0  # Utiliser 0 si le total_avoir est None
         ])
 
@@ -2258,3 +2261,23 @@ def fill_dummy_data(request):
         Litige.objects.create(vendeur=vendeur, subject=fake.sentence())
     return redirect('ventes_journee')
     #return render(request, 'dummy_data_filled.html')  # Remplacer 'dummy_data_filled.html' par le nom de votre template de confirmation
+
+
+def delete_item(request, type, id):
+    # Vérification du type et récupération de l'objet
+    if type == "avoir":
+        item = get_object_or_404(Avoir, id=id)
+        redirect_url = 'avoir_a_valider'
+    elif type == "consommation":
+        item = get_object_or_404(Consommation, id=id)
+        redirect_url = 'consommation_a_valider'
+    else:
+        messages.error(request, "Type d'élément non valide.")
+        return redirect('some_default_view')  # Redirection par défaut en cas d'erreur
+
+    # Suppression de l'objet
+    item.delete()
+    messages.success(request, f"{type} a été supprimé avec succès.")
+    
+    # Redirection vers l'URL correspondante
+    return redirect(redirect_url)

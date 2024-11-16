@@ -73,6 +73,7 @@
                 <th>DATE CREATION</th>
                 <th>CREATEUR</th>
                 <th>VALIDER</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -88,6 +89,20 @@
                             <i class="fas fa-check text-primary" title="Valider le crédit"></i>
                         </a>
                     </td>
+                    <td>
+                        <a href="{% url 'delete_item' type='avoir' id=v.id %}" onclick="return confirmDelete();" title="Supprimer">
+                            <i class="fas fa-trash text-danger"></i>
+                        </a>
+                        
+                    </td>
+                    
+                    <script>
+                        function confirmDelete() {
+                            return confirm("Êtes-vous sûr de vouloir supprimer cet élément ?");
+                        }
+                    </script>
+                    
+                    
                 </tr>
             {% empty %}
                 <tr>

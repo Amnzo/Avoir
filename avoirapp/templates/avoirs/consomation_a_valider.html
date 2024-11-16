@@ -91,6 +91,20 @@
                           
                         </a>
                     </td>
+                    
+                    <td>
+                        <a href="{% url 'delete_item' type='consommation' id=c.id %}" onclick="return confirmDelete();" title="Supprimer">
+                            <i class="fas fa-trash text-danger"></i>
+                        </a>
+                        
+                    </td>
+                    
+                    <script>
+                        function confirmDelete() {
+                            return confirm("Êtes-vous sûr de vouloir supprimer cet élément ?");
+                        }
+                    </script>
+                    
                 </tr>
             {% empty %}
                 <tr>
