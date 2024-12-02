@@ -187,7 +187,7 @@
                         <td>{{ avoir.user|upper }}</td>
                         <td>
                             {% if avoir.facture %}
-                            <a href="{{ avoir.facture.url }}" target="_blank">VOIRE LA FACTURE</a>
+                            <a href="{{ avoir.facture.url }}" target="_blank">VOIR LA FACTURE</a>
                             {% else %}
                            -
                             {% endif %}
@@ -273,7 +273,7 @@
                      <td>
                         {% if consommation.famille.is_facture %}
                         {% if consommation.facture %}
-                        <a href="{{ consommation.facture.url }}" target="_blank">VOIRE LA FACTURE</a>
+                        <a href="{{ consommation.facture.url }}" target="_blank">VOIR LA FACTURE</a>
                             {% else %}
                            -
                         {% endif %}
@@ -625,7 +625,7 @@
                             '<td>' + formatDate(item.date_ajout) + '</td>' ;
                             // Vérifier si l'attribut facture n'est pas vide
                         if (item.facture) {
-                            row += '<td><a href="#" class="voir-facture2" data-facture2="' + item.id + '">VOIRE LA FACTURE</a></td>';
+                            row += '<td><a href="#" class="voir-facture2" data-facture2="' + item.id + '">VOIR LA FACTURE</a></td>';
                         } else {
                             row += '<td>-</td>';
                         }
@@ -663,7 +663,7 @@
                                 '</td>'
                                 + 
                             '<td>' + formatDate(item.date_ajout) + '</td>' + // Formater la date 
-                            '<td><a href="#" class="voir-facture" data-facture="' + item.id + '">VOIRE LA FACTURE</a></td>'+
+                            '<td><a href="#" class="voir-facture" data-facture="' + item.id + '">VOIR LA FACTURE</a></td>'+
                             '<td style="display: none;">' + item.id + '</td>' + // Cellule cachée
                             '</tr>';
                         $('#creditTable tbody').append(row);

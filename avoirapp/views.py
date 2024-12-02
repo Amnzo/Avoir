@@ -2281,3 +2281,16 @@ def delete_item(request, type, id):
     
     # Redirection vers l'URL correspondante
     return redirect(redirect_url)
+
+
+
+
+def delete_client(request, id):
+    # Vérification du type et récupération de l'objet
+    client = get_object_or_404(Client, id=id)
+    # Suppression de l'objet
+    client.delete()
+    messages.success(request, f"le client {client} a été supprimé avec succès.")
+    
+    # Redirection vers l'URL correspondante
+    return redirect('client')

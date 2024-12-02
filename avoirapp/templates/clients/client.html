@@ -41,6 +41,16 @@
 </style>
 
 <div class="container mt-4">
+
+    <div class="container mt-4">
+        {% if messages %}
+        <ul class="message-list">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+     {% endif %}
+    
     <h1 class="text-center mb-4">LISTE DES CLIENTS</h1>
     
     <!-- Formulaire de recherche -->
@@ -116,6 +126,17 @@
                                 <i class="fas fa-edit text-secondary" title="Modifier"></i>
                             </a>
                         </td>
+                        <td>
+                            <a href="{% url 'delete_client' id=client.id %}" onclick="return confirmDelete();" title="Supprimer">
+                                <i class="fas fa-trash text-danger"></i>
+                            </a>
+                            
+                        </td>
+                        <script>
+                            function confirmDelete() {
+                                return confirm("Êtes-vous sûr de vouloir supprimer ce client ?");
+                            }
+                        </script>
                     </tr>
                 {% endfor %}
             </tbody>
