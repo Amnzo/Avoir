@@ -531,6 +531,7 @@ def search_filter(request):
                 data.append(consommation_data)
 
         elif type == 'credit':
+            print("Vous cherchez des credit ok ")
             # Query avoirs and select related client
             avoirs = Avoir.objects.filter(
                 date_ajout__gte=start_date_iso,
