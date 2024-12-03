@@ -400,7 +400,7 @@ def consommation_a_valider(request):
 
 @login_required(login_url='login')
 def avoir(request):
-    items_per_page = 8 
+    items_per_page = 20
     # Query for Avoirs and paginate the results
     avoirs = Avoir.objects.filter(is_confirmed=True).order_by('-date_ajout')
     paginator = Paginator(avoirs, items_per_page)
