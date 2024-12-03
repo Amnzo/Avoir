@@ -253,7 +253,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for consommation in consommations_paginated %}
+                    {% for consommation in consommations %}
                     <tr>
                         <td>{{ consommation.client.nom|upper }}</td>
                         <td>{{ consommation.client.prenom|upper }}</td>
@@ -297,22 +297,22 @@
             <!-- Pagination -->
             <div class="pagination">
                 <div class="pagination-inner">
-                    {% if consommations_paginated.has_previous %}
+                    {% if consommations.has_previous %}
                     <a class="pagination-link" href="?page=1">&laquo; First</a>
-                    <a class="pagination-link" href="?page={{ consommations_paginated.previous_page_number }}">Previous</a>
+                    <a class="pagination-link" href="?page={{ consommations.previous_page_number }}">Previous</a>
                     {% endif %}
 
-                    {% for num in consommations_paginated.paginator.page_range %}
-                    {% if num == consommations_paginated.number %}
+                    {% for num in consommations.paginator.page_range %}
+                    {% if num == consommations.number %}
                     <span class="current-page">{{ num }}</span>
                     {% else %}
                     <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
                     {% endif %}
                     {% endfor %}
 
-                    {% if consommations_paginated.has_next %}
-                    <a class="pagination-link" href="?page={{ consommations_paginated.next_page_number }}">Next</a>
-                    <a class="pagination-link" href="?page={{ consommations_paginated.paginator.num_pages }}">Last &raquo;</a>
+                    {% if consommations.has_next %}
+                    <a class="pagination-link" href="?page={{ consommations.next_page_number }}">Next</a>
+                    <a class="pagination-link" href="?page={{ consommations.paginator.num_pages }}">Last &raquo;</a>
                     {% endif %}
                 </div>
             </div>
