@@ -413,7 +413,18 @@ def avoir(request):
         avoirs = paginator.page(paginator.num_pages)
 
     # Group Consommations by year, month, and famille
-    consommations = Consommation.objects.all().order_by('-date_ajout')
+    consommations = Consommation.objects.filter(is_confirmed=True).order_by('-date_ajout')
+    paginator_consommations = Paginator(consommations, items_per_page)
+    page_consommations = request.GET.get('page_consommations')
+    try:
+        consommations_paginated = paginator_consommations.page(page_consommations)
+    except PageNotAnInteger:
+        consommations_paginated = paginator_consommations.page(1)
+    except EmptyPage:
+        consommations_paginated = paginator_consommations.page(paginator_consommations.num_pages)
+
+
+
     consommations_groupes = defaultdict(lambda: defaultdict(int))
 
     for consommation in consommations:
