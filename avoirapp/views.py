@@ -465,7 +465,7 @@ def avoir(request):
     familles =Famille.objects.filter(is_active=True)
 
     # Return the rendered template with the data
-    return render(request, 'avoirs/avoir_list.html', {'consommations':consommations,'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles})
+    return render(request, 'avoirs/avoir_list.html', {'consommations_paginated':consommations_paginated,'consommations':consommations,'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles})
 
 
 def consommation_periode(request):
