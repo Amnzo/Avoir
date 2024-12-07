@@ -415,7 +415,10 @@ def consommation_a_valider(request):
 
 @login_required(login_url='login')
 def avoir(request):
-    items_per_page = 20
+    items_per_page = 10
+    tab = request.GET.get('tab', 'credits')  # Par défaut à 'credits'
+    print(tab)
+    print("envoyer les consomation")
     # Query for Avoirs and paginate the results
     avoirs = Avoir.objects.filter(is_confirmed=True).order_by('-date_ajout')
     paginator = Paginator(avoirs, items_per_page)
@@ -430,7 +433,7 @@ def avoir(request):
     # Group Consommations by year, month, and famille
     consommations = Consommation.objects.filter(is_confirmed=True).order_by('-date_ajout')
     paginator_consommations = Paginator(consommations, items_per_page)
-    page_consommations = request.GET.get('page_consommations')
+    page_consommations = request.GET.get('page')
     try:
         consommations_paginated = paginator_consommations.page(page_consommations)
     except PageNotAnInteger:
@@ -480,7 +483,7 @@ def avoir(request):
     familles =Famille.objects.filter(is_active=True)
 
     # Return the rendered template with the data
-    return render(request, 'avoirs/avoir_list.html', {'consommations_paginated':consommations_paginated,'consommations':consommations,'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles})
+    return render(request, 'avoirs/avoir_list.html', {'consommations':consommations_paginated,'consommations':consommations_paginated,'avoirs': avoirs, 'data': data, 'data2': data2,'familles':familles,'active_tab': tab})
 
 
 def consommation_periode(request):
