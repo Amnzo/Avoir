@@ -1,75 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VALIDATION  RETOUR DE  : {{retour.nom }} {{retour.prenom }}</title>
-    <!-- Inclure Bootstrap CSS -->
+    <title>VALIDATION RETOUR DE : {{retour.nom}} {{retour.prenom}}</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Votre CSS personnalisé -->
+    
+    <!-- Fontawesome pour les icônes -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    
     <style>
-        /* Ajoutez ici votre CSS personnalisé */
+        .custom-file-input:lang(fr)~.custom-file-label::after {
+            content: "Parcourir";
+        }
     </style>
 </head>
 <body>
-
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <div class="card bg-primary text-white">
-                    <div class="card-header">
-                        JOINDRE AVOIR
+                    <div class="card-header text-center">
+                        JOINDRE UN AVOIR
                     </div>
                     <div class="card-body">
-                        <form id="deleteForm" action="{% url 'confirme_validation' id=retour.id %}" method="post" enctype="multipart/form-data">
+                        <form id="validationForm" action="{% url 'confirme_validation' id=retour.id %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            <p>ÊTES-VOUS SÛR DE VOULOIR JOINDRE UN AVOIR À CE RETOUR ?</p>
-                            <!-- Champ pour mettre à jour la facture -->
-                            <div class="form-group">
-                              
-                                <input type="file" class="form-control-file" id="facture" name="facture">
+                            
+                            <div class="alert alert-warning" role="alert">
+                                ÊTES-VOUS SÛR DE VOULOIR JOINDRE UN AVOIR À CE RETOUR ?
                             </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="confirmation" name="confirmation">
-                                <label class="form-check-label" for="confirmation">{{"Oui, je suis sûr"|upper}}</label>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <button id="deleteButton" type="submit" class="btn btn-danger mt-3" disabled>CONFIRMER</button>
 
+                            <!-- Champ de fichier amélioré -->
+                            <div class="form-group">
+                                <div class="custom-file">
+                                    <input type="file" 
+                                           class="custom-file-input" 
+                                           id="facture" 
+                                           name="facture" 
+                                           accept=".pdf,.jpg,.jpeg,.png" 
+                                           required>
+                                    <label class="custom-file-label" for="facture">
+                                        Sélectionner un fichier
+                                    </label>
                                 </div>
-                                <div class="col-md-2"></div>
-                                <div class="col-md-2">
-                                    <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
+                                <small class="form-text text-white">
+                                    Types de fichiers acceptés : PDF, JPG, PNG (max 5 Mo)
+                                </small>
+                            </div>
+
+                            <!-- Confirmation checkbox -->
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" 
+                                           class="custom-control-input" 
+                                           id="confirmation" 
+                                           name="confirmation" 
+                                           required>
+                                    <label class="custom-control-label" for="confirmation">
+                                        {{"OUI, JE CONFIRME LA VALIDATION DE L'AVOIR"|upper}}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Boutons d'action -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button id="confirmButton" 
+                                            type="submit" 
+                                            class="btn btn-danger btn-block mt-3" 
+                                            disabled>
+                                        <i class="fas fa-check-circle"></i> CONFIRMER
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{% url 'retour_list' %}" 
+                                       class="btn btn-secondary btn-block mt-3">
                                         <i class="fas fa-chevron-left"></i> RETOUR
                                     </a>
                                 </div>
-                                
-
                             </div>
-                           
-
-
-                            
-                            
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
+    <script>
+        // Gestion dynamique du nom du fichier
+        document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+            var fileName = e.target.files[0] ? e.target.files[0].name : 'Aucun fichier';
+            var nextSibling = e.target.nextElementSibling;
+            nextSibling.innerHTML = fileName;
+        });
 
-<!-- Inclure Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- Votre JavaScript personnalisé -->
-<script>
-    document.getElementById('confirmation').addEventListener('change', function() {
-        document.getElementById('deleteButton').disabled = !this.checked;
-    });
-</script>
+        // Validation du formulaire
+        document.getElementById('validationForm').addEventListener('input', function() {
+            var fileInput = document.getElementById('facture');
+            var confirmCheckbox = document.getElementById('confirmation');
+            var confirmButton = document.getElementById('confirmButton');
 
+            // Le bouton est activé uniquement si un fichier est sélectionné ET la case est cochée
+            confirmButton.disabled = !(fileInput.files.length > 0 && confirmCheckbox.checked);
+        });
+    </script>
 </body>
 </html>

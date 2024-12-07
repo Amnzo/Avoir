@@ -79,23 +79,23 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-#database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'gestionoptique$default',
-        'USER': 'gestionoptique',
-        'PASSWORD': 'Salmi@ensa123',
-        'HOST': 'gestionoptique.mysql.pythonanywhere-services.com',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+#database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'gestionoptique$default',
+#         'USER': 'gestionoptique',
+#         'PASSWORD': 'Salmi@ensa123',
+#         'HOST': 'gestionoptique.mysql.pythonanywhere-services.com',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
+#         'PORT': '3306',
+#     }
+# }
 
 
 

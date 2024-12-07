@@ -5,6 +5,37 @@
 {% block content %}
 {% load tz %}  {# Charger les filtres de fuseau horaire #}
 <style>
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination-inner {
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .pagination-link, .pagination-disabled {
+        color: #333;
+        text-decoration: none;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border-radius: 3px;
+    }
+
+    .pagination-link:hover {
+        background-color: #ddd;
+    }
+
+    .current-page {
+        background-color: #007bff;
+        color: #fff;
+        padding: 5px 10px;
+        margin: 0 2px;
+        border-radius: 3px;
+    }
 /* Styles pour les lignes avec des classes spécifiques */
 #retoursTable tbody tr.success {
     background-color: lightgreen !important;
@@ -226,5 +257,27 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="pagination">
+        <div class="pagination-inner">
+            {% if retours.has_previous %}
+                <a class="pagination-link" href="?page=1">&laquo; First</a>
+                <a class="pagination-link" href="?page={{ retours.previous_page_number }}">Previous</a>
+            {% endif %}
+    
+            {% for num in visible_pages %}
+                {% if num == retours.number %}
+                    <span class="current-page">{{ num }}</span>
+                {% else %}
+                    <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+    
+            {% if retours.has_next %}
+                <a class="pagination-link" href="?page={{ retours.next_page_number }}">Next</a>
+                <a class="pagination-link" href="?page={{ total_pages }}">Last &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+    
 </div>
 {% endblock %}

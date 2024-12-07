@@ -20,6 +20,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login,logout
 from .forms import ClientForm, CustomLoginForm, CustomUserRegistrationForm, GenericModelForm, RepertoireSearchForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from math import ceil
+
 
 def custom_login(request):
     if request.method == 'POST':
@@ -70,7 +72,9 @@ def export_data_to_excel(request, model_data):
     workbook.save(response)
     return response 
 # Create your views here.
+from math import ceil
 @login_required(login_url='login')
+
 
 def client(request):
     # Base queryset with annotation for total_avoir and ordered by ID
@@ -80,10 +84,10 @@ def client(request):
     search = request.GET.get('search', '').strip()
     if search:
         clients = clients.filter(Q(nom__icontains=search) | Q(prenom__icontains=search))
+    
+    # Export to Excel
     if 'download_excel' in request.GET:
         return export_data_to_excel(request, clients)
-    
-    print(clients)  # This will show the filtered queryset in the console
 
     # Pagination setup
     items_per_page = 20
@@ -93,16 +97,27 @@ def client(request):
     try:
         clients_page = paginator.page(page_number)
     except PageNotAnInteger:
-        clients_page = paginator.page(1)  # Default to first page
+        clients_page = paginator.page(1)
     except EmptyPage:
-        clients_page = paginator.page(paginator.num_pages)  # Go to the last page if page is out of range
+        clients_page = paginator.page(paginator.num_pages)
 
-    # Check if there are any clients in the filtered page
-    if not clients_page.object_list:
-        clients_page = None  # This can help the template check for no results
+    # Calculate range of visible pages (1 to 10, 11 to 20, etc.)
+    max_pages_shown = 10
+    current_page = clients_page.number
+    total_pages = paginator.num_pages
+    start_page = (ceil(current_page / max_pages_shown) - 1) * max_pages_shown + 1
+    end_page = min(start_page + max_pages_shown - 1, total_pages)
 
-    # Render template with the current page of clients
-    return render(request, 'clients/client.html', {'clients': clients_page, 'search': search})
+    visible_pages = range(start_page, end_page + 1)
+
+    # Render template
+    context = {
+        'clients': clients_page,
+        'search': search,
+        'visible_pages': visible_pages,
+        'total_pages': total_pages,
+    }
+    return render(request, 'clients/client.html', context)
 
 
 
@@ -586,7 +601,7 @@ def search_filter(request):
                 if total_solde:
                     sum_result=sum_result+total_solde
                     resultats.append({
-                    'prenom': client.nom,
+                    'prenom': client.prenom,
                     'nom': client.nom,
                     'total_solde': total_solde,
                     'dernier_avoir': client.dernier_avoir,
@@ -1209,17 +1224,17 @@ def add_rep(request):
 
 from django.utils import timezone
 
+
 def retour_list(request):
     retours = Retour.objects.filter(facture='').order_by('-date')
     maintenant = timezone.now()
     maintenant_moins_25_jours = maintenant - timedelta(days=25)
-    search_query=""
-    couleurs= []
+    search_query = ""
+    couleurs = []
 
     # Filtrer les enregistrements en fonction de la recherche de nom
     if request.method == 'GET' and request.GET.get('search'):
         search_query = request.GET.get('search')
-        print(search_query)
         retours = retours.filter(
             Q(nom__icontains=search_query) |
             Q(prenom__icontains=search_query) |
@@ -1231,22 +1246,44 @@ def retour_list(request):
     # Filtrer les enregistrements en fonction de la couleur et de la présence de facture
     if request.method == 'GET' and request.GET.getlist('couleur[]'):
         couleurs = request.GET.getlist('couleur[]')
-        print(couleurs)
         filtered_retours = []
         for retour in retours:
-            jours_ecoules = retour.jours_ecoules()  # Assurez-vous que la méthode est appelée correctement
+            jours_ecoules = retour.jours_ecoules()
             if 'orange' in couleurs and 0 <= jours_ecoules <= 25 and not retour.facture:
                 filtered_retours.append(retour)
 
-            if 'rouge' in couleurs and jours_ecoules > 25 and not retour.facture :
+            if 'rouge' in couleurs and jours_ecoules > 25 and not retour.facture:
                 filtered_retours.append(retour)
         retours = filtered_retours
 
+    # Pagination
+    items_per_page = 20
+    paginator = Paginator(retours, items_per_page)
+    page_number = request.GET.get('page', 1)
+
+    try:
+        retours_page = paginator.page(page_number)
+    except PageNotAnInteger:
+        retours_page = paginator.page(1)
+    except EmptyPage:
+        retours_page = paginator.page(paginator.num_pages)
+
+    # Calcul de la plage visible de pages
+    max_pages_shown = 10
+    current_page = retours_page.number
+    total_pages = paginator.num_pages
+    start_page = (ceil(current_page / max_pages_shown) - 1) * max_pages_shown + 1
+    end_page = min(start_page + max_pages_shown - 1, total_pages)
+    visible_pages = range(start_page, end_page + 1)
+
+    # Contexte
     context = {
-        'retours': retours,
+        'retours': retours_page,
         'maintenant_moins_25_jours': maintenant_moins_25_jours,
         'search_query': search_query,
-        'couleurs': request.GET.getlist('couleur[]')
+        'couleurs': couleurs,
+        'visible_pages': visible_pages,
+        'total_pages': total_pages,
     }
 
     return render(request, 'retours/retour.html', context)

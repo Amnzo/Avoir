@@ -1,246 +1,223 @@
-<!-- templates/repertoire_list.html -->
-
 {% extends 'layout/base.html' %}
 
 {% block title %}Liste des répertoires{% endblock %}
 
 {% block content %}
-{% load tz %}  {# Charger les filtres de fuseau horaire #}
+{% load tz %}
+
 <style>
+    /* Palette de couleurs améliorée */
+    #retoursTable {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
 
-    /* Styles pour les lignes avec des classes spécifiques */
-#retoursTable tbody tr.success {
-    background-color: lightgreen !important;
-    color: black !important;
-}
+    #retoursTable thead {
+        position: sticky;
+        top: 0;
+        background-color: #2c3e50; /* Bleu nuit élégant */
+        color: #FFFFFF;
+        z-index: 10;
+    }
 
-#retoursTable tbody tr.warning {
-    background-color: #ffe6b3 !important;  /* Orange pâle */
-    color: black !important;
-}
+    #retoursTable th, #retoursTable td {
+        border: 1px solid #e0e0e0;
+        padding: 10px;
+        text-align: left;
+        transition: background-color 0.3s ease;
+    }
 
-#retoursTable tbody tr.danger {
-    background-color: lightcoral !important;  /* Rouge clair */
-    color: black !important;
-}
+    /* Styles de lignes spécifiques */
+    #retoursTable tbody tr.success {
+        background-color: #e6f3e6; /* Vert très clair, doux pour les yeux */
+        color: #006400; /* Vert foncé pour le texte */
+    }
 
-/* Styles pour les autres lignes */
-#retoursTable thead {
-    position: sticky;
-    top: 0;
-    background-color: #007BFF;
-    color: #FFFFFF;
-}
-.text-black-link {
-    color: black; /* Couleur noire pour le lien */
-    text-decoration: none; /* Supprimer le soulignement */
-}
+    #retoursTable tbody tr.warning {
+        background-color: #fff3cd; /* Jaune très clair */
+        color: #856404; /* Marron foncé pour le texte */
+    }
 
-.text-black-link:hover {
-    color: black; /* Garder la couleur noire lors du survol */
-    text-decoration: underline; /* Optionnel : ajouter un soulignement au survol */
-}
+    #retoursTable tbody tr.danger {
+        background-color: #f8d7da; /* Rose très clair */
+        color: #721c24; /* Rouge foncé pour le texte */
+    }
 
+    /* Ligne paire pour les lignes non-colorées */
+    #retoursTable tbody tr:nth-child(even):not(.success):not(.warning):not(.danger) {
+        background-color: #f8f9fa; /* Gris très clair */
+    }
 
-#retoursTable {
-    border-collapse: collapse;
-}
+    /* Hover effect */
+    #retoursTable tbody tr:hover:not(.success):not(.warning):not(.danger) {
+        background-color: #f1f3f5;
+    }
 
-#retoursTable th, #retoursTable td {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
+    /* Autres styles */
+    .designation-col {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-#retoursTable tbody tr:nth-child(even):not(.success):not(.warning):not(.danger) {
-    background-color: #f2f2f2;
-}
-
-#retoursTable th, #retoursTable td {
-    width: 150px;
-}
-
-/* Empêcher le retour à la ligne dans la cellule de la date */
-.no-wrap {
-    white-space: nowrap;
-}
-
-
-.space {
-    margin-right: 6px;
-}
-
-/* Élargissement de la colonne DESIGNATION */
-.designation-col {
-    max-width: 200px; /* Augmentation de la largeur maximale */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.text-black {
-    color: rgb(9, 0, 128) !important;
-}
-
-#retoursTable thead {
-    position: sticky;
-    top: 0;
-    background-color: #007BFF;
-    color: #FFFFFF;
-}
-#retoursTable {
-    border-collapse: collapse;
-}
-
-
-
-#retoursTable th, #retoursTable td {
-    width: 150px; /* Ajustez selon vos besoins */
-}
-#retoursTable {
-    overflow-x: auto;
-}
-
-tr.success {
-    background-color: lightgreen; /* Vert léger */
-    color: black;
-}
-
-tr.warning {
-    background-color: #ffe6b3; /* Orange léger */
-    color: black;
-}
-
-tr.danger {
-    background-color: lightcoral; /* Rouge léger */
-    color: black;
-}
-
-.text-black {
-    color: rgb(9, 0, 128) !important;
-}
-
+    /* Boutons dans le tableau */
+    .btn-action {
+        margin: 0 2px;
+        padding: 4px 8px;
+    }
 </style>
+
 <div class="container mt-4">
-    
     {% if messages %}
-    <ul class="message-list">
+    <div class="alert-container">
         {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
-    </ul>
- {% endif %}
-    <h1 class="text-center mb-4">GESTION DES RETOURS </h1>
-    <a href="{% url 'retour_list' %}" class="btn btn-secondary mb-4">
-        <i class="fas fa-chevron-left"></i> RETOUR
-    </a>
-              
-                
+    </div>
+    {% endif %}
 
-               
-                
-                
+    <h1 class="text-center mb-4">GESTION DES RETOURS</h1>
 
-                
-                
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <a href="{% url 'retour_list' %}" class="btn btn-secondary">
+                <i class="fas fa-chevron-left"></i> RETOUR
+            </a>
+        </div>
+    </div>
 
     <!-- Formulaire de recherche -->
-
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-body">
-          
             <form id="searchForm" action="{% url 'consultation_list_retour' %}" method="GET">
-                
-                <div class="form-row">
-                    <div class="form-group col-md-5">
-                        <label for="searchInput" class="sr-only">Rechercher par nom... :</label>
-                        <input type="text" class="form-control" id="searchInput" name="search" placeholder="Entrez le nom"  value="{{ search_query }}" oninput="this.value = this.value.toUpperCase()">
+                <div class="form-row align-items-center">
+                    <div class="col-md-8">
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchInput" 
+                               name="search" 
+                               placeholder="Rechercher par nom" 
+                               value="{{ search_query }}"
+                               oninput="this.value = this.value.toUpperCase()">
                     </div>
-                    
-                    <div class="col-md-2"> <button type="submit" class="btn btn-primary">RECHERCHE</button></div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-search"></i> RECHERCHE
+                        </button>
+                    </div>
                 </div>
-                
             </form>
         </div>
     </div>
 
     <!-- Tableau des répertoires -->
-    <table class="table table-bordered table-hover" id="retoursTable">
-        <thead style="background-color: #007BFF; color: #FFFFFF;">
-            <tr>
-                
-                <th>DATE</th>
-                <th>NOM</th>
-                <th>PRENOM</th>
-                <th>FOURNISSEUR</th>
-                <th>MARQUE</th>
-                <th>DESIGNATION</th>
-                <th>CODE BARRE</th>
-                <th>AVOIR</th>
-                <th>ACTION</th>
-                
-            </tr>
-        </thead>
-        <tbody>
-            {% for retour in retours %}
-           
-            <tr class="success">
-                <td>{{ retour.date | date:"d-m-Y" }}</td>
-                <td>{{ retour.nom|upper }}</td>
-                <td>{{ retour.prenom|upper }}</td>
-                <td>{{ retour.fournisseur|upper }}</td>
-                <td>
-                    {% if retour.marque %}
-                    {{ retour.marque|upper }}
-                    {% else %}
-                    -
-                    {% endif %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="retoursTable">
+            <thead>
+                <tr>
+                    <th>DATE</th>
+                    <th>NOM</th>
+                    <th>PRENOM</th>
+                    <th>FOURNISSEUR</th>
+                    <th>MARQUE</th>
+                    <th>DESIGNATION</th>
+                    <th>CODE BARRE</th>
+                    <th>AVOIR</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for retour in retours %}
+                <tr class="success">
+                    <td>{{ retour.date | date:"d-m-Y" }}</td>
+                    <td>{{ retour.nom|upper }}</td>
+                    <td>{{ retour.prenom|upper }}</td>
+                    <td>{{ retour.fournisseur|upper }}</td>
+                    <td>{{ retour.marque|upper|default:"-" }}</td>
+                    <td class="designation-col">{{ retour.designation|default:"-" }}</td>
+                    <td>{{ retour.code|default:"-" }}</td>
+                    <td>
+                        {% if retour.facture %}
+                            <a href="{{ retour.facture.url }}" target="_blank" class="btn btn-sm btn-info btn-action">
+                                <i class="fas fa-file-pdf"></i> VOIR
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" 
+                               class="btn btn-sm btn-warning btn-action" 
+                               title="Éditer">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if not retour.facture %}
+                                <a href="{% url 'valider_retour' id=retour.id %}" 
+                                   class="btn btn-sm btn-success btn-action" 
+                                   title="Valider">
+                                    <i class="fas fa-check-circle"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">Aucun retour trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                </td>
-                <td>
-                    {% if retour.designation %}
-                    {{ retour.designation }}
-                    {% else %}
-                    -
-                    {% endif %}
-                </td>
-                <td>
-                    {% if retour.code %}
-                    {{ retour.code }}
-                    {% else %}
-                    -
-                    {% endif %}
-                </td>
-                <td>
-                {% if retour.facture %}
-                            <a href="{{ retour.facture.url }}" target="_blank">VOIR L'AVOIR</a>
-                            
-                            {% else %}
-                           -
-                  {% endif %}  
-                <td>
-                    <a href="{% url 'edit_retour' id=retour.id %}?previous_url={{ request.path }}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
-                     
-            
-                 {% if retour.facture %}
-                           
-                    {% else %}
-                    
-                    <a href="{% url 'valider_retour' id=retour.id %}" class="text-warning"><i class="bi bi-check-circle text-black"></i></a>
-                  {% endif %} 
-                 
-                 
+    <!-- Pagination (identique à l'exemple précédent) -->
+    {% if is_paginated %}
+    <nav aria-label="Navigation des retours">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+            {% endif %}
 
-                 
-                 
-                </td>
-                
-            </tr>
-
-            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
 
- 
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

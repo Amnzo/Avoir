@@ -4,6 +4,19 @@
 
 {% block content %}
 <style>
+    .sort {
+        cursor: pointer;
+        margin-left: 5px;
+        font-size: 0.8em;
+        color: white;
+    }
+
+    .sort:hover {
+        color: #ddd;
+    }
+</style>
+
+<style>
     .pagination {
         margin-top: 20px;
         text-align: center;
@@ -99,11 +112,12 @@
                     <th>NOM</th>
                     <th>PRENOM</th>
                     <th>DATE NAISSANCE</th>
-                    <th>DATE DERNIER CREDIT</th>
-                    <th>SOLDE</th>
+                    <th>DATE DERNIER CREDIT <span class="sort" onclick="sortTable(3)">&#x25B2;&#x25BC;</span></th>
+                    <th>SOLDE <span class="sort" onclick="sortTable(4)">&#x25B2;&#x25BC;</span></th>
                     <th>DÉTAILS</th>
                 </tr>
             </thead>
+            
             <tbody>
                 {% for client in clients %}
                     <tr>
@@ -143,25 +157,45 @@
         </table>
 
         <!-- Pagination -->
-        <div class="pagination-inner">
-            {% if clients.has_previous %}
-                <a class="pagination-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">&laquo; First</a>
-                <a class="pagination-link" href="?page={{ clients.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
+        <div class="pagination d-flex justify-content-center mt-4">
+            <!-- Bouton "Première" -->
+            {% if clients.number > 1 %}
+                <a href="?page=1&search={{ search }}" class="btn btn-primary mx-1">Première</a>
+            {% else %}
+                <button class="btn btn-secondary mx-1" disabled>Première</button>
             {% endif %}
-
-            {% for num in clients.paginator.page_range %}
-                {% if num == clients.number %}
-                    <span class="current-page">{{ num }}</span>
+        
+            <!-- Bouton "Précédent" -->
+            {% if clients.has_previous %}
+                <a href="?page={{ clients.previous_page_number }}&search={{ search }}" class="btn btn-primary mx-1">Précédent</a>
+            {% else %}
+                <button class="btn btn-secondary mx-1" disabled>Précédent</button>
+            {% endif %}
+        
+            <!-- Pages visibles -->
+            {% for page in visible_pages %}
+                {% if page == clients.number %}
+                    <span class="btn btn-primary mx-1">{{ page }}</span>
                 {% else %}
-                    <a class="pagination-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}">{{ num }}</a>
+                    <a href="?page={{ page }}&search={{ search }}" class="btn btn-light mx-1">{{ page }}</a>
                 {% endif %}
             {% endfor %}
-
+        
+            <!-- Bouton "Suivant" -->
             {% if clients.has_next %}
-                <a class="pagination-link" href="?page={{ clients.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
-                <a class="pagination-link" href="?page={{ clients.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">Last &raquo;</a>
+                <a href="?page={{ clients.next_page_number }}&search={{ search }}" class="btn btn-primary mx-1">Suivant</a>
+            {% else %}
+                <button class="btn btn-secondary mx-1" disabled>Suivant</button>
+            {% endif %}
+        
+            <!-- Bouton "Dernière" -->
+            {% if clients.number < total_pages %}
+                <a href="?page={{ total_pages }}&search={{ search }}" class="btn btn-primary mx-1">Dernière</a>
+            {% else %}
+                <button class="btn btn-secondary mx-1" disabled>Dernière</button>
             {% endif %}
         </div>
+        
     {% else %}
         <p class="text-center">Aucun résultat trouvé pour "{{ search }}"</p>
     {% endif %}
@@ -169,6 +203,43 @@
 {% endblock %}
 
 {% block extra_js %}
+
+<script>
+    function sortTable(columnIndex) {
+    const table = document.getElementById("clientsTable");
+    const rows = Array.from(table.rows).slice(1); // Exclude header row
+    let isAscending = table.getAttribute("data-sort-order") === "asc";
+
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.cells[columnIndex].innerText.trim();
+        const cellB = rowB.cells[columnIndex].innerText.trim();
+
+        // Parse date in DD-MM-YYYY format or fallback to numeric comparison
+        const valA = parseDateOrNumber(cellA);
+        const valB = parseDateOrNumber(cellB);
+
+        return isAscending ? valA - valB : valB - valA;
+    });
+
+    // Reorder rows in the table
+    rows.forEach(row => table.tBodies[0].appendChild(row));
+
+    // Toggle sort order
+    table.setAttribute("data-sort-order", isAscending ? "desc" : "asc");
+}
+
+function parseDateOrNumber(value) {
+    // Check if the value is a date in DD-MM-YYYY format
+    if (/^\d{2}-\d{2}-\d{4}$/.test(value)) {
+        const [day, month, year] = value.split("-").map(Number);
+        return new Date(year, month - 1, day); // Create a Date object
+    }
+
+    // Fallback to numeric parsing or return the original value for strings
+    return isNaN(value) ? value : parseFloat(value);
+}
+
+</script>
 
 
 

@@ -205,48 +205,54 @@
             <div class="pagination">
                 <div class="pagination-inner">
                     {% if avoirs.has_previous %}
-                    <a class="pagination-link" href="?page=1">&laquo; First</a>
-                    <a class="pagination-link" href="?page={{ avoirs.previous_page_number }}">Previous</a>
+                        <a class="pagination-link" href="?page=1">&laquo; First</a>
+                        <a class="pagination-link" href="?page={{ avoirs.previous_page_number }}">Previous</a>
                     {% endif %}
-
+            
                     {% for num in avoirs.paginator.page_range %}
-                    {% if num == avoirs.number %}
-                    <span class="current-page">{{ num }}</span>
-                    {% else %}
-                    <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
-                    {% endif %}
+                        {% if num >= avoirs.number|add:"-5"|default_if_none:0 and num <= avoirs.number|add:"5"|default_if_none:0 %}
+                            {% if num == avoirs.number %}
+                                <span class="current-page">{{ num }}</span>
+                            {% else %}
+                                <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endif %}
                     {% endfor %}
-
+            
                     {% if avoirs.has_next %}
-                    <a class="pagination-link" href="?page={{ avoirs.next_page_number }}">Next</a>
-                    <a class="pagination-link" href="?page={{ avoirs.paginator.num_pages }}">Last &raquo;</a>
+                        <a class="pagination-link" href="?page={{ avoirs.next_page_number }}">Next</a>
+                        <a class="pagination-link" href="?page={{ avoirs.paginator.num_pages }}">Last &raquo;</a>
                     {% endif %}
                 </div>
             </div>
+            
         </div>
 
         <!-- DEBUT CONSOMATIONNNNNNNNNNNNNNNNNNNNN-->
         <div class="tab-pane fade" id="liste-consommations" role="tabpanel" aria-labelledby="liste-consommations-tab">
-            
-            <div class="row">
-                <div class="col-md-8"><h1 class="text-center mb-4">LISTE DES CONSOMATIONS</h1></div>
-                <div class="col-md-4"> <a href="{% url 'consommation_a_valider' %}" class="btn btn-success">CONSOMMATIONS A VALIDER </a></div>
-                
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <h1 class="text-center mb-4">LISTE DES CONSOMMATIONS</h1>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'consommation_a_valider' %}" class="btn btn-success">
+                        CONSOMMATIONS À VALIDER
+                    </a>
+                </div>
             </div>
-           
-            <table class="table table-striped" id="consommationTablee">
-                <!-- Insérer le contenu de la liste des crédits ici -->
-                <thead style="background-color: #007BFF; color: #FFFFFF;">
+        
+            <table class="table table-striped table-bordered" id="consommationTablee">
+                <thead class="table-primary">
                     <tr>
                         <th scope="col">NOM</th>
-                        <th scope="col">PRENOM</th>
+                        <th scope="col">PRÉNOM</th>
                         <th scope="col">FAMILLE</th>
-                        <th scope="col">DESIGNATION</th>
-                        <th scope="col">PRIX ACHAT HT</th>
-                        <th scope="col">PRIX VENTE TTC	</th>
+                        <th scope="col">DÉSIG</th>
+                        <th scope="col">PA HT.</th>
+                        <th scope="col">PV TTC.</th>
                         <th scope="col">DATE</th>
                         <th scope="col">CODE</th>
-                        <th scope="col">FACTURE</th>
+                      
                         {% if user.is_superuser %}
                         <th scope="col">ACTION</th>
                         {% endif %}
@@ -257,67 +263,69 @@
                     <tr>
                         <td>{{ consommation.client.nom|upper }}</td>
                         <td>{{ consommation.client.prenom|upper }}</td>
-                       
                         <td>{{ consommation.famille }}</td>
-                        <td>{{ consommation.designation|upper  }}</td>
-                        <td>{{ consommation.prix_achat}}</td>
-                        <td>{{ consommation.prix_vente}}</td>
-                        <td>  {{ consommation.date_ajout|date:"d-m-Y" }}</td>
-                        <td>
-                        {% if consommation.code_barre %}
-                        {{ consommation.code_barre }}
-                            {% else %}
-                           -
-                        {% endif %}
-                    </td>
-                     <td>
-                        {% if consommation.famille.is_facture %}
-                        {% if consommation.facture %}
-                        <a href="{{ consommation.facture.url }}" target="_blank">VOIR LA FACTURE</a>
-                            {% else %}
-                           -
-                        {% endif %}
-
-                        {% endif%}
-                        
-                            
-                    </td>
-                      
+                        <td>{{ consommation.designation|upper }}</td>
+                        <td>{{ consommation.prix_achat }}</td>
+                        <td>{{ consommation.prix_vente }}</td>
+                        <td>{{ consommation.date_ajout|date:"d-m-Y" }}</td>
+                        <td>{{ consommation.code_barre|default:"-" }}</td>
                         
                         {% if user.is_superuser %}
                         <td>
-                            <a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
-                           
+                            <a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning">
+                                <i class="bi bi-pencil text-black"></i>
+                            </a>
                         </td>
                         {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        
             <!-- Pagination -->
-            <div class="pagination">
-                <div class="pagination-inner">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
                     {% if consommations.has_previous %}
-                    <a class="pagination-link" href="?page=1">&laquo; First</a>
-                    <a class="pagination-link" href="?page={{ consommations.previous_page_number }}">Previous</a>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            &laquo; Première
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ consommations.previous_page_number }}">
+                            Précédente
+                        </a>
+                    </li>
                     {% endif %}
-
+        
                     {% for num in consommations.paginator.page_range %}
                     {% if num == consommations.number %}
-                    <span class="current-page">{{ num }}</span>
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
                     {% else %}
-                    <a class="pagination-link" href="?page={{ num }}">{{ num }}</a>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
                     {% endif %}
                     {% endfor %}
-
+        
                     {% if consommations.has_next %}
-                    <a class="pagination-link" href="?page={{ consommations.next_page_number }}">Next</a>
-                    <a class="pagination-link" href="?page={{ consommations.paginator.num_pages }}">Last &raquo;</a>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ consommations.next_page_number }}">
+                            Suivante
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ consommations.paginator.num_pages }}" aria-label="Last">
+                            Dernière &raquo;
+                        </a>
+                    </li>
                     {% endif %}
-                </div>
-            </div>
-            
+                </ul>
+            </nav>
         </div>
+        
          <!-- FIN CONSOMATIONNNNNNNNNNNNNNNNNNNNN-->
         <div class="tab-pane fade" id="credit-periode" role="tabpanel" aria-labelledby="credit-periode-tab">
             <!-- Formulaire de recherche -->
@@ -436,7 +444,7 @@
                     <h2 class="text-center mb-4">ETAT MENSUEL DES CREDITS</h2>
                     <div class="table-responsive">
                         <table class="table table-striped text-center">
-                            document.getElementById("totalSum").textContent = `TOTAL: ${parseFloat(data.sum_result).toFixed(2)}`;
+                          
                             </thead>
                             <tbody>
                                 {% for item2 in data2 %}
@@ -604,13 +612,16 @@
             },
             dataType: "json",
             success: function(response) {
+                const totalSumElement = document.getElementById("totalSum");
                 if (type === 'solde') {
                     $('#soldeTable').show(); // Show the consommation table
                     $('#creditTable').hide(); // Hide the credit table
                     $('#consommationTable').hide(); // Hide the credit table
                     console.log("******************************");
                     console.log(response);
-                    document.getElementById("totalSum").textContent = `Total Balance: ${parseFloat(response.sum_result).toFixed(2)}`;
+                   
+                    totalSumElement.style.display = "block"; // Ensure the element is visible
+                    totalSumElement.textContent = `Total Balance: ${parseFloat(response.sum_result).toFixed(2)}`;
                     $('#soldeTable tbody').empty(); // Clear previous data
 
                     response.clients.forEach(function(item){
@@ -631,6 +642,9 @@
                     $('#creditTable').hide(); // Hide the credit table
                     $('#soldeTable').hide(); // Show the consommation table
                     $('#consommationTable tbody').empty(); // Clear previous data
+                    //document.getElementById("totalSum").style.display = "none";
+                    totalSumElement.style.display = "none"; // Hide the element
+
 
 
                     console.log(response);
@@ -662,6 +676,9 @@
                     $('#creditTable').show(); // Show the credit table
                     $('#creditTable tbody').empty(); // Clear previous data
                     $('#soldeTable').hide(); // Show the consommation table
+                    //document.getElementById("totalSum").style.display = "none";
+                    totalSumElement.style.display = "none"; // Hide the element
+
 
                     // Handle credit type response
                     response.forEach(function(item) {
