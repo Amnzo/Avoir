@@ -43,6 +43,8 @@ urlpatterns = [
     path('confirmation_consommation/<int:id>/', login_required(confirmation_consommation), name='confirmation_consommation'),
     path('delete_item/<str:type>/<int:id>/', login_required(delete_item), name='delete_item'),
     path('delete_client/<int:id>/', login_required(delete_client), name='delete_client'),
+    path('delete_avoir/<int:id>/', login_required(delete_avoir), name='delete_avoir'),
+    path('delete_consommation/<int:id>/', login_required(delete_consommation), name='delete_consommation'),
 
     
 

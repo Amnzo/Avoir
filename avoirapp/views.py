@@ -846,7 +846,7 @@ def editer_consommation(request, id):
             famille = request.POST.get('familles')
             print(famille)
             code=request.POST.get('code')
-            print(code)
+            print("*******************************************")
             conso.prix_achat=prix_achat
             conso.prix_vente=prix_vente
             conso.designation=designation
@@ -1326,6 +1326,7 @@ def add_retour(request):
         marque = request.POST.get('marque')
         code = request.POST.get('code')
         motif = request.POST.get('motif')
+        date_renvoi=request.POST.get('date_renvoi')
         facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
         
         # Créer un nouvel objet Retour
@@ -1337,6 +1338,7 @@ def add_retour(request):
             designation=designation,
             code=code,
             motif=motif,
+            date_renvoi=date_renvoi,
             facture=facture  # Assignez le fichier de la facture
         )
         
@@ -1363,6 +1365,7 @@ def edit_retour(request, id):
         designation = request.POST.get('designation')
         code = request.POST.get('code')
         motif = request.POST.get('motif')
+        date_renvoi=request.POST.get('date_renvoi')
         facture = request.FILES.get('facture')  # Utilisez FILES pour récupérer le fichier de la facture
         date = request.POST.get('date')
         date_retour= datetime.strptime(date, '%d-%m-%Y').date()
@@ -1375,6 +1378,8 @@ def edit_retour(request, id):
         retour.designation = designation
         retour.code = code
         retour.motif = motif
+        retour.date_renvoi = date_renvoi
+        
         
         if facture:  # Vérifiez si un nouveau fichier de facture a été fourni
             retour.facture = facture
@@ -2346,3 +2351,39 @@ def delete_client(request, id):
     
     # Redirection vers l'URL correspondante
     return redirect('client')
+
+
+
+
+def delete_consommation(request, id):
+    # Récupération du paramètre 'tab' de l'URL (ou une valeur par défaut)
+    tab = request.GET.get('tab', 'credits')  # Par défaut, 'tab=credits' si non spécifié
+    
+    # Vérification du type et récupération de l'objet
+    consommation = get_object_or_404(Consommation, id=id)
+    
+    # Suppression de l'objet
+    consommation.delete()
+    messages.success(request, f"La Consommation de {consommation.client} a été supprimée avec succès.")
+    
+    # Redirection avec le paramètre 'tab'
+    #return redirect(f'?tab={tab}')
+    url = reverse('avoir')  # Générer l'URL de la vue 'avoir'
+    return redirect(f"{url}?tab={tab}")
+
+
+def delete_avoir(request, id):
+    # Récupération du paramètre 'tab' de l'URL (ou une valeur par défaut)
+    tab = request.GET.get('tab', 'credits')  # Par défaut, 'tab=credits' si non spécifié
+    
+    # Vérification du type et récupération de l'objet
+    avoir = get_object_or_404(Avoir, id=id)
+    
+    # Suppression de l'objet
+    avoir.delete()
+    messages.success(request, f"La Credit de {avoir.client} a été supprimée avec succès.")
+    
+    # Redirection avec le paramètre 'tab'
+    #return redirect(f'?tab={tab}')
+    url = reverse('avoir')  # Générer l'URL de la vue 'avoir'
+    return redirect(f"{url}?tab={tab}")

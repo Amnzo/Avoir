@@ -195,7 +195,15 @@
                         {% if user.is_superuser %}
                         <td>
                             <a href="{% url 'editer_avoir' id=avoir.id %}" class="text-warning"><i class="bi bi-pencil text-black"></i></a>
+                            <a href="{% url 'delete_avoir' id=avoir.id %}" onclick="return confirmDelete();" title="Supprimer">
+                                <i class="fas fa-trash text-danger"></i>
+                            </a>
                         </td>
+                        <script>
+                            function confirmDelete() {
+                                return confirm("Êtes-vous sûr de vouloir supprimer cet élément ?");
+                            }
+                        </script>
                         {% endif %}
                     </tr>
                     {% endfor %}
@@ -270,7 +278,16 @@
                             <a href="{% url 'editer_consommation' id=consommation.id %}" class="text-warning">
                                 <i class="bi bi-pencil text-black"></i>
                             </a>
+                            <a href="{% url 'delete_consommation' id=consommation.id %}" onclick="return confirmDelete();" title="Supprimer">
+                                <i class="fas fa-trash text-danger"></i>
+                            </a>
                         </td>
+                        <script>
+                            function confirmDelete() {
+                                return confirm("Êtes-vous sûr de vouloir supprimer cet élément ?");
+                            }
+                        </script>
+                        
                         {% endif %}
                     </tr>
                     {% endfor %}

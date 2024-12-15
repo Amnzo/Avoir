@@ -83,31 +83,8 @@
                     </div>
                 </div>
 
-                <div class="form-group row" id="factureField" style="display: none;">
-                    <label for="facture" class="col-sm-3 col-form-label text-right">FACTURE :  </label>
-                    <div class="col-sm-9">
-                        <input type="file" class="form-control" id="facture" name="facture">
-                        {% if form.facture.errors %}
-                            <div class="text-danger">{{ form.facture.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-sm-9">
-                    <input type="file" class="form-control" id="facture" name="facture">
-                    {% if form.facture.errors %}
-                        <div class="text-danger">{{ form.facture.errors }}</div>
-                    {% endif %}
-                    <p id="file-name"></p> <!-- This will display the file name -->
-                </div>
-                <div class="form-group row" id="codeBarreField" style="display: none;">
-                    <label for="code" class="col-sm-3 col-form-label text-right">CODE BARRE :</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="code" name="code" value="{{conso.code_barre}}">
-                        {% if form.code_barre.errors %}
-                            <div class="text-danger">{{ form.code_barre.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
+               
+              
 
                 <div class="form-group row">
                     <div class="col-sm-9 offset-sm-3">
