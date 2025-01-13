@@ -1,17 +1,16 @@
 import os
 import sys
 import logging
-import datetime
+import math
 import zipfile
+import datetime
 from django.conf import settings
 from django.core.mail import EmailMessage
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
 
 # Constants
-MAX_EMAIL_SIZE = 25 * 1024 * 1024  # 25 MB limit for Gmail
-ZIP_FILE_PATH_TEMPLATE = '/home/gestionoptique/Avoir/backup_source_{timestamp}.zip'
+CHUNK_SIZE = 25 * 1024 * 1024  # 25 MB per zip file
 SOURCE_FOLDER = '/home/gestionoptique/Avoir'
+ZIP_FILE_PATH_TEMPLATE = '/home/gestionoptique/Avoir/backup_source_{timestamp}.zip'
 
 # Logging configuration
 script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -27,21 +26,36 @@ def create_zip_file(source_folder, zip_file_path):
                 zipf.write(file_path, os.path.relpath(file_path, source_folder))
     return os.path.getsize(zip_file_path)
 
-def upload_to_google_drive(zip_file_path, file_name):
-    """Upload the zip file to Google Drive and return the download link."""
-    gauth = GoogleAuth()
-    gauth.LocalWebserverAuth()  # Follow authentication steps
-    drive = GoogleDrive(gauth)
+def split_zip(zip_file_path, chunk_size):
+    """Split a zip file into smaller chunks."""
+    zip_files = []
 
-    upload_file = drive.CreateFile({'title': file_name})
-    upload_file.SetContentFile(zip_file_path)
-    upload_file.Upload()
-    return upload_file['alternateLink']
+    with zipfile.ZipFile(zip_file_path, 'r') as source_zip:
+        files = source_zip.namelist()
+        total_size = sum(source_zip.getinfo(f).file_size for f in files)
+        chunks = math.ceil(total_size / chunk_size)
 
-def send_email(subject, message, recipient_list):
-    """Send an email with the specified subject and message."""
+        for i in range(chunks):
+            chunk_zip_file = f"{zip_file_path}_part{i+1}.zip"
+            with zipfile.ZipFile(chunk_zip_file, 'w', zipfile.ZIP_DEFLATED) as chunk_zip:
+                current_size = 0
+                while files and current_size < chunk_size:
+                    file = files.pop(0)
+                    file_data = source_zip.read(file)
+                    chunk_zip.writestr(file, file_data)
+                    current_size += len(file_data)
+
+            zip_files.append(chunk_zip_file)
+
+    return zip_files
+
+def send_email_with_attachments(subject, message, recipient_list, attachments):
+    """Send an email with multiple attachments."""
     from_email = settings.EMAIL_HOST_USER
     email = EmailMessage(subject, message, from_email, recipient_list)
+    for attachment in attachments:
+        with open(attachment, 'rb') as file:
+            email.attach(os.path.basename(attachment), file.read(), 'application/zip')
     email.send()
 
 if __name__ == "__main__":
@@ -49,42 +63,26 @@ if __name__ == "__main__":
         # Generate current timestamp and zip file path
         current_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         zip_file_path = ZIP_FILE_PATH_TEMPLATE.format(timestamp=current_date)
-        file_name = f'backup_source_{current_date}.zip'
 
         # Create the zip file
-        zip_file_size = create_zip_file(SOURCE_FOLDER, zip_file_path)
+        create_zip_file(SOURCE_FOLDER, zip_file_path)
 
-        # Check the zip file size
-        if zip_file_size > MAX_EMAIL_SIZE:
-            logging.info(f"Zip file size ({zip_file_size} bytes) exceeds email limit. Uploading to Google Drive...")
+        # Split the zip file into chunks if necessary
+        zip_chunks = split_zip(zip_file_path, CHUNK_SIZE)
 
-            # Upload the file to Google Drive
-            download_link = upload_to_google_drive(zip_file_path, file_name)
+        # Prepare and send the email
+        subject = "Backup Files"
+        message = f"Backup source code for: {current_date}."
+        recipient_list = ['gestionoptic92@gmail.com']  # Update with your recipients
+        send_email_with_attachments(subject, message, recipient_list, zip_chunks)
 
-            # Send an email with the Google Drive link
-            subject = "Backup File Available"
-            message = f"The backup file is too large to send via email. You can download it from the following link:\n\n{download_link}"
-            recipient_list = ['gestionoptic92@gmail.com']  # Update with recipient email(s)
-            send_email(subject, message, recipient_list)
-
-            logging.info(f"Backup uploaded to Google Drive and link emailed: {download_link}")
-            print(f"Backup uploaded to Google Drive. Download link sent to {recipient_list}.")
-        else:
-            # Send the email with the zip file attached
-            subject = "Backup File"
-            message = f"Backup SOURCE CODE pour : {current_date}."
-            recipient_list = ['gestionoptic92@gmail.com']
-
-            email = EmailMessage(subject, message, settings.EMAIL_HOST_USER, recipient_list)
-            with open(zip_file_path, 'rb') as attachment:
-                email.attach(file_name, attachment.read(), 'application/zip')
-            email.send()
-
-            logging.info("Email sent successfully.")
-            print("Email sent successfully.")
-
-        # Clean up by removing the zip file
+        # Clean up: Delete all generated zip files
         os.remove(zip_file_path)
+        for chunk in zip_chunks:
+            os.remove(chunk)
+
+        logging.info("Backup and email process completed successfully.")
+        print("Backup and email process completed successfully.")
 
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
