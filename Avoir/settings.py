@@ -150,5 +150,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'gestionoptic92@gmail.com'  # Replace with your Gmail email address
-EMAIL_HOST_PASSWORD = 'Optic2025'
+EMAIL_HOST_PASSWORD = 'dyip pkdp zhhc jhum'
 
