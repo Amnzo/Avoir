@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'gestionoptique$default',
-        'USER': 'gestionoptique',
-        'PASSWORD': 'Salmi@ensa123',
-        'HOST': 'gestionoptique.mysql.pythonanywhere-services.com',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
+        'NAME': '****',
+        'USER': '*****',
+        'PASSWORD': '*****',
+        'HOST': '*****',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
         'PORT': '3306',
     }
 }
@@ -149,6 +149,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'gestionoptic92@gmail.com'  # Replace with your Gmail email address
-EMAIL_HOST_PASSWORD = 'dyip pkdp zhhc jhum'
+EMAIL_HOST_USER = '****'  # Replace with your Gmail email address
+EMAIL_HOST_PASSWORD = '*****'
 
