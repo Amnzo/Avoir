@@ -1,11 +1,33 @@
+
+
+
+
+import math
+import zipfile
 import os
 import sys
 import logging
-import math
-import zipfile
-import datetime
+import datetime  # Import datetime module to work with dates
 from django.conf import settings
+import subprocess
 from django.core.mail import EmailMessage
+# Get the directory of the script
+script_directory = os.path.dirname(os.path.abspath(__file__))
+# Set the path to the log file
+log_file_path = os.path.join(script_directory, 'source.log')
+# Configure logging to write to the log file
+logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Add the directory containing the Django project to the Python path
+project_root = os.path.abspath(os.path.join(script_directory, '..'))
+sys.path.append(project_root)
+# Set the Django settings module environment variable
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Avoir.settings")
+# Manually configure Django settings
+import django
+django.setup()
+from django.core.mail import EmailMessage
+
+from django.template.loader import render_to_string
 
 # Constants
 CHUNK_SIZE = 25 * 1024 * 1024  # 25 MB per zip file
@@ -87,3 +109,6 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")
         print(f"An error occurred: {str(e)}")
+
+
+
