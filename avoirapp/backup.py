@@ -67,7 +67,7 @@ def send_email_with_attachment(file_path):
         subject = "Database Backup"
         current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         message = f"Backup de la base de données réalisé avec succès le {current_date}."
-        recipient_list = ['salmi.ensa.ilsi@gmail.com']
+        recipient_list = ['gestionoptic92@gmail.com']
 
         email = EmailMessage(subject, message, email_settings, recipient_list)
         email.attach_file(file_path)

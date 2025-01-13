@@ -149,6 +149,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'salmi.ensa.ilsi@gmail.Com'  # Replace with your Gmail email address
-EMAIL_HOST_PASSWORD = 'ukih xbxk ognh ksyb'
+EMAIL_HOST_USER = 'gestionoptic92@gmail.com'  # Replace with your Gmail email address
+EMAIL_HOST_PASSWORD = 'Optic2025'
 
