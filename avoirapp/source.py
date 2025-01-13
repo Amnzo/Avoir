@@ -20,7 +20,7 @@ logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctim
 project_root = os.path.abspath(os.path.join(script_directory, '..'))
 sys.path.append(project_root)
 # Set the Django settings module environment variable
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "AVOIR.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Avoir.settings")
 # Manually configure Django settings
 import django
 django.setup()
