@@ -80,35 +80,46 @@ def send_email_with_attachments(subject, message, recipient_list, attachments):
             email.attach(os.path.basename(attachment), file.read(), 'application/zip')
     email.send()
 
+
+
 if __name__ == "__main__":
     try:
         # Generate current timestamp and zip file path
         current_date = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         zip_file_path = ZIP_FILE_PATH_TEMPLATE.format(timestamp=current_date)
 
-        # Create the zip file
+        # Step 1: Create the zip file
+        logging.info(f"Creating zip file at {zip_file_path}.")
         create_zip_file(SOURCE_FOLDER, zip_file_path)
 
-        # Split the zip file into chunks if necessary
+        # Step 2: Split the zip file into chunks
+        logging.info(f"Splitting zip file into chunks (if required).")
         zip_chunks = split_zip(zip_file_path, CHUNK_SIZE)
 
-        # Prepare and send the email
+        # Step 3: Prepare and send the email (only with the chunks)
+        logging.info("Preparing email with zip chunks.")
         subject = "Backup Files"
         message = f"Backup source code for: {current_date}."
         recipient_list = ['gestionoptic92@gmail.com']  # Update with your recipients
         send_email_with_attachments(subject, message, recipient_list, zip_chunks)
 
-        # Clean up: Delete all generated zip files
-        os.remove(zip_file_path)
+        # Step 4: Clean up the zip file and chunks
+        logging.info("Cleaning up generated files.")
+        os.remove(zip_file_path)  # Delete the original zip file
         for chunk in zip_chunks:
-            os.remove(chunk)
+            os.remove(chunk)  # Delete each chunk
 
+        # Step 5: Log success
         logging.info("Backup and email process completed successfully.")
         print("Backup and email process completed successfully.")
 
     except Exception as e:
+        # Log and print any errors
         logging.error(f"An error occurred: {str(e)}")
         print(f"An error occurred: {str(e)}")
+
+
+
 
 
 
