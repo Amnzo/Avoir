@@ -13,14 +13,14 @@ from django.core.mail import EmailMessage
 # Get the directory of the script
 script_directory = os.path.dirname(os.path.abspath(__file__))
 # Set the path to the log file
-log_file_path = os.path.join(script_directory, 'daily.log')
+log_file_path = os.path.join(script_directory, 'source.log')
 # Configure logging to write to the log file
 logging.basicConfig(filename=log_file_path, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # Add the directory containing the Django project to the Python path
 project_root = os.path.abspath(os.path.join(script_directory, '..'))
 sys.path.append(project_root)
 # Set the Django settings module environment variable
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SHERLY.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "AVOIR.settings")
 # Manually configure Django settings
 import django
 django.setup()
