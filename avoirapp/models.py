@@ -41,6 +41,9 @@ class Client(models.Model):
 
     def total_consommation_client(self):
         return self.consommation_set.filter(is_confirmed=True).aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
+    
+    def total_consommation_non_confirmer_client(self):
+        return self.consommation_set.filter(is_confirmed=False).aggregate(models.Sum('prix_vente'))['prix_vente__sum'] or 0
 
 
     def total_avoir_client(self):
@@ -48,6 +51,12 @@ class Client(models.Model):
         avoir_total = self.avoir_set.filter(is_confirmed=True).aggregate(models.Sum('montant'))['montant__sum'] or 0
         consommation_total = self.total_consommation_client()
         solde=avoir_total-consommation_total
+        return solde
+    
+    def total_avoir_non_confirmer_client(self):
+        #return self.avoir_set.aggregate(models.Sum('montant'))['montant__sum'] or 0
+        avoir_total = self.avoir_set.filter(is_confirmed=False).aggregate(models.Sum('montant'))['montant__sum'] or 0
+        solde=avoir_total
         return solde
     def date_dernier_avoir(self):
         dernier_avoir = self.avoir_set.aggregate(Max('date_ajout'))['date_ajout__max']

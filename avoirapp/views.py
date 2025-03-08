@@ -360,6 +360,10 @@ def confirmation_consommation(request,id):
         achat=request.POST.get('achat')
         vente=request.POST.get('vente')
         total_solde=client.total_avoir_client()
+        total_solde_non_confirmer=client.total_avoir_non_confirmer_client()
+        total_conso_non_confirmer=client.total_consommation_non_confirmer_client()-Decimal(vente)
+        somme_to_test=(total_solde+total_solde_non_confirmer)-total_conso_non_confirmer
+        print(f"totalllll est {somme_to_test} ")
         if Decimal(vente) <= total_solde:
             consommation.is_confirmed=True
             consommation.prix_achat=achat
@@ -836,8 +840,13 @@ def editer_avoir(request, id):
 def editer_consommation(request, id):
     conso = Consommation.objects.get(pk=id)
     familles=Famille.objects.all()
+    
     if request.method == 'POST':
-        if Decimal(request.POST.get('prix_vente')) <= conso.client.total_avoir_client() :
+        total_solde=conso.client.total_avoir_client() 
+        total_solde_non_confirmer=conso.client.total_avoir_non_confirmer_client()
+        total_conso_non_confirmer=conso.client.total_consommation_non_confirmer_client()
+        somme_to_test=total_solde+total_solde_non_confirmer-total_conso_non_confirmer 
+        if Decimal(request.POST.get('prix_vente')) <=total_solde+total_solde_non_confirmer-total_conso_non_confirmer :
             # Récupérer les données du formulaire depuis la requête POST
             prix_achat = request.POST.get('prix_achat')
             prix_vente = request.POST.get('prix_vente')
@@ -866,7 +875,7 @@ def editer_consommation(request, id):
             messages.success(request, f'LA CONSOMMATION DE  A BIEN ÉTÉ MODIFIEE', extra_tags='temp')
             return redirect('client_details', client_id=conso.client.id)
         else:
-            messages.error(request, f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {conso.client.total_avoir_client():.2f} .")
+            messages.error(request, f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {somme_to_test:.2f} .")
             #messages.error(request, "Erreur : Ce client existe déjà.")
         
     return render(request, 'avoirs/editer_consommation.html', {'conso': conso,'familles':familles})
@@ -874,6 +883,7 @@ def editer_consommation(request, id):
 
 
 def consommer_avoir(request, client_id):
+    
     client = get_object_or_404(Client, id=client_id)
     print(client)
 
@@ -891,9 +901,13 @@ def consommer_avoir(request, client_id):
             facture = request.FILES.get('facture')
             # Vérifier si le montant à consommer est valide
             total_avoir = client.total_avoir_client()
+            total_solde_non_confirmer=client.total_avoir_non_confirmer_client()
+            total_conso_non_confirmer=client.total_consommation_non_confirmer_client()
             print(client.total_avoir_client())
+            somme_to_test=total_avoir+total_solde_non_confirmer-total_conso_non_confirmer
+            print(f"*-*-*-*-*-*-*[{total_avoir}]-*-*-[{total_solde_non_confirmer}]-*-*-{total_conso_non_confirmer}**-*-*-*-*-*-**-")
 
-            if prix_vente <= total_avoir:
+            if prix_vente <= somme_to_test:
                 # Créer une instance de modèle Avoir pour représenter la consommation
                 famille_name = form.cleaned_data['famille']
                 famille_instance = get_object_or_404(Famille, famille=famille_name)
@@ -917,7 +931,7 @@ def consommer_avoir(request, client_id):
                 return redirect('client_details', client_id=client.id)
             else:
 
-                form.add_error('', f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {total_avoir:.2f} DH.")
+                form.add_error('', f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {somme_to_test:.2f} DH.")
         else:
              return render(request, 'avoirs/consommer_avoir.html', {'form': form, 'client': client})
 
