@@ -89,11 +89,11 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': '****',
-        'USER': '*****',
-        'PASSWORD': '*****',
-        'HOST': '*****',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
