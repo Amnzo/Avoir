@@ -42,18 +42,20 @@ def custom_login(request):
 
     return render(request, 'login/login.html', {'form': form,'hide_menu': True})
 def export_data_to_excel(request, model_data):
-    print(model_data)
+    print("ddddddddddddddddddddddddddd")
+   
     # Crée un fichier Excel
     workbook = openpyxl.Workbook()
     worksheet = workbook.active
     worksheet.title = 'Export Data'
 
     # Définir les en-têtes
-    headers = ['ID', 'Nom', 'Prénom','DATE NAISSANCE','DATE DERNIER CREDIT' ,'Total Avoir']
+    headers = ['ID', 'Nom', 'Prénom','DATE NAISSANCE','DATE DERNIER CREDIT' ,'SOLDE']
     worksheet.append(headers)
 
     # Remplir les données dans le fichier Excel
     for item in model_data:
+     
         last_credit_date = item.avoir_set.order_by('-date_ajout').first().date_ajout if item.avoir_set.exists() else None
         if last_credit_date and last_credit_date.tzinfo:
             last_credit_date = last_credit_date.replace(tzinfo=None)
@@ -63,7 +65,8 @@ def export_data_to_excel(request, model_data):
             item.prenom,
             item.datenaissance,
             last_credit_date ,
-            item.total_avoir or 0  # Utiliser 0 si le total_avoir est None
+            item.total_avoir_client() or 0
+
         ])
 
     # Créer la réponse HTTP pour télécharger le fichier Excel
