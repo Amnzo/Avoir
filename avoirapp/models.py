@@ -122,7 +122,7 @@ class Avoir(models.Model):
     #famille = models.ForeignKey(Famille, on_delete=models.SET_NULL, null=True, blank=False)
 
     def __str__(self):
-        return f"{self.client.nom} - {self.montant} Dh"
+        return f"{self.client.nom} - {self.montant} €"
 
 
 class Consommation(models.Model):
@@ -143,7 +143,7 @@ class Consommation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False,default=1)
 
     def __str__(self):
-        return f"{self.client.nom} - {self.prix_achat} Dh"
+        return f"{self.client.nom} - {self.prix_achat} €"
 
 
 

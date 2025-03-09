@@ -376,7 +376,7 @@ def confirmation_consommation(request,id):
             return redirect(reverse('client_details', args=[consommation.client.id]))
         else:
            # messages.error(request, f'UNE CONSOMATION DE {prix_vente} A BIEN ÉTÉ CRÉÉE', extra_tags='temp')
-            messages.error(request, f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {total_solde:.2f} DH.")
+            messages.error(request, f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {total_solde:.2f} €.")
 
     return render(request, 'avoirs/confirmer_consommation.html',{'consommation':consommation})
 @login_required(login_url='login')
@@ -934,7 +934,7 @@ def consommer_avoir(request, client_id):
                 return redirect('client_details', client_id=client.id)
             else:
 
-                form.add_error('', f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {somme_to_test:.2f} DH.")
+                form.add_error('', f"VOUS NE POUVEZ PAS CONSOMMER PLUS QUE LE SOLDE CLIENT, QUI EST DE {somme_to_test:.2f} €.")
         else:
              return render(request, 'avoirs/consommer_avoir.html', {'form': form, 'client': client})
 
