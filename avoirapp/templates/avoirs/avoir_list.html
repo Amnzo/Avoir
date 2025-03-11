@@ -295,45 +295,27 @@
             </table>
         
             <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if consommations.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1&tab=consommations" aria-label="First">
-                            &laquo; Première
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ consommations.previous_page_number }}&tab=consommations">
-                            Précédente
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% for num in consommations.paginator.page_range %}
-                    {% if num == consommations.number %}
-                    <li class="page-item active" aria-current="page">
-                        <span class="page-link">{{ num }}</span>
-                    </li>
-                    {% else %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}&tab=consommations">{{ num }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                    {% if consommations.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ consommations.next_page_number }}&tab=consommations">
-                            Suivante
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ consommations.paginator.num_pages }}&tab=consommations" aria-label="Last">
-                            Dernière &raquo;
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
+            <div class="pagination">
+                {% if consommations.has_previous %}
+                <a class="pagination-link" href="?page=1&tab=consommations">&laquo; First</a>
+                <a class="pagination-link" href="?page={{ consommations.previous_page_number }}&tab=consommations">Previous</a>
+                {% endif %}
+                {% for num in consommations.paginator.page_range %}
+                {% if num >= consommations.number|add:"-5"|default_if_none:0 and num <= consommations.number|add:"5"|default_if_none:0 %}
+                {% if num == consommations.number %}
+                <span class="current-page">{{ num }}</span>
+                {% else %}
+                <a class="pagination-link" href="?page={{ num }}&tab=consommations">{{ num }}</a>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% if consommations.has_next %}
+                <a class="pagination-link" href="?page={{ consommations.next_page_number }}&tab=consommations">Next</a>
+                <a class="pagination-link" href="?page={{ consommations.paginator.num_pages }}&tab=consommations">Last &raquo;</a>
+                {% endif %}
+            </div>
+             
+            
         </div>
         
          <!-- FIN CONSOMATIONNNNNNNNNNNNNNNNNNNNN-->

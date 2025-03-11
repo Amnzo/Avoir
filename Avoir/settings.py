@@ -93,14 +93,13 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'gestionoptique_default',  # Nom de la base sans le '$'
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '3306'),
+        'NAME': 'gestionoptique$default',
+        'USER': 'gestionoptique',
+        'PASSWORD': 'Salmi@ensa123',
+        'HOST': 'gestionoptique.mysql.pythonanywhere-services.com',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
+        'PORT': '3306',
     }
 }
-
 
 
 
