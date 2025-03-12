@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import json
 import os
 from pathlib import Path
 
@@ -86,21 +87,23 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 #     }
 # }
 #database
-
-
+BASE_DIR2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_PATH = os.path.join(BASE_DIR2, "Avoir", "config.json")
+# Charger les données de config.json
+with open(CONFIG_PATH) as config_file:
+    config = json.load(config_file)
 
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'gestionoptique$default',
-        'USER': 'gestionoptique',
-        'PASSWORD': 'Salmi@ensa123',
-        'HOST': 'gestionoptique.mysql.pythonanywhere-services.com',  # Usually 'yourusername.mysql.pythonanywhere-services.com'
-        'PORT': '3306',
+        'ENGINE': config.get("DB_ENGINE", "django.db.backends.mysql"),
+        'NAME': config.get("DB_NAME"),
+        'USER': config.get("DB_USER"),
+        'PASSWORD': config.get("DB_PASSWORD"),
+        'HOST': config.get("DB_HOST", "localhost"),
+        'PORT': config.get("DB_PORT", "3306"),
     }
 }
-
 
 
 
