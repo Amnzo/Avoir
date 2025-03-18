@@ -842,14 +842,18 @@ def editer_avoir(request, id):
 
 def editer_consommation(request, id):
     conso = Consommation.objects.get(pk=id)
+    ancien_prix_vente = conso.prix_vente  # Sauvegarde de l'ancienne valeur
     familles=Famille.objects.all()
     
     if request.method == 'POST':
+       
         total_solde=conso.client.total_avoir_client() 
         total_solde_non_confirmer=conso.client.total_avoir_non_confirmer_client()
         total_conso_non_confirmer=conso.client.total_consommation_non_confirmer_client()
-        somme_to_test=total_solde+total_solde_non_confirmer-total_conso_non_confirmer 
-        if Decimal(request.POST.get('prix_vente')) <=total_solde+total_solde_non_confirmer-total_conso_non_confirmer :
+        somme_to_test=total_solde+total_solde_non_confirmer-total_conso_non_confirmer
+        somme_to_test += ancien_prix_vente
+        nouveau_prix_vente = Decimal(request.POST.get('prix_vente'))
+        if nouveau_prix_vente <= somme_to_test :
             # Récupérer les données du formulaire depuis la requête POST
             prix_achat = request.POST.get('prix_achat')
             prix_vente = request.POST.get('prix_vente')

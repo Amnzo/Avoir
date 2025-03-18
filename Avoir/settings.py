@@ -86,7 +86,10 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 #database
+
+
 BASE_DIR2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_PATH = os.path.join(BASE_DIR2, "Avoir", "config.json")
 # Charger les données de config.json
