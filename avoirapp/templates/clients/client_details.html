@@ -195,7 +195,7 @@
                         </a>
             
                         <!-- Bouton d'ajout de consommation -->
-                        {% if not client.dernier_avoir_plus_de_24_mois %} 
+                        {% if not client.dernier_avoir_plus_de_24_mois or user.is_superuser %} 
                             <a href="{% url 'consommer_avoir' client.id %}" class="btn btn-success btn-lg" title="Ajouter Consommation">
                                 <i class="fas fa-plus-square"></i> Conso
                             </a>
@@ -208,7 +208,7 @@
                         {% endif %}
                         {% if user.is_superuser %}
             
-                        {% if not client.dernier_avoir_plus_de_24_mois %} 
+                        {% if not client.dernier_avoir_plus_de_24_mois or user.is_superuser %} 
                             <a href="{% url 'consommation_a_valider' %}?client_id={{ client.id }}" class="btn btn-warning btn-lg" title="Consommation en attente de validation" style="background-color: #FF7043; color: white;">
                                 <i class="fas fa-hourglass-start"></i> Conso Att.
                             </a>

@@ -80,33 +80,33 @@ WSGI_APPLICATION = 'Avoir.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 #database
 
 
-BASE_DIR2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_PATH = os.path.join(BASE_DIR2, "Avoir", "config.json")
-# Charger les données de config.json
-with open(CONFIG_PATH) as config_file:
-    config = json.load(config_file)
+# BASE_DIR2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# CONFIG_PATH = os.path.join(BASE_DIR2, "Avoir", "config.json")
+# # Charger les données de config.json
+# with open(CONFIG_PATH) as config_file:
+#     config = json.load(config_file)
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': config.get("DB_ENGINE", "django.db.backends.mysql"),
-        'NAME': config.get("DB_NAME"),
-        'USER': config.get("DB_USER"),
-        'PASSWORD': config.get("DB_PASSWORD"),
-        'HOST': config.get("DB_HOST", "localhost"),
-        'PORT': config.get("DB_PORT", "3306"),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': config.get("DB_ENGINE", "django.db.backends.mysql"),
+#         'NAME': config.get("DB_NAME"),
+#         'USER': config.get("DB_USER"),
+#         'PASSWORD': config.get("DB_PASSWORD"),
+#         'HOST': config.get("DB_HOST", "localhost"),
+#         'PORT': config.get("DB_PORT", "3306"),
+#     }
+# }
 
 
 
